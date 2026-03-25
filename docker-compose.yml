@@ -18,6 +18,25 @@ services:
       - N8N_PORT=5678
       - NODE_ENV=production
       - GENERIC_TIMEZONE=Europe/Vienna
+      # API Keys fuer N8N Workflow-Nodes
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - WIDGET_AUTH_TOKEN=${WIDGET_AUTH_TOKEN}
+      - RATE_LIMIT_PER_IP=${RATE_LIMIT_PER_IP}
+      - RATE_LIMIT_WINDOW_MINUTES=${RATE_LIMIT_WINDOW_MINUTES}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - chatbot-net
 
@@ -33,7 +52,13 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - n8n
+      n8n:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - chatbot-net
 
