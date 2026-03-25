@@ -1,0 +1,8 @@
+.env
+n8n_data/
+caddy_data/
+caddy_config/
+node_modules/
+*.log
+.DS_Store
+.tmp/

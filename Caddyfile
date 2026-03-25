@@ -1,0 +1,30 @@
+chat.rollomax.at {
+    # CORS and security headers (applied to all responses)
+    header {
+        Access-Control-Allow-Origin "https://rollomax.at"
+        Access-Control-Allow-Methods "POST, GET, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, X-Widget-Token, X-Session-ID"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Handle CORS preflight before path-specific handlers
+    @options method OPTIONS
+    handle @options {
+        respond 204
+    }
+
+    # Widget static files
+    handle /widget/* {
+        root * /srv/widget
+        uri strip_prefix /widget
+        file_server
+        header Cache-Control "public, max-age=3600"
+    }
+
+    # N8N webhook proxy
+    handle /webhook/* {
+        reverse_proxy n8n:5678
+    }
+}
