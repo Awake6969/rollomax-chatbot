@@ -413,6 +413,198 @@ INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALU
 );
 
 -- ============================================================
--- FERTIG. Alle Tabellen, RLS-Policies, Cron-Jobs und
--- 39 Knowledge Base Eintraege wurden erstellt.
+-- SCHRITT 5: ERWEITERTE FAQ-EINTRAEGE
+-- ============================================================
+
+INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALUES
+(
+    'faq',
+    'Rolllaeden nachtraeglich einbauen',
+    'Ja, besonders als Vorbau-System ist das problemlos moeglich. Wenn kein Stromanschluss vorhanden ist, sind Solar-Rolllaeden eine saubere Loesung ohne Kabel und Leitungen.',
+    ARRAY['Rolllaeden', 'Nachruestung', 'Vorbau', 'Solar', 'nachtraeglich', 'einbauen', 'Altbau'],
+    NULL
+),
+(
+    'faq',
+    'Rollladen Antrieb - Gurt, Kurbel oder Motor',
+    'Gurt ist guenstig und unkompliziert. Motor lohnt sich bei grossen Elementen, mehreren Fenstern oder wenn Sie mehr Komfort wuenschen. Auf Wunsch binden wir die Steuerung auch in Ihr Smart Home ein.',
+    ARRAY['Gurt', 'Kurbel', 'Motor', 'Antrieb', 'Rollladen', 'Smart Home', 'Komfort'],
+    NULL
+),
+(
+    'faq',
+    'Rollladen Waermeschutz und Hitzeschutz',
+    'Aussenliegende Rolllaeden halten Hitze deutlich besser draussen als Innenbeschattung. Im Winter hilft die Luftschicht vor dem Fenster, Waermeverluste zu reduzieren.',
+    ARRAY['Hitze', 'Kaelte', 'Waermeschutz', 'Hitzeschutz', 'Rollladen', 'Daemmung', 'Energiesparen'],
+    NULL
+),
+(
+    'faq',
+    'Rolllaeden und Einbruchschutz',
+    'Ein geschlossener Rollladen erhoeht den Widerstand gegen Aufschieben und schuetzt die Privatsphaere. Fuer maximale Sicherheit empfehlen wir ein Aluminium-System mit Hochschiebesicherung.',
+    ARRAY['Einbruchschutz', 'Sicherheit', 'Hochschiebesicherung', 'Aluminium', 'Rollladen', 'Schutz'],
+    NULL
+),
+(
+    'faq',
+    'Rolllaeden oder Aussenjalousien - Unterschied',
+    'Wenn Sie flexibel Tageslicht lenken und trotzdem hinaussehen moechten, sind Aussenjalousien die bessere Wahl. Wenn Sie maximale Verdunkelung, Wetter- und Waermeschutz wuenschen, sind Rolllaeden meist ueberlegen.',
+    ARRAY['Aussenjalousien', 'Rolllaeden', 'Unterschied', 'Vergleich', 'Raffstoren', 'Licht', 'Verdunkelung'],
+    NULL
+),
+(
+    'faq',
+    'Markisentypen im Ueberblick',
+    'Gelenkarm-Markisen eignen sich fuer Terrassen und Balkone. Kassettenmarkisen bieten besseren Schutz durch ein geschlossenes Gehaeuse. Pergola-Markisen decken groessere Flaechen ab. Wintergarten-Markisen sind speziell fuer Glasdaecher konzipiert. Wir fuehren die Warema Terrea-Serie (P20, G60, H60, K60).',
+    ARRAY['Markise', 'Gelenkarm', 'Kassettenmarkise', 'Pergola', 'Wintergarten', 'Warema', 'Terrea', 'Terrasse', 'Balkon'],
+    NULL
+),
+(
+    'faq',
+    'Textilrollos als Alternative zur Markise',
+    'Wenn Sie eine textile Optik an der Fassade bevorzugen und tagsueber Durchblick behalten moechten, sind Textilrollos eine starke Alternative. Bei windigen Lagen pruefen wir gemeinsam, welches System am besten passt.',
+    ARRAY['Textilrollo', 'Screen', 'Markise', 'Alternative', 'Fassade', 'Wind', 'Durchblick'],
+    NULL
+),
+(
+    'faq',
+    'Smart Home Nachruestung fuer Sonnenschutz',
+    'Die Nachruestung mit Somfy-Funkmotoren beginnt ab ca. 150 EUR pro Fenster. Eine komplette Smart-Home-Integration mit TaHoma-Zentrale, Sensoren und App-Steuerung ist schon ab 500 EUR moeglich.',
+    ARRAY['Smart Home', 'Somfy', 'Funkmotor', 'TaHoma', 'Nachruestung', 'App', 'Steuerung', 'Sensor'],
+    NULL
+),
+(
+    'faq',
+    'Rolllaeden richtig pflegen',
+    'Meist reicht es, den Panzer gelegentlich mit einem feuchten Tuch zu reinigen und die Fuehrungsschienen sauber zu halten. Bitte keine aggressiven Reiniger verwenden, damit Oberflaeche und Dichtungen lange halten.',
+    ARRAY['Pflege', 'Rolllaeden', 'Reinigung', 'Panzer', 'Fuehrungsschienen', 'Wartung'],
+    NULL
+),
+(
+    'faq',
+    'Insektenschutz mit Rolllaeden kombinieren',
+    'Oft laesst sich Insektenschutz direkt mitplanen, zum Beispiel als integrierte Loesung im Rollladen-Kasten. So sparen Sie Platz und haben beides in einem System.',
+    ARRAY['Insektenschutz', 'Rolllaeden', 'Kombination', 'integriert', 'Rollladen-Kasten', 'Muecken'],
+    NULL
+),
+(
+    'faq',
+    'Farben und Lamellen Auswahl',
+    'Sie koennen aus einer umfangreichen Palette an Lamellenfarben und Profilen waehlen, passend zu Fenster und Fassade. Bei der Beratung zeigen wir Ihnen gerne alle verfuegbaren Optionen.',
+    ARRAY['Farbe', 'Farben', 'Lamellen', 'Auswahl', 'Palette', 'Fassade', 'Design', 'RAL'],
+    NULL
+),
+(
+    'faq',
+    'Wiener Sonnenschutz-Foerderung Details',
+    'Die Stadt Wien foerdert die Montage von Sonnenschutz-Einrichtungen in mehrgeschossigen Wohnbauten mit bis zu 1.500 EUR. Dies gilt fuer Gemeindebau, gefoerderten und freifinanzierten Wohnbau. RolloMax uebernimmt die komplette Beratung und Abwicklung der Foerderantraege fuer Sie.',
+    ARRAY['Foerderung', 'Wien', 'Gemeindebau', 'gefoerdert', 'freifinanziert', '1500', 'Antrag', 'Abwicklung'],
+    NULL
+);
+
+-- ============================================================
+-- SCHRITT 6: SCHEMA-ERWEITERUNGEN (Intent, Tracking, Leads)
+-- ============================================================
+
+ALTER TABLE public.chat_sessions ADD COLUMN IF NOT EXISTS message_count INTEGER DEFAULT 0;
+ALTER TABLE public.chat_sessions ADD COLUMN IF NOT EXISTS page_url TEXT;
+ALTER TABLE public.chat_sessions ADD COLUMN IF NOT EXISTS user_agent TEXT;
+ALTER TABLE public.chat_sessions ADD COLUMN IF NOT EXISTS converted BOOLEAN DEFAULT false;
+
+ALTER TABLE public.chat_messages ADD COLUMN IF NOT EXISTS intent TEXT;
+ALTER TABLE public.chat_messages ADD COLUMN IF NOT EXISTS source_type TEXT DEFAULT 'typed';
+
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS plz TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS product_interest TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS project_type TEXT;
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS urgency TEXT DEFAULT 'low';
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS notified BOOLEAN DEFAULT false;
+
+CREATE OR REPLACE FUNCTION update_session_message_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE chat_sessions SET message_count = message_count + 1
+  WHERE id = NEW.session_id::uuid;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_message_count ON chat_messages;
+CREATE TRIGGER trg_message_count
+AFTER INSERT ON chat_messages
+FOR EACH ROW EXECUTE FUNCTION update_session_message_count();
+
+CREATE INDEX IF NOT EXISTS idx_leads_urgency ON public.leads(urgency);
+CREATE INDEX IF NOT EXISTS idx_leads_notified ON public.leads(notified) WHERE notified = false;
+CREATE INDEX IF NOT EXISTS idx_messages_source_type ON public.chat_messages(source_type);
+CREATE INDEX IF NOT EXISTS idx_messages_intent ON public.chat_messages(intent);
+
+-- ============================================================
+-- SCHRITT 7: ANALYTICS VIEWS
+-- ============================================================
+
+CREATE OR REPLACE VIEW public.v_daily_stats AS
+SELECT
+  DATE(created_at) AS date,
+  COUNT(DISTINCT id) AS sessions,
+  COUNT(DISTINCT CASE WHEN converted THEN id END) AS conversions,
+  ROUND(AVG(message_count), 1) AS avg_messages
+FROM public.chat_sessions
+WHERE created_at > now() - interval '90 days'
+GROUP BY DATE(created_at)
+ORDER BY date DESC;
+
+CREATE OR REPLACE VIEW public.v_lead_pipeline AS
+SELECT
+  urgency,
+  product_interest,
+  COUNT(*) AS count,
+  COUNT(*) FILTER (WHERE notified = false) AS pending_notification
+FROM public.leads
+WHERE created_at > now() - interval '30 days'
+GROUP BY urgency, product_interest;
+
+CREATE OR REPLACE VIEW public.v_intent_stats AS
+SELECT
+  intent,
+  COUNT(*) AS count,
+  DATE(created_at) AS date
+FROM public.chat_messages
+WHERE role = 'assistant'
+  AND intent IS NOT NULL
+  AND created_at > now() - interval '30 days'
+GROUP BY intent, DATE(created_at)
+ORDER BY date DESC, count DESC;
+
+CREATE OR REPLACE VIEW public.v_button_analytics AS
+SELECT
+  source_type,
+  content AS button_text,
+  COUNT(*) AS click_count,
+  COUNT(DISTINCT session_id) AS unique_sessions,
+  DATE(created_at) AS date
+FROM public.chat_messages
+WHERE source_type IN ('quick_reply', 'suggested_action')
+GROUP BY source_type, content, DATE(created_at)
+ORDER BY date DESC, click_count DESC;
+
+CREATE OR REPLACE VIEW public.v_button_to_lead AS
+SELECT
+  m.content AS button_text,
+  m.source_type,
+  COUNT(DISTINCT m.session_id) AS sessions_with_button,
+  COUNT(DISTINCT l.id) AS leads_generated,
+  ROUND(
+    COUNT(DISTINCT l.id)::numeric / NULLIF(COUNT(DISTINCT m.session_id), 0) * 100, 1
+  ) AS conversion_rate_pct
+FROM public.chat_messages m
+LEFT JOIN public.leads l ON m.session_id::text = l.session_id::text
+WHERE m.source_type IN ('quick_reply', 'suggested_action')
+GROUP BY m.content, m.source_type
+ORDER BY conversion_rate_pct DESC;
+
+-- ============================================================
+-- FERTIG. Alle Tabellen, RLS-Policies, Cron-Jobs,
+-- 51 Knowledge Base Eintraege, Schema-Erweiterungen
+-- und Analytics Views wurden erstellt.
 -- ============================================================

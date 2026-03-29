@@ -88,6 +88,62 @@ Design, Layout und Barrierefreiheit pruefen.
 
 ---
 
+## V2 Upgrade Tests
+
+### System-Prompt & Berater-Identitaet
+- [ ] Bot stellt sich als "RolloMax Berater" vor (nicht "KI-Assistent")
+- [ ] EU AI Act: KI-Hinweis in der ersten Nachricht vorhanden
+- [ ] FAQ-Frage: "Kann man Rolllaeden nachtraeglich einbauen?" liefert korrekte Antwort
+- [ ] Off-Topic-Frage: Hoefliche Ablehnung
+- [ ] Saisonale Empfehlung passt zum aktuellen Monat
+- [ ] Abends testen: Bot sagt NICHT "Rufen Sie jetzt an"
+- [ ] Wochenende testen: Bot verweist auf "Am Montag ab 08:00"
+
+### Intent Detection & JSON Format
+- [ ] Claude gibt <<<RESPONSE_JSON>>> Format zurueck
+- [ ] Preisfrage ergibt intent "price_question"
+- [ ] Terminanfrage ergibt intent "booking_request"
+- [ ] Beschwerde ergibt intent "complaint" + should_notify_team=true
+- [ ] Fehlerhaftes JSON: Fallback auf Plain-Text funktioniert
+- [ ] Legacy <!--LEAD:--> Format wird weiterhin korrekt geparst
+
+### Suggested Actions
+- [ ] Quick-Reply-Buttons erscheinen nach Welcome-Message (4 Stueck)
+- [ ] Dynamische Suggested Actions erscheinen nach jeder Bot-Antwort
+- [ ] Booking-Request waehrend Geschaeftszeiten: "Jetzt anrufen"
+- [ ] Booking-Request ausserhalb: "Kontaktdaten hinterlassen"
+- [ ] Nach Lead-Erfassung: "Vielen Dank - wir melden uns!"
+
+### Button-Tracking (source_type)
+- [ ] Quick-Reply-Button-Klick: source_type = 'quick_reply' in Supabase
+- [ ] Suggested-Action-Klick: source_type = 'suggested_action' in Supabase
+- [ ] Frei getippte Nachricht: source_type = 'typed' in Supabase
+
+### Lead-Tracking (erweitert)
+- [ ] PLZ wird korrekt aus dem Chat extrahiert und gespeichert
+- [ ] product_interest und project_type werden gespeichert
+- [ ] urgency-Feld wird korrekt gesetzt
+- [ ] High-Urgency Lead: WhatsApp-Alert (falls WAHA aktiv) oder E-Mail
+- [ ] Lead wird als notified=true markiert nach Alert
+
+### Widget UI/UX
+- [ ] Playfair Display rendert fuer Headlines (Consent-Title)
+- [ ] DM Sans rendert fuer Body-Text
+- [ ] Bubble-Button hat goldenen Rand und Puls-Animation
+- [ ] Tooltip "Fragen? Wir helfen!" erscheint nach 5 Sekunden
+- [ ] Tooltip verschwindet beim Oeffnen des Chats
+- [ ] Gruener Online-Dot im Header sichtbar
+- [ ] Gold-Gradient auf Send-Button
+- [ ] Inline-Modus: min-height 500px
+
+### Analytics & Monitoring
+- [ ] Daily Digest Workflow manuell ausfuehren: E-Mail kommt an
+- [ ] E-Mail enthaelt: Sessions, Leads, Top-3 Buttons
+- [ ] Supabase Views abfragbar: v_daily_stats, v_lead_pipeline
+- [ ] v_button_analytics und v_button_to_lead liefern Daten
+
+---
+
 ## Testprotokoll
 
 | Datum | Tester | Kategorie | Ergebnis | Anmerkungen |

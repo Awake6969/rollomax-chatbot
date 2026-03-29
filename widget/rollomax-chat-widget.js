@@ -5,16 +5,46 @@
   const _currentScript = document.currentScript;
 
   /* ── CSS (all styles live inside Shadow DOM) ───────────────────────── */
+  const FONT_FACE_CSS = `
+    @font-face {
+      font-family: 'Playfair Display';
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+      src: url('/widget/fonts/PlayfairDisplay-Bold.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Playfair Display';
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+      src: url('/widget/fonts/PlayfairDisplay-Bold-LatinExt.woff2') format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+      font-family: 'DM Sans';
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+      src: url('/widget/fonts/DMSans-Regular.woff2') format('woff2');
+    }
+  `;
+
   const STYLES = `
     :host {
       --primary: #1F1F1F;
       --accent: #C9A96E;
+      --accent-hover: #B8944F;
       --chat-bg: #FFFFFF;
       --user-bubble: #1F1F1F;
       --user-text: #FFFFFF;
       --bot-bubble: #F5F5F5;
       --bot-text: #1F1F1F;
-      --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --online: #4CAF50;
+      --font-heading: 'Playfair Display', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font: var(--font-body);
       --radius: 16px;
 
       font-family: var(--font);
@@ -36,7 +66,7 @@
       border-radius: 50%;
       background: var(--primary);
       color: var(--accent);
-      border: none;
+      border: 2px solid var(--accent);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -46,6 +76,12 @@
       padding: 0;
       min-width: 44px;
       min-height: 44px;
+      animation: pulseGlow 3s ease-in-out infinite;
+    }
+    .bubble-btn.is-open { animation: none; }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+      50% { box-shadow: 0 4px 16px rgba(201,169,110,0.4), 0 0 0 4px rgba(201,169,110,0.1); }
     }
     .bubble-btn:hover {
       transform: scale(1.05);
@@ -55,6 +91,29 @@
     .bubble-btn .close-icon { display: none; }
     .bubble-btn.is-open .chat-icon { display: none; }
     .bubble-btn.is-open .close-icon { display: block; }
+
+    .bubble-tooltip {
+      position: fixed;
+      bottom: 158px;
+      right: 24px;
+      background: #fff;
+      color: var(--primary);
+      padding: 10px 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      font-size: 14px;
+      font-family: var(--font-body);
+      white-space: nowrap;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 300ms ease-out, transform 300ms ease-out;
+      pointer-events: none;
+      z-index: 9998;
+    }
+    .bubble-tooltip.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
     /* ── Chat window (bubble mode) ─────────────────────────────────── */
     .chat-window {
@@ -91,6 +150,7 @@
       right: auto;
       width: 100%;
       height: 100%;
+      min-height: 500px;
       max-width: none;
       max-height: none;
       border-radius: var(--radius);
@@ -115,9 +175,17 @@
       flex: 1;
       font-size: 16px;
       font-weight: 600;
+      font-family: var(--font-body);
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+    .online-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--online);
+      flex-shrink: 0;
     }
     .ki-badge {
       display: inline-flex;
@@ -205,6 +273,7 @@
     .consent-title {
       font-size: 18px;
       font-weight: 700;
+      font-family: var(--font-heading);
       color: var(--primary);
       margin: 0;
     }
@@ -454,7 +523,7 @@
       min-height: 44px;
       border: none;
       border-radius: 50%;
-      background: var(--accent);
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
       color: #fff;
       cursor: pointer;
       display: flex;
@@ -473,8 +542,13 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      padding: 0 16px 12px;
+      padding: 8px 16px 12px;
       flex-shrink: 0;
+      animation: fadeIn 300ms ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .suggested-btn {
       padding: 8px 16px;
@@ -482,15 +556,15 @@
       border-radius: 20px;
       background: transparent;
       color: var(--accent);
-      font-size: 16px;
-      font-family: var(--font);
+      font-size: 14px;
+      font-family: var(--font-body);
       cursor: pointer;
       min-height: 44px;
       transition: background 200ms ease-out, color 200ms ease-out;
     }
     .suggested-btn:hover {
       background: var(--accent);
-      color: #fff;
+      color: var(--primary);
     }
 
     /* ── Utility ────────────────────────────────────────────────────── */
@@ -506,7 +580,7 @@
   const ICON_REVOKE = '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/></svg>';
 
   /* ── Welcome message ───────────────────────────────────────────────── */
-  const WELCOME_MSG = 'Willkommen bei RolloMax Wien! Ich bin der KI-Assistent und helfe Ihnen gerne bei Fragen rund um Sonnenschutz, unsere Produkte und Services. Wie kann ich Ihnen weiterhelfen?';
+  const WELCOME_MSG = 'Willkommen bei RolloMax Wien! Ich bin Ihr Sonnenschutz-Berater und helfe Ihnen gerne bei allen Fragen rund um Sonnenschutz. Hinweis: Dieser Chat wird von einer KI unterstuetzt. Wie kann ich Ihnen weiterhelfen?';
 
   const ERROR_MSG = 'Verbindungsfehler. Bitte versuchen Sie es spaeter erneut oder kontaktieren Sie uns unter +43 (0) 1 21 22 446.';
 
@@ -530,6 +604,15 @@
     connectedCallback() {
       this.token = this.getAttribute('data-token') || '';
       this.mode = this.getAttribute('data-mode') || 'bubble';
+
+      // Inject @font-face into host document (required for Shadow DOM font loading)
+      if (!document.getElementById('rollomax-fonts')) {
+        var fontStyle = document.createElement('style');
+        fontStyle.id = 'rollomax-fonts';
+        fontStyle.textContent = FONT_FACE_CSS;
+        document.head.appendChild(fontStyle);
+      }
+
       this.render();
       this.cacheElements();
       this.bindEvents();
@@ -537,6 +620,17 @@
 
       if (this.mode === 'inline') {
         this.showChat();
+      }
+
+      // Tooltip timer (bubble mode, first visit only)
+      if (this.mode === 'bubble' && !sessionStorage.getItem('rollomax_tooltip_shown')) {
+        var self = this;
+        this._tooltipTimer = setTimeout(function() {
+          if (!self.isOpen && self.$tooltip) {
+            self.$tooltip.classList.add('is-visible');
+            sessionStorage.setItem('rollomax_tooltip_shown', 'true');
+          }
+        }, 5000);
       }
     }
 
@@ -576,7 +670,7 @@
     /* ── Render ─────────────────────────────────────────────────────── */
     render() {
       var isBubble = this.mode === 'bubble';
-      this.shadowRoot.innerHTML = '<style>' + STYLES + '</style>' +
+      this.shadowRoot.innerHTML = '<style>' + FONT_FACE_CSS + STYLES + '</style>' +
         (isBubble ? this.bubbleButtonHTML() : '') +
         this.chatWindowHTML();
     }
@@ -585,7 +679,8 @@
       return '<button class="bubble-btn" aria-label="Chat oeffnen">' +
         '<span class="chat-icon">' + ICON_CHAT + '</span>' +
         '<span class="close-icon">' + ICON_CLOSE + '</span>' +
-        '</button>';
+        '</button>' +
+        '<div class="bubble-tooltip">Fragen? Wir helfen!</div>';
     }
 
     chatWindowHTML() {
@@ -602,7 +697,7 @@
         ? '<button class="header-btn close-btn" aria-label="Chat schliessen">' + ICON_CLOSE + '</button>'
         : '';
       return '<div class="chat-header">' +
-        '<div class="chat-header-title">RolloMax KI-Assistent <span class="ki-badge">KI</span></div>' +
+        '<div class="chat-header-title"><span class="online-dot"></span>RolloMax Sonnenschutz-Berater <span class="ki-badge">KI</span></div>' +
         '<div class="header-actions">' +
           '<button class="header-btn settings-btn" aria-label="Einstellungen">' + ICON_DOTS + '</button>' +
           closeBtnHTML +
@@ -655,6 +750,7 @@
       this.$closeBtn = s.querySelector('.close-btn');
       this.$deleteChatBtn = s.querySelector('.delete-chat-btn');
       this.$revokeConsentBtn = s.querySelector('.revoke-consent-btn');
+      this.$tooltip = s.querySelector('.bubble-tooltip');
     }
 
     /* ── Events ─────────────────────────────────────────────────────── */
@@ -751,6 +847,8 @@
       this.isOpen = true;
       this.$chatWindow.classList.add('is-open');
       if (this.$bubbleBtn) this.$bubbleBtn.classList.add('is-open');
+      if (this.$tooltip) this.$tooltip.classList.remove('is-visible');
+      if (this._tooltipTimer) { clearTimeout(this._tooltipTimer); this._tooltipTimer = null; }
 
       if (this.consentGiven) {
         this.showChatUI();
@@ -791,6 +889,12 @@
       // Send welcome message if no messages yet
       if (this.messages.length === 0) {
         this.addMessage(WELCOME_MSG, 'bot');
+        this.renderSuggestedActions([
+          'Rolllaeden & Raffstoren',
+          'Markisen & Terrasse',
+          'Kostenlose Beratung',
+          'Foerderung Wien'
+        ], 'quick_reply');
       }
 
       this.$msgInput.focus();
@@ -877,8 +981,9 @@
     }
 
     /* ── Suggested actions ──────────────────────────────────────────── */
-    renderSuggestedActions(actions) {
+    renderSuggestedActions(actions, sourceType) {
       var self = this;
+      var sType = sourceType || 'suggested_action';
       this.$suggestedActions.innerHTML = '';
       if (!actions || actions.length === 0) {
         this.$suggestedActions.classList.add('hidden');
@@ -890,7 +995,7 @@
         btn.textContent = action;
         btn.addEventListener('click', function() {
           self.$suggestedActions.classList.add('hidden');
-          self.handleSend(action);
+          self.handleSend(action, sType);
         });
         self.$suggestedActions.appendChild(btn);
       });
@@ -953,7 +1058,7 @@
     }
 
     /* ── Send message ───────────────────────────────────────────────── */
-    handleSend(overrideText) {
+    handleSend(overrideText, sourceType) {
       var text = overrideText || this.$msgInput.value.trim();
       if (!text || this.isLoading) return;
 
@@ -964,10 +1069,10 @@
         this.$sendBtn.disabled = true;
       }
       this.$suggestedActions.classList.add('hidden');
-      this.sendMessage(text);
+      this.sendMessage(text, sourceType || 'typed');
     }
 
-    async sendMessage(text) {
+    async sendMessage(text, sourceType) {
       this.isLoading = true;
       this.$sendBtn.disabled = true;
       this.$msgInput.disabled = true;
@@ -991,7 +1096,8 @@
             session_id: this.sessionId,
             message: text,
             consent: true,
-            page_url: window.location.href
+            page_url: window.location.href,
+            source_type: sourceType || 'typed'
           }),
           signal: this._abortController.signal
         });
