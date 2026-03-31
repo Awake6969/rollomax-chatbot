@@ -1352,7 +1352,7 @@
       if (this._typingEl) return;
       var el = document.createElement('div');
       el.className = 'typing-indicator';
-      el.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+      el.innerHTML = '<span class="typing-text">RolloMax tippt</span><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
       this._typingEl = el;
       this.$messagesArea.appendChild(el);
       this.scrollToBottom();
