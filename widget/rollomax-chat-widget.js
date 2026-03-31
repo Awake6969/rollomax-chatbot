@@ -966,6 +966,13 @@
       this.apiUrl = 'https://chat.rollomax.at';
       this._settingsOpen = false;
       this._abortController = null;
+      this._soundEnabled = localStorage.getItem('rollomax_sound') === 'true';
+      this._audio = null;
+      this._feedbackShown = false;
+      this._proactiveShown = false;
+      this._inChatProactiveShown = false;
+      this._lastActivityTime = Date.now();
+      this._abVariant = null;
     }
 
     connectedCallback() {
@@ -1063,9 +1070,12 @@
       var closeBtnHTML = this.mode === 'bubble'
         ? '<button class="header-btn close-btn" aria-label="Chat schliessen">' + ICON_CLOSE + '</button>'
         : '';
+      var soundIcon = this._soundEnabled ? ICON_SOUND_ON : ICON_SOUND_OFF;
       return '<div class="chat-header">' +
-        '<div class="chat-header-title"><span class="online-dot"></span>RolloMax Sonnenschutz-Berater <span class="ki-badge">KI</span></div>' +
+        '<div class="chat-avatar" id="chat-avatar"><img src="/widget/avatar.png" alt="RolloMax" onerror="this.style.display=\'none\';this.parentElement.textContent=\'R\'"></div>' +
+        '<div class="chat-header-title"><span class="online-dot"></span>RolloMax Berater <span class="ki-badge">KI</span></div>' +
         '<div class="header-actions">' +
+          '<button class="sound-btn' + (this._soundEnabled ? '' : ' is-muted') + '" aria-label="Sound umschalten">' + soundIcon + '</button>' +
           '<button class="header-btn settings-btn" aria-label="Einstellungen">' + ICON_DOTS + '</button>' +
           closeBtnHTML +
           '<div class="settings-menu">' +
@@ -1094,9 +1104,13 @@
       return '<div class="messages-area hidden" id="messages-area"></div>' +
         '<div class="suggested-actions hidden" id="suggested-actions"></div>' +
         '<div class="input-area hidden" id="input-area">' +
+          '<button class="upload-btn" id="upload-btn" aria-label="Bild hochladen">' + ICON_CAMERA + '</button>' +
+          '<input type="file" class="upload-input" id="upload-input" accept="image/jpeg,image/png,image/webp">' +
           '<textarea id="msg-input" rows="1" placeholder="Nachricht eingeben..." aria-label="Nachricht"></textarea>' +
           '<button class="send-btn" id="send-btn" aria-label="Senden" disabled>' + ICON_SEND + '</button>' +
-        '</div>';
+        '</div>' +
+        '<div class="feedback-overlay" id="feedback-overlay"></div>' +
+        '<div class="modal-overlay" id="modal-overlay"></div>';
     }
 
     /* ── Cache DOM refs ─────────────────────────────────────────────── */
@@ -1118,6 +1132,10 @@
       this.$deleteChatBtn = s.querySelector('.delete-chat-btn');
       this.$revokeConsentBtn = s.querySelector('.revoke-consent-btn');
       this.$tooltip = s.querySelector('.bubble-tooltip');
+      this.$uploadBtn = s.querySelector('#upload-btn');
+      this.$uploadInput = s.querySelector('#upload-input');
+      this.$feedbackOverlay = s.querySelector('#feedback-overlay');
+      this.$modalOverlay = s.querySelector('#modal-overlay');
     }
 
     /* ── Events ─────────────────────────────────────────────────────── */
