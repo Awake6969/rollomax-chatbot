@@ -821,6 +821,8 @@
       color: #999;
       font-size: 14px;
       cursor: pointer;
+      min-height: 44px;
+      padding: 12px 16px;
     }
     .feedback-skip:hover { color: var(--primary); }
 
@@ -857,8 +859,8 @@
     }
     .modal-title { font-size: 18px; font-weight: 600; color: var(--primary); margin: 0; }
     .modal-close {
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
       border: none;
       background: transparent;
       color: #666;
@@ -1251,7 +1253,7 @@
       }
 
       // Session feedback timer (check every 30 seconds)
-      setInterval(function() {
+      this._feedbackCheckInterval = setInterval(function() {
         if (self.isOpen && self.consentGiven && !self._feedbackShown) {
           var inactiveTime = Date.now() - self._lastActivityTime;
           if (inactiveTime > 120000) {
@@ -1259,6 +1261,13 @@
           }
         }
       }, 30000);
+
+      // Modal backdrop click (delegated, once)
+      this.$modalOverlay.addEventListener('click', function(e) {
+        if (e.target === self.$modalOverlay) {
+          self.closeModal();
+        }
+      });
     }
 
     /* ── Textarea auto-grow ─────────────────────────────────────────── */
@@ -1681,6 +1690,21 @@
       this.showConsentUI();
     }
 
+    disconnectedCallback() {
+      if (this._feedbackCheckInterval) {
+        clearInterval(this._feedbackCheckInterval);
+        this._feedbackCheckInterval = null;
+      }
+      if (this._proactiveTimer) {
+        clearTimeout(this._proactiveTimer);
+        this._proactiveTimer = null;
+      }
+      if (this._inChatProactiveTimer) {
+        clearTimeout(this._inChatProactiveTimer);
+        this._inChatProactiveTimer = null;
+      }
+    }
+
     /* ── Image upload ───────────────────────────────────────────────── */
     uploadImage(file) {
       var self = this;
@@ -1727,7 +1751,10 @@
     addImagePreview(base64) {
       var div = document.createElement('div');
       div.className = 'image-preview';
-      div.innerHTML = '<img src="' + base64 + '" alt="Hochgeladenes Bild">';
+      var img = document.createElement('img');
+      img.alt = 'Hochgeladenes Bild';
+      img.src = base64;
+      div.appendChild(img);
       this.$messagesArea.appendChild(div);
       this.scrollToBottom();
     }
@@ -1836,11 +1863,6 @@
       this.$modalOverlay.querySelector('.modal-close').addEventListener('click', function() {
         self.closeModal();
       });
-      this.$modalOverlay.addEventListener('click', function(e) {
-        if (e.target === self.$modalOverlay) {
-          self.closeModal();
-        }
-      });
     }
 
     closeModal() {
@@ -1877,16 +1899,16 @@
       }
       progressHTML += '</div>';
 
-      var contentHTML = '<div class="config-label">' + step.label + '</div>';
+      var contentHTML = '<div class="config-label">' + this.escapeHtml(step.label) + '</div>';
 
       if (step.options) {
         contentHTML += '<div class="config-options">';
         step.options.forEach(function(opt) {
-          contentHTML += '<button class="config-option" data-value="' + opt + '">' + opt + '</button>';
+          contentHTML += '<button class="config-option" data-value="' + self.escapeHtml(opt) + '">' + self.escapeHtml(opt) + '</button>';
         });
         contentHTML += '</div>';
       } else if (step.input) {
-        contentHTML += '<input type="' + step.input + '" class="config-input" placeholder="' + (step.placeholder || '') + '">';
+        contentHTML += '<input type="' + step.input + '" class="config-input" placeholder="' + this.escapeHtml(step.placeholder || '') + '">';
       } else if (step.fields) {
         contentHTML += '<input type="text" class="config-input" placeholder="Ihr Name" data-field="name">';
         contentHTML += '<input type="email" class="config-input" placeholder="E-Mail Adresse" data-field="email">';
@@ -1999,16 +2021,16 @@
         },
         body: JSON.stringify({
           session_id: this.sessionId,
-          message: 'Neue Anfrage via Konfigurator: ' + this._configData.step0 + ', ' + this._configData.step1,
+          message: 'Neue Anfrage via Konfigurator: ' + (this._configData.step0 || '') + ', ' + (this._configData.step1 || ''),
           consent: true,
           lead: {
-            name: this._configData.name,
-            email: this._configData.email,
-            phone: this._configData.phone,
-            interest: this._configData.step0,
-            project_type: this._configData.step1,
-            quantity: this._configData.step2,
-            plz: this._configData.step3
+            name: this._configData.name || '',
+            email: this._configData.email || '',
+            phone: this._configData.phone || '',
+            interest: this._configData.step0 || '',
+            project_type: this._configData.step1 || '',
+            quantity: this._configData.step2 || '',
+            plz: this._configData.step3 || ''
           }
         })
       }).catch(function() {});
