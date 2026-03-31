@@ -1210,6 +1210,18 @@
         self.closeSettings();
         self.revokeConsent();
       });
+
+      // Feedback buttons (delegated)
+      this.$messagesArea.addEventListener('click', function(e) {
+        var btn = e.target.closest('.feedback-btn');
+        if (!btn) return;
+        var feedbackDiv = btn.closest('.message-feedback');
+        var messageId = feedbackDiv.getAttribute('data-message-id');
+        var rating = btn.getAttribute('data-rating');
+        feedbackDiv.querySelectorAll('.feedback-btn').forEach(function(b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        self.sendFeedback('message', { message_id: messageId, rating: rating });
+      });
     }
 
     /* ── Textarea auto-grow ─────────────────────────────────────────── */
@@ -1305,39 +1317,74 @@
     }
 
     /* ── Messages ───────────────────────────────────────────────────── */
-    addMessage(text, role) {
-      var msg = { text: text, role: role, time: new Date() };
-      this.messages.push(msg);
-      this.renderMessage(msg);
+    escapeHtml(text) {
+      if (!text) return '';
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    generateMessageId() {
+      return 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 
     renderMessage(msg) {
+      var self = this;
       var div = document.createElement('div');
       div.className = 'message ' + msg.role;
+      div.setAttribute('data-message-id', msg.id);
 
-      var content = document.createElement('div');
-      content.className = 'message-content';
-      content.textContent = msg.text;
-      div.appendChild(content);
-
-      var meta = document.createElement('div');
-      meta.className = 'message-meta';
-
+      var contentHTML = '<div class="message-content">' + this.escapeHtml(msg.text) + '</div>';
+      var metaHTML = '<div class="message-meta">';
       if (msg.role === 'bot') {
-        var badge = document.createElement('span');
-        badge.className = 'message-ki-badge';
-        badge.textContent = 'KI';
-        meta.appendChild(badge);
+        metaHTML += '<span class="message-ki-badge">KI</span>';
+      }
+      metaHTML += '<span class="message-time">' + this.formatTime(msg.time) + '</span>';
+      metaHTML += '</div>';
+
+      var feedbackHTML = '';
+      if (msg.role === 'bot') {
+        feedbackHTML = '<div class="message-feedback" data-message-id="' + msg.id + '">' +
+          '<button class="feedback-btn" data-rating="up" aria-label="Hilfreich">' + ICON_THUMB_UP + '</button>' +
+          '<button class="feedback-btn" data-rating="down" aria-label="Nicht hilfreich">' + ICON_THUMB_DOWN + '</button>' +
+          '</div>';
       }
 
-      var time = document.createElement('span');
-      time.className = 'message-time';
-      time.textContent = this.formatTime(msg.time);
-      meta.appendChild(time);
+      div.innerHTML = contentHTML + metaHTML + feedbackHTML;
 
-      div.appendChild(meta);
+      if (msg.extras && msg.extras.product_card) {
+        div.appendChild(this.createProductCard(msg.extras.product_card));
+      }
+      if (msg.extras && msg.extras.actions && msg.extras.actions.length > 0) {
+        div.appendChild(this.createActionButtons(msg.extras.actions));
+      }
+
       this.$messagesArea.appendChild(div);
+    }
+
+    sendFeedback(type, data) {
+      fetch(this.apiUrl + '/webhook/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Widget-Token': this.token },
+        body: JSON.stringify({ session_id: this.sessionId, feedback_type: type, data: data })
+      }).catch(function(err) { console.warn('Feedback send failed:', err); });
+    }
+
+    addMessage(text, role, extras) {
+      var msg = {
+        id: this.generateMessageId(),
+        text: text,
+        role: role,
+        time: new Date(),
+        extras: extras || {}
+      };
+      this.messages.push(msg);
+      this.renderMessage(msg);
       this.scrollToBottom();
+      if (role === 'bot' && this._soundEnabled) {
+        this.playNotificationSound();
+      }
+      return msg;
     }
 
     scrollToBottom() {
