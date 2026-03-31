@@ -996,16 +996,7 @@
         this.showChat();
       }
 
-      // Tooltip timer (bubble mode, first visit only)
-      if (this.mode === 'bubble' && !sessionStorage.getItem('rollomax_tooltip_shown')) {
-        var self = this;
-        this._tooltipTimer = setTimeout(function() {
-          if (!self.isOpen && self.$tooltip) {
-            self.$tooltip.classList.add('is-visible');
-            sessionStorage.setItem('rollomax_tooltip_shown', 'true');
-          }
-        }, 5000);
-      }
+      this.initProactiveMessages();
     }
 
     /* ── Helpers ────────────────────────────────────────────────────── */
@@ -1234,6 +1225,40 @@
           if (self._soundEnabled) { self.playNotificationSound(); }
         });
       }
+
+      // Image upload
+      if (this.$uploadBtn && this.$uploadInput) {
+        this.$uploadBtn.addEventListener('click', function() {
+          self.$uploadInput.click();
+        });
+
+        this.$uploadInput.addEventListener('change', function(e) {
+          var file = e.target.files[0];
+          if (!file) return;
+
+          if (file.size > 5 * 1024 * 1024) {
+            alert('Bild zu gross. Maximal 5MB erlaubt.');
+            return;
+          }
+          if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+            alert('Nur JPG, PNG oder WebP erlaubt.');
+            return;
+          }
+
+          self.uploadImage(file);
+          e.target.value = '';
+        });
+      }
+
+      // Session feedback timer (check every 30 seconds)
+      setInterval(function() {
+        if (self.isOpen && self.consentGiven && !self._feedbackShown) {
+          var inactiveTime = Date.now() - self._lastActivityTime;
+          if (inactiveTime > 120000) {
+            self.showSessionFeedback();
+          }
+        }
+      }, 30000);
     }
 
     /* ── Textarea auto-grow ─────────────────────────────────────────── */
@@ -1253,11 +1278,17 @@
     }
 
     openChat() {
+      if (this._proactiveShown) {
+        this.trackEvent('proactive_clicked', { variant: this._abVariant });
+        this._proactiveShown = false;
+      }
+
       this.isOpen = true;
       this.$chatWindow.classList.add('is-open');
       if (this.$bubbleBtn) this.$bubbleBtn.classList.add('is-open');
       if (this.$tooltip) this.$tooltip.classList.remove('is-visible');
-      if (this._tooltipTimer) { clearTimeout(this._tooltipTimer); this._tooltipTimer = null; }
+
+      this.trackEvent('chat_opened');
 
       if (this.consentGiven) {
         this.showChatUI();
@@ -1485,6 +1516,7 @@
 
         self.submitLeadForm(name, email, phone).then(function() {
           form.innerHTML = '<div class="lead-success">Vielen Dank! Ihre Daten wurden erfolgreich uebermittelt. Wir melden uns in Kuerze bei Ihnen.</div>';
+          self.trackEvent('lead_captured', { source: 'chat' });
         }).catch(function() {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Absenden';
@@ -1518,6 +1550,8 @@
       var text = overrideText || this.$msgInput.value.trim();
       if (!text || this.isLoading) return;
 
+      this._lastActivityTime = Date.now();
+      this.resetInChatProactive();
       this.addMessage(text, 'user');
       if (!overrideText) {
         this.$msgInput.value = '';
@@ -1578,6 +1612,28 @@
           this.renderLeadForm();
         }
 
+        if (data.show_product_card) {
+          var lastMsg = this.messages[this.messages.length - 1];
+          if (lastMsg) {
+            lastMsg.extras = lastMsg.extras || {};
+            lastMsg.extras.product_card = data.show_product_card;
+            var msgEl = this.$messagesArea.querySelector('[data-message-id="' + lastMsg.id + '"]');
+            if (msgEl) {
+              msgEl.appendChild(this.createProductCard(data.show_product_card));
+            }
+          }
+        }
+
+        if (data.show_actions && data.show_actions.length > 0) {
+          var lastMsg2 = this.messages[this.messages.length - 1];
+          if (lastMsg2) {
+            var msgEl2 = this.$messagesArea.querySelector('[data-message-id="' + lastMsg2.id + '"]');
+            if (msgEl2) {
+              msgEl2.appendChild(this.createActionButtons(data.show_actions));
+            }
+          }
+        }
+
       } catch (err) {
         clearTimeout(timeoutId);
         this.hideTypingIndicator();
@@ -1623,6 +1679,472 @@
       this.$consentCb.checked = false;
       this.$consentAcceptBtn.disabled = true;
       this.showConsentUI();
+    }
+
+    /* ── Image upload ───────────────────────────────────────────────── */
+    uploadImage(file) {
+      var self = this;
+      var reader = new FileReader();
+
+      reader.onload = function(e) {
+        var base64 = e.target.result;
+
+        // Show preview in chat
+        self.addImagePreview(base64);
+
+        // Upload to server
+        self.showTypingIndicator();
+
+        fetch(self.apiUrl + '/webhook/upload-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Widget-Token': self.token
+          },
+          body: JSON.stringify({
+            session_id: self.sessionId,
+            image: base64,
+            mime_type: file.type
+          })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          self.hideTypingIndicator();
+          if (data.analysis) {
+            self.addMessage(data.analysis, 'bot');
+          }
+          self.trackEvent('image_uploaded');
+        })
+        .catch(function(err) {
+          self.hideTypingIndicator();
+          self.addMessage('Bild konnte nicht analysiert werden. Bitte versuchen Sie es erneut.', 'bot');
+        });
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    addImagePreview(base64) {
+      var div = document.createElement('div');
+      div.className = 'image-preview';
+      div.innerHTML = '<img src="' + base64 + '" alt="Hochgeladenes Bild">';
+      this.$messagesArea.appendChild(div);
+      this.scrollToBottom();
+    }
+
+    /* ── Product card ───────────────────────────────────────────────── */
+    createProductCard(card) {
+      var div = document.createElement('div');
+      div.className = 'product-card';
+      div.innerHTML =
+        '<img class="product-card-image" src="' + this.escapeHtml(card.image || '') + '" alt="' + this.escapeHtml(card.title || '') + '" onerror="this.style.display=\'none\'">' +
+        '<div class="product-card-content">' +
+          '<h4 class="product-card-title">' + this.escapeHtml(card.title || '') + '</h4>' +
+          '<p class="product-card-desc">' + this.escapeHtml(card.description || '') + '</p>' +
+          '<a class="product-card-btn" href="' + this.escapeHtml(card.url || '#') + '" target="_blank" rel="noopener">Mehr erfahren</a>' +
+        '</div>';
+
+      var self = this;
+      div.querySelector('.product-card-btn').addEventListener('click', function() {
+        self.trackEvent('product_card_clicked', { product: card.type });
+      });
+
+      return div;
+    }
+
+    /* ── Action buttons ─────────────────────────────────────────────── */
+    createActionButtons(actions) {
+      var self = this;
+      var div = document.createElement('div');
+      div.className = 'action-buttons';
+
+      actions.forEach(function(action) {
+        var btn = document.createElement('button');
+
+        switch(action) {
+          case 'booking':
+            btn.className = 'action-btn primary';
+            btn.innerHTML = ICON_CALENDAR + ' Termin buchen';
+            btn.addEventListener('click', function() {
+              self.openBookingModal();
+            });
+            break;
+
+          case 'whatsapp':
+            btn.className = 'action-btn whatsapp';
+            btn.innerHTML = ICON_WHATSAPP + ' WhatsApp Chat';
+            btn.addEventListener('click', function() {
+              self.openWhatsApp();
+            });
+            break;
+
+          case 'configurator':
+            btn.className = 'action-btn secondary';
+            btn.innerHTML = 'Anfrage stellen';
+            btn.addEventListener('click', function() {
+              self.openConfiguratorModal();
+            });
+            break;
+        }
+
+        div.appendChild(btn);
+      });
+
+      return div;
+    }
+
+    openWhatsApp() {
+      var lastTopic = this.getLastTopic();
+      var text = encodeURIComponent('Hallo, ich komme vom Website-Chat und haette eine Frage' + (lastTopic ? ' zu ' + lastTopic : '') + '.');
+      var url = 'https://wa.me/436509907599?text=' + text;
+      window.open(url, '_blank');
+      this.trackEvent('whatsapp_handover');
+    }
+
+    getLastTopic() {
+      var topics = ['Rollladen', 'Raffstore', 'Markise', 'Jalousie', 'Plissee', 'Insektenschutz'];
+      for (var i = this.messages.length - 1; i >= 0; i--) {
+        var msg = this.messages[i];
+        for (var j = 0; j < topics.length; j++) {
+          if (msg.text && msg.text.toLowerCase().indexOf(topics[j].toLowerCase()) !== -1) {
+            return topics[j];
+          }
+        }
+      }
+      return '';
+    }
+
+    /* ── Booking modal ──────────────────────────────────────────────── */
+    openBookingModal() {
+      var calUrl = this.getAttribute('data-calcom-url') || 'https://cal.com/rollomax/beratung';
+
+      this.$modalOverlay.innerHTML =
+        '<div class="modal-content">' +
+          '<div class="modal-header">' +
+            '<h3 class="modal-title">Beratungstermin buchen</h3>' +
+            '<button class="modal-close">' + ICON_CLOSE + '</button>' +
+          '</div>' +
+          '<div class="modal-body">' +
+            '<iframe src="' + calUrl + '?embed=true" frameborder="0"></iframe>' +
+          '</div>' +
+        '</div>';
+
+      this.$modalOverlay.classList.add('is-visible');
+      this.trackEvent('booking_started');
+
+      var self = this;
+      this.$modalOverlay.querySelector('.modal-close').addEventListener('click', function() {
+        self.closeModal();
+      });
+      this.$modalOverlay.addEventListener('click', function(e) {
+        if (e.target === self.$modalOverlay) {
+          self.closeModal();
+        }
+      });
+    }
+
+    closeModal() {
+      this.$modalOverlay.classList.remove('is-visible');
+      this.$modalOverlay.innerHTML = '';
+    }
+
+    /* ── Configurator modal ─────────────────────────────────────────── */
+    openConfiguratorModal() {
+      var self = this;
+      this._configStep = 0;
+      this._configData = {};
+
+      this._configSteps = [
+        { label: 'Was suchen Sie?', options: ['Rollladen', 'Raffstore', 'Markise', 'Jalousie', 'Plissee', 'Insektenschutz', 'Anderes'] },
+        { label: 'Neubau oder Nachruestung?', options: ['Neubau', 'Nachruestung', 'Reparatur'] },
+        { label: 'Wie viele Fenster/Tueren?', input: 'number', placeholder: 'z.B. 5' },
+        { label: 'Ihre Postleitzahl?', input: 'text', placeholder: 'z.B. 1020' },
+        { label: 'Wie erreichen wir Sie?', fields: ['name', 'email', 'phone'] }
+      ];
+
+      this.renderConfiguratorStep();
+    }
+
+    renderConfiguratorStep() {
+      var self = this;
+      var step = this._configSteps[this._configStep];
+      var totalSteps = this._configSteps.length;
+
+      var progressHTML = '<div class="config-progress">';
+      for (var i = 0; i < totalSteps; i++) {
+        var cls = i < this._configStep ? 'completed' : (i === this._configStep ? 'active' : '');
+        progressHTML += '<div class="config-progress-dot ' + cls + '"></div>';
+      }
+      progressHTML += '</div>';
+
+      var contentHTML = '<div class="config-label">' + step.label + '</div>';
+
+      if (step.options) {
+        contentHTML += '<div class="config-options">';
+        step.options.forEach(function(opt) {
+          contentHTML += '<button class="config-option" data-value="' + opt + '">' + opt + '</button>';
+        });
+        contentHTML += '</div>';
+      } else if (step.input) {
+        contentHTML += '<input type="' + step.input + '" class="config-input" placeholder="' + (step.placeholder || '') + '">';
+      } else if (step.fields) {
+        contentHTML += '<input type="text" class="config-input" placeholder="Ihr Name" data-field="name">';
+        contentHTML += '<input type="email" class="config-input" placeholder="E-Mail Adresse" data-field="email">';
+        contentHTML += '<input type="tel" class="config-input" placeholder="Telefonnummer" data-field="phone">';
+      }
+
+      var navHTML = '<div class="config-nav">';
+      if (this._configStep > 0) {
+        navHTML += '<button class="config-back">Zurueck</button>';
+      }
+      if (this._configStep < totalSteps - 1) {
+        navHTML += '<button class="config-next">Weiter</button>';
+      } else {
+        navHTML += '<button class="config-next">Absenden</button>';
+      }
+      navHTML += '</div>';
+
+      this.$modalOverlay.innerHTML =
+        '<div class="modal-content">' +
+          '<div class="modal-header">' +
+            '<h3 class="modal-title">Anfrage stellen</h3>' +
+            '<button class="modal-close">' + ICON_CLOSE + '</button>' +
+          '</div>' +
+          '<div class="modal-body">' +
+            progressHTML +
+            contentHTML +
+            navHTML +
+          '</div>' +
+        '</div>';
+
+      this.$modalOverlay.classList.add('is-visible');
+
+      this.$modalOverlay.querySelector('.modal-close').addEventListener('click', function() {
+        self.closeModal();
+      });
+
+      var backBtn = this.$modalOverlay.querySelector('.config-back');
+      if (backBtn) {
+        backBtn.addEventListener('click', function() {
+          self._configStep--;
+          self.renderConfiguratorStep();
+        });
+      }
+
+      var nextBtn = this.$modalOverlay.querySelector('.config-next');
+      if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+          self.saveConfiguratorStep();
+        });
+      }
+
+      this.$modalOverlay.querySelectorAll('.config-option').forEach(function(opt) {
+        opt.addEventListener('click', function() {
+          self.$modalOverlay.querySelectorAll('.config-option').forEach(function(o) {
+            o.classList.remove('selected');
+          });
+          opt.classList.add('selected');
+        });
+      });
+    }
+
+    saveConfiguratorStep() {
+      var step = this._configSteps[this._configStep];
+
+      if (step.options) {
+        var selected = this.$modalOverlay.querySelector('.config-option.selected');
+        if (!selected) {
+          alert('Bitte waehlen Sie eine Option.');
+          return;
+        }
+        this._configData['step' + this._configStep] = selected.getAttribute('data-value');
+      } else if (step.input) {
+        var input = this.$modalOverlay.querySelector('.config-input');
+        if (!input.value.trim()) {
+          alert('Bitte fuellen Sie das Feld aus.');
+          return;
+        }
+        this._configData['step' + this._configStep] = input.value.trim();
+      } else if (step.fields) {
+        var name = this.$modalOverlay.querySelector('[data-field="name"]').value.trim();
+        var email = this.$modalOverlay.querySelector('[data-field="email"]').value.trim();
+        var phone = this.$modalOverlay.querySelector('[data-field="phone"]').value.trim();
+
+        if (!name || (!email && !phone)) {
+          alert('Bitte geben Sie Ihren Namen und mindestens E-Mail oder Telefon an.');
+          return;
+        }
+        this._configData.name = name;
+        this._configData.email = email;
+        this._configData.phone = phone;
+      }
+
+      if (this._configStep < this._configSteps.length - 1) {
+        this._configStep++;
+        this.renderConfiguratorStep();
+      } else {
+        this.submitConfigurator();
+      }
+    }
+
+    submitConfigurator() {
+      var self = this;
+
+      fetch(this.apiUrl + '/webhook/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Widget-Token': this.token,
+          'X-Session-ID': this.sessionId
+        },
+        body: JSON.stringify({
+          session_id: this.sessionId,
+          message: 'Neue Anfrage via Konfigurator: ' + this._configData.step0 + ', ' + this._configData.step1,
+          consent: true,
+          lead: {
+            name: this._configData.name,
+            email: this._configData.email,
+            phone: this._configData.phone,
+            interest: this._configData.step0,
+            project_type: this._configData.step1,
+            quantity: this._configData.step2,
+            plz: this._configData.step3
+          }
+        })
+      }).catch(function() {});
+
+      this.closeModal();
+      this.addMessage('Vielen Dank fuer Ihre Anfrage! Wir melden uns in Kuerze bei Ihnen.', 'bot');
+      this.trackEvent('configurator_completed', { product: this._configData.step0 });
+    }
+
+    /* ── Session feedback ───────────────────────────────────────────── */
+    showSessionFeedback() {
+      if (this._feedbackShown) return;
+      if (this.messages.filter(function(m) { return m.role === 'bot'; }).length < 3) return;
+
+      this._feedbackShown = true;
+      this._selectedStars = 0;
+
+      var starsHTML = '';
+      for (var i = 1; i <= 5; i++) {
+        starsHTML += '<button class="feedback-star" data-star="' + i + '">' + ICON_STAR_OUTLINE + '</button>';
+      }
+
+      this.$feedbackOverlay.innerHTML =
+        '<h3 class="feedback-title">Wie war Ihre Erfahrung?</h3>' +
+        '<div class="feedback-stars">' + starsHTML + '</div>' +
+        '<textarea class="feedback-comment" rows="3" placeholder="Was koennen wir verbessern? (optional)"></textarea>' +
+        '<button class="feedback-submit">Absenden</button>' +
+        '<button class="feedback-skip">Ueberspringen</button>';
+
+      this.$feedbackOverlay.classList.add('is-visible');
+
+      var self = this;
+
+      this.$feedbackOverlay.querySelectorAll('.feedback-star').forEach(function(star) {
+        star.addEventListener('click', function() {
+          self._selectedStars = parseInt(star.getAttribute('data-star'));
+          self.updateFeedbackStars();
+        });
+      });
+
+      this.$feedbackOverlay.querySelector('.feedback-submit').addEventListener('click', function() {
+        if (self._selectedStars === 0) {
+          alert('Bitte waehlen Sie eine Bewertung.');
+          return;
+        }
+        var comment = self.$feedbackOverlay.querySelector('.feedback-comment').value.trim();
+        self.sendFeedback('session', { stars: self._selectedStars, comment: comment });
+        self.trackEvent('feedback_submitted', { stars: self._selectedStars });
+        self.closeFeedbackOverlay();
+      });
+
+      this.$feedbackOverlay.querySelector('.feedback-skip').addEventListener('click', function() {
+        self.closeFeedbackOverlay();
+      });
+    }
+
+    updateFeedbackStars() {
+      var self = this;
+      this.$feedbackOverlay.querySelectorAll('.feedback-star').forEach(function(star, i) {
+        var starNum = i + 1;
+        star.innerHTML = starNum <= self._selectedStars ? ICON_STAR : ICON_STAR_OUTLINE;
+        star.classList.toggle('active', starNum <= self._selectedStars);
+      });
+    }
+
+    closeFeedbackOverlay() {
+      this.$feedbackOverlay.classList.remove('is-visible');
+      this.$feedbackOverlay.innerHTML = '';
+    }
+
+    /* ── Proactive messages ─────────────────────────────────────────── */
+    initProactiveMessages() {
+      var self = this;
+
+      var variants = {
+        'A': 'Kann ich Ihnen bei etwas helfen?',
+        'B': 'Sind Sie sich unsicher, was bei Ihnen passt?',
+        'C': 'Soll ich Ihnen einen Vorschlag machen?',
+        'D': 'Haben Sie Fragen zum Sonnenschutz?'
+      };
+
+      this._abVariant = sessionStorage.getItem('rollomax_ab_variant');
+      if (!this._abVariant) {
+        var keys = Object.keys(variants);
+        this._abVariant = keys[Math.floor(Math.random() * keys.length)];
+        sessionStorage.setItem('rollomax_ab_variant', this._abVariant);
+      }
+
+      if (this.mode === 'bubble' && !sessionStorage.getItem('rollomax_proactive_shown')) {
+        var delay = 45000 + Math.random() * 15000;
+
+        this._proactiveTimer = setTimeout(function() {
+          if (!self.isOpen && !self._proactiveShown && self.$tooltip) {
+            self.$tooltip.textContent = variants[self._abVariant];
+            self.$tooltip.classList.add('is-visible');
+            self._proactiveShown = true;
+            sessionStorage.setItem('rollomax_proactive_shown', 'true');
+            self.trackEvent('proactive_shown', { variant: self._abVariant });
+          }
+        }, delay);
+      }
+    }
+
+    resetInChatProactive() {
+      var self = this;
+      if (this._inChatProactiveTimer) {
+        clearTimeout(this._inChatProactiveTimer);
+      }
+
+      this._inChatProactiveTimer = setTimeout(function() {
+        if (self.isOpen && self.consentGiven && !self._inChatProactiveShown) {
+          self._inChatProactiveShown = true;
+          self.addMessage('Kann ich Ihnen noch bei etwas helfen?', 'bot');
+        }
+      }, 90000);
+    }
+
+    /* ── Analytics tracking ─────────────────────────────────────────── */
+    trackEvent(eventType, eventData) {
+      if (!this.sessionId) return;
+
+      var payload = {
+        session_id: this.sessionId,
+        event_type: eventType,
+        event_data: eventData || {},
+        ab_variant: this._abVariant
+      };
+
+      fetch(this.apiUrl + '/webhook/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Widget-Token': this.token
+        },
+        body: JSON.stringify(payload)
+      }).catch(function() {});
     }
 
     /* ── Revoke consent ─────────────────────────────────────────────── */
