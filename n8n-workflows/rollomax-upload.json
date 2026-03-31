@@ -1,0 +1,130 @@
+{
+  "name": "RolloMax Image Upload",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "upload-image",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "upload-webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "upload-image-webhook"
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const body = $input.first().json.body;\nconst headers = $input.first().json.headers;\n\n// Auth check\nconst token = $env.WIDGET_AUTH_TOKEN;\nif (headers['x-widget-token'] !== token) {\n  throw new Error('UNAUTHORIZED');\n}\n\nif (!body.session_id || !body.image) {\n  throw new Error('Missing session_id or image');\n}\n\n// Extract base64 data\nconst base64Match = body.image.match(/^data:image\\/(\\w+);base64,(.+)$/);\nif (!base64Match) {\n  throw new Error('Invalid image format');\n}\n\nconst mimeType = 'image/' + base64Match[1];\nconst base64Data = base64Match[2];\nconst buffer = Buffer.from(base64Data, 'base64');\n\nif (buffer.length > 5 * 1024 * 1024) {\n  throw new Error('Image too large');\n}\n\nconst fileName = body.session_id + '_' + Date.now() + '.' + base64Match[1];\n\nreturn [{\n  json: {\n    session_id: body.session_id,\n    file_name: fileName,\n    mime_type: mimeType,\n    base64_data: base64Data,\n    file_size: buffer.length\n  }\n}];"
+      },
+      "id": "validate-image",
+      "name": "Validate Image",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SUPABASE_URL}}/storage/v1/object/chat-uploads/{{$json.file_name}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{$env.SUPABASE_SERVICE_KEY}}"},
+            {"name": "Authorization", "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"},
+            {"name": "Content-Type", "value": "={{$json.mime_type}}"}
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "body": "={{Buffer.from($json.base64_data, 'base64')}}",
+        "options": {}
+      },
+      "id": "upload-storage",
+      "name": "Upload to Storage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/uploaded_images",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{$env.SUPABASE_SERVICE_KEY}}"},
+            {"name": "Authorization", "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"},
+            {"name": "Content-Type", "value": "application/json"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ session_id: $('Validate Image').first().json.session_id, storage_path: $('Validate Image').first().json.file_name, file_size: $('Validate Image').first().json.file_size, mime_type: $('Validate Image').first().json.mime_type }) }}",
+        "options": {}
+      },
+      "id": "save-reference",
+      "name": "Save Reference",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "x-api-key", "value": "={{$env.ANTHROPIC_API_KEY}}"},
+            {"name": "anthropic-version", "value": "2023-06-01"},
+            {"name": "content-type", "value": "application/json"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 500, messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: $('Validate Image').first().json.mime_type, data: $('Validate Image').first().json.base64_data }}, { type: 'text', text: 'Du bist ein Sonnenschutz-Experte. Analysiere dieses Bild eines Fensters. Bestimme: 1) Fenstertyp (Kunststoff, Holz, Alu), 2) Geschaetzte Masse (Breite x Hoehe in cm), 3) Welcher Sonnenschutz wuerde passen (Rollladen, Raffstore, etc). Antworte auf Deutsch, kurz und praegnant.' }]}] }) }}",
+        "options": {"timeout": 30000}
+      },
+      "id": "claude-vision",
+      "name": "Claude Vision Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const response = $input.first().json;\nconst analysis = response.content && response.content[0] ? response.content[0].text : 'Bildanalyse konnte nicht durchgefuehrt werden.';\n\nreturn [{ json: { analysis: analysis } }];"
+      },
+      "id": "parse-analysis",
+      "name": "Parse Analysis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, analysis: $json.analysis }) }}",
+        "options": {}
+      },
+      "id": "response",
+      "name": "Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1450, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {"main": [[{"node": "Validate Image", "type": "main", "index": 0}]]},
+    "Validate Image": {"main": [[{"node": "Upload to Storage", "type": "main", "index": 0}]]},
+    "Upload to Storage": {"main": [[{"node": "Save Reference", "type": "main", "index": 0}]]},
+    "Save Reference": {"main": [[{"node": "Claude Vision Analysis", "type": "main", "index": 0}]]},
+    "Claude Vision Analysis": {"main": [[{"node": "Parse Analysis", "type": "main", "index": 0}]]},
+    "Parse Analysis": {"main": [[{"node": "Response", "type": "main", "index": 0}]]}
+  }
+}

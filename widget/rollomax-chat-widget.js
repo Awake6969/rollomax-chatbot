@@ -1621,24 +1621,26 @@
           this.renderLeadForm();
         }
 
-        if (data.show_product_card) {
+        var productCard = data.product_card || data.show_product_card;
+        if (productCard) {
           var lastMsg = this.messages[this.messages.length - 1];
           if (lastMsg) {
             lastMsg.extras = lastMsg.extras || {};
-            lastMsg.extras.product_card = data.show_product_card;
+            lastMsg.extras.product_card = productCard;
             var msgEl = this.$messagesArea.querySelector('[data-message-id="' + lastMsg.id + '"]');
             if (msgEl) {
-              msgEl.appendChild(this.createProductCard(data.show_product_card));
+              msgEl.appendChild(this.createProductCard(productCard));
             }
           }
         }
 
-        if (data.show_actions && data.show_actions.length > 0) {
+        var actions = data.actions || data.show_actions;
+        if (actions && actions.length > 0) {
           var lastMsg2 = this.messages[this.messages.length - 1];
           if (lastMsg2) {
             var msgEl2 = this.$messagesArea.querySelector('[data-message-id="' + lastMsg2.id + '"]');
             if (msgEl2) {
-              msgEl2.appendChild(this.createActionButtons(data.show_actions));
+              msgEl2.appendChild(this.createActionButtons(actions));
             }
           }
         }

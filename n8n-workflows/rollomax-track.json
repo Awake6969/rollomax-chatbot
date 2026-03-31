@@ -1,0 +1,111 @@
+{
+  "name": "RolloMax Analytics Track",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "track",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "track-webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "track-webhook"
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const body = $input.first().json.body;\nconst headers = $input.first().json.headers;\n\nconst token = $env.WIDGET_AUTH_TOKEN;\nif (headers['x-widget-token'] !== token) {\n  throw new Error('UNAUTHORIZED');\n}\n\nif (!body.session_id || !body.event_type) {\n  throw new Error('Missing required fields');\n}\n\nreturn [{ json: body }];"
+      },
+      "id": "validate",
+      "name": "Validate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/analytics_events",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{$env.SUPABASE_SERVICE_KEY}}"},
+            {"name": "Authorization", "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"},
+            {"name": "Content-Type", "value": "application/json"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ session_id: $json.session_id, event_type: $json.event_type, event_data: $json.event_data || {} }) }}",
+        "options": {}
+      },
+      "id": "save-event",
+      "name": "Save Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict"},
+          "conditions": [{"id": "ab-check", "leftValue": "={{$('Validate').first().json.ab_variant}}", "rightValue": "", "operator": {"type": "string", "operation": "notEmpty"}}],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "has-ab-variant",
+      "name": "Has AB Variant?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/ab_assignments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "apikey", "value": "={{$env.SUPABASE_SERVICE_KEY}}"},
+            {"name": "Authorization", "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"},
+            {"name": "Content-Type", "value": "application/json"},
+            {"name": "Prefer", "value": "resolution=merge-duplicates"}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ session_id: $('Validate').first().json.session_id, experiment_id: '00000000-0000-0000-0000-000000000001', variant: $('Validate').first().json.ab_variant }) }}",
+        "options": {}
+      },
+      "id": "save-ab-assignment",
+      "name": "Save AB Assignment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true }) }}",
+        "options": {}
+      },
+      "id": "response",
+      "name": "Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1250, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {"main": [[{"node": "Validate", "type": "main", "index": 0}]]},
+    "Validate": {"main": [[{"node": "Save Event", "type": "main", "index": 0}]]},
+    "Save Event": {"main": [[{"node": "Has AB Variant?", "type": "main", "index": 0}]]},
+    "Has AB Variant?": {"main": [[{"node": "Save AB Assignment", "type": "main", "index": 0}], [{"node": "Response", "type": "main", "index": 0}]]},
+    "Save AB Assignment": {"main": [[{"node": "Response", "type": "main", "index": 0}]]}
+  }
+}
