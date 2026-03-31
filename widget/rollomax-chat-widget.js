@@ -1737,7 +1737,7 @@
       var div = document.createElement('div');
       div.className = 'product-card';
       div.innerHTML =
-        '<img class="product-card-image" src="' + this.escapeHtml(card.image || '') + '" alt="' + this.escapeHtml(card.title || '') + '" onerror="this.style.display=\'none\'">' +
+        '<img class="product-card-image" loading="lazy" src="' + this.escapeHtml(card.image || '') + '" alt="' + this.escapeHtml(card.title || '') + '" onerror="this.style.display=\'none\'">' +
         '<div class="product-card-content">' +
           '<h4 class="product-card-title">' + this.escapeHtml(card.title || '') + '</h4>' +
           '<p class="product-card-desc">' + this.escapeHtml(card.description || '') + '</p>' +
