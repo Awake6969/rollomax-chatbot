@@ -567,6 +567,361 @@
       color: var(--primary);
     }
 
+
+    /* ── Avatar ────────────────────────────────────────────────────── */
+    .chat-avatar {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      overflow: hidden;
+    }
+    .chat-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ── Sound toggle ──────────────────────────────────────────────── */
+    .sound-btn {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      border: none;
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      padding: 0;
+      transition: background 150ms ease-out;
+    }
+    .sound-btn:hover { background: rgba(255,255,255,0.1); }
+    .sound-btn svg { width: 20px; height: 20px; fill: currentColor; pointer-events: none; }
+    .sound-btn.is-muted { opacity: 0.5; }
+
+    /* ── Message feedback (thumbs) ─────────────────────────────────── */
+    .message-feedback {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+    .feedback-btn {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border: none;
+      background: transparent;
+      color: #999;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      padding: 0;
+      transition: color 150ms ease-out, background 150ms ease-out;
+    }
+    .feedback-btn:hover { color: var(--primary); background: rgba(0,0,0,0.05); }
+    .feedback-btn.selected { color: var(--accent); }
+    .feedback-btn svg { width: 16px; height: 16px; fill: currentColor; pointer-events: none; }
+
+    /* ── Typing indicator with text ────────────────────────────────── */
+    .typing-text {
+      font-size: 14px;
+      color: #666;
+      margin-right: 8px;
+    }
+
+    /* ── Product card ──────────────────────────────────────────────── */
+    .product-card {
+      width: 280px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin: 8px 0;
+    }
+    .product-card-image {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      background: var(--bot-bubble);
+    }
+    .product-card-content { padding: 12px; }
+    .product-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--primary);
+      margin: 0 0 4px;
+    }
+    .product-card-desc {
+      font-size: 14px;
+      color: #666;
+      margin: 0 0 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .product-card-btn {
+      display: inline-block;
+      padding: 8px 16px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: opacity 150ms ease-out;
+    }
+    .product-card-btn:hover { opacity: 0.9; }
+
+    /* ── Image upload ──────────────────────────────────────────────── */
+    .upload-btn {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      border: none;
+      background: transparent;
+      color: #999;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      padding: 0;
+      transition: color 150ms ease-out;
+      flex-shrink: 0;
+    }
+    .upload-btn:hover { color: var(--accent); }
+    .upload-btn svg { width: 22px; height: 22px; fill: currentColor; pointer-events: none; }
+    .upload-input { display: none; }
+
+    .image-preview {
+      align-self: flex-end;
+      max-width: 200px;
+      margin: 8px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .image-preview img { width: 100%; height: auto; display: block; }
+
+    /* ── Action buttons ────────────────────────────────────────────── */
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: var(--font);
+      cursor: pointer;
+      min-height: 44px;
+      transition: opacity 150ms ease-out;
+    }
+    .action-btn svg { width: 18px; height: 18px; fill: currentColor; }
+    .action-btn.primary { background: var(--accent); color: #fff; }
+    .action-btn.secondary {
+      background: transparent;
+      border: 1.5px solid var(--accent);
+      color: var(--accent);
+    }
+    .action-btn.whatsapp { background: #25D366; color: #fff; }
+    .action-btn:hover { opacity: 0.9; }
+
+    /* ── Session feedback overlay ──────────────────────────────────── */
+    .feedback-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 300ms ease-out;
+    }
+    .feedback-overlay.is-visible { opacity: 1; pointer-events: auto; }
+    .feedback-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary);
+      margin: 0 0 16px;
+      text-align: center;
+    }
+    .feedback-stars { display: flex; gap: 8px; margin-bottom: 16px; }
+    .feedback-star {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: transparent;
+      color: #DDD;
+      cursor: pointer;
+      padding: 0;
+      transition: color 150ms ease-out, transform 150ms ease-out;
+    }
+    .feedback-star:hover { transform: scale(1.1); }
+    .feedback-star.active { color: #FFB800; }
+    .feedback-star svg { width: 100%; height: 100%; fill: currentColor; }
+    .feedback-comment {
+      width: 100%;
+      max-width: 300px;
+      padding: 12px;
+      border: 1.5px solid #DDD;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: var(--font);
+      resize: none;
+      margin-bottom: 16px;
+    }
+    .feedback-comment:focus { border-color: var(--accent); outline: none; }
+    .feedback-submit {
+      padding: 12px 32px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      min-height: 48px;
+      transition: opacity 150ms ease-out;
+    }
+    .feedback-submit:hover { opacity: 0.9; }
+    .feedback-skip {
+      margin-top: 12px;
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .feedback-skip:hover { color: var(--primary); }
+
+    /* ── Modal overlay ─────────────────────────────────────────────── */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 300ms ease-out;
+    }
+    .modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
+    .modal-content {
+      width: 90%;
+      max-width: 400px;
+      max-height: 80%;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid #E5E5E5;
+    }
+    .modal-title { font-size: 18px; font-weight: 600; color: var(--primary); margin: 0; }
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      color: #666;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+    .modal-close:hover { background: #F5F5F5; }
+    .modal-close svg { width: 20px; height: 20px; fill: currentColor; }
+    .modal-body { flex: 1; overflow-y: auto; padding: 16px; }
+    .modal-body iframe { width: 100%; height: 400px; border: none; }
+
+    /* ── Configurator ──────────────────────────────────────────────── */
+    .config-progress { display: flex; gap: 4px; margin-bottom: 20px; }
+    .config-progress-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #DDD;
+    }
+    .config-progress-dot.active { background: var(--accent); }
+    .config-progress-dot.completed { background: var(--online); }
+    .config-label { font-size: 16px; font-weight: 500; color: var(--primary); margin-bottom: 12px; }
+    .config-options { display: flex; flex-direction: column; gap: 8px; }
+    .config-option {
+      padding: 14px 16px;
+      border: 1.5px solid #DDD;
+      border-radius: 10px;
+      background: #fff;
+      font-size: 16px;
+      font-family: var(--font);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 150ms ease-out;
+    }
+    .config-option:hover { border-color: var(--accent); }
+    .config-option.selected { border-color: var(--accent); background: rgba(201,169,110,0.1); }
+    .config-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid #DDD;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: var(--font);
+      margin-bottom: 12px;
+    }
+    .config-input:focus { border-color: var(--accent); outline: none; }
+    .config-nav { display: flex; gap: 8px; margin-top: 20px; }
+    .config-nav button {
+      flex: 1;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      min-height: 48px;
+    }
+    .config-back { background: #F5F5F5; border: none; color: var(--primary); }
+    .config-next { background: var(--accent); border: none; color: #fff; }
+
     /* ── Utility ────────────────────────────────────────────────────── */
     .hidden { display: none !important; }
   `;
