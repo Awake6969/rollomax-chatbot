@@ -1222,6 +1222,18 @@
         btn.classList.add('selected');
         self.sendFeedback('message', { message_id: messageId, rating: rating });
       });
+
+      // Sound toggle
+      var soundBtn = this.shadowRoot.querySelector('.sound-btn');
+      if (soundBtn) {
+        soundBtn.addEventListener('click', function() {
+          self._soundEnabled = !self._soundEnabled;
+          localStorage.setItem('rollomax_sound', self._soundEnabled ? 'true' : 'false');
+          soundBtn.innerHTML = self._soundEnabled ? ICON_SOUND_ON : ICON_SOUND_OFF;
+          soundBtn.classList.toggle('is-muted', !self._soundEnabled);
+          if (self._soundEnabled) { self.playNotificationSound(); }
+        });
+      }
     }
 
     /* ── Textarea auto-grow ─────────────────────────────────────────── */
@@ -1392,6 +1404,18 @@
       requestAnimationFrame(function() {
         area.scrollTop = area.scrollHeight;
       });
+    }
+
+    playNotificationSound() {
+      if (!this._soundEnabled) return;
+      try {
+        if (!this._audio) {
+          this._audio = new Audio(NOTIFICATION_SOUND);
+          this._audio.volume = 0.3;
+        }
+        this._audio.currentTime = 0;
+        this._audio.play().catch(function() {});
+      } catch(e) {}
     }
 
     /* ── Typing indicator ───────────────────────────────────────────── */
