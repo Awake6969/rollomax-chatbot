@@ -161,13 +161,18 @@ CREATE OR REPLACE VIEW public.v_funnel_analysis AS
 SELECT
     DATE(s.created_at)                                              AS date,
     COUNT(DISTINCT s.id)                                            AS total_sessions,
-    COUNT(DISTINCT CASE WHEN s.message_count >= 3 THEN s.id END)   AS engaged_sessions,
+    COUNT(DISTINCT CASE WHEN msg_counts.cnt >= 3 THEN s.id END)    AS engaged_sessions,
     COUNT(DISTINCT l.id)                                            AS leads,
     COUNT(DISTINCT CASE
         WHEN ae.event_type = 'booking_completed' THEN ae.session_id
     END)                                                            AS bookings
 FROM public.chat_sessions s
-LEFT JOIN public.leads l           ON s.id = l.session_id
+LEFT JOIN (
+    SELECT session_id, COUNT(*) AS cnt
+    FROM public.chat_messages
+    GROUP BY session_id
+) msg_counts ON msg_counts.session_id = s.id
+LEFT JOIN public.leads l             ON s.id = l.session_id
 LEFT JOIN public.analytics_events ae ON s.id = ae.session_id
 WHERE s.created_at > now() - interval '30 days'
 GROUP BY DATE(s.created_at)
