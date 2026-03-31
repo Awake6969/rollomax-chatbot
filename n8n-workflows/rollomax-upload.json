@@ -12,7 +12,10 @@
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [250, 300],
+      "position": [
+        250,
+        300
+      ],
       "webhookId": "upload-image-webhook"
     },
     {
@@ -24,7 +27,10 @@
       "name": "Validate Image",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [450, 300]
+      "position": [
+        450,
+        300
+      ]
     },
     {
       "parameters": {
@@ -33,9 +39,18 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {"name": "apikey", "value": "={{$env.SUPABASE_SERVICE_KEY}}"},
-            {"name": "Authorization", "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"},
-            {"name": "Content-Type", "value": "={{$json.mime_type}}"}
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "={{$json.mime_type}}"
+            }
           ]
         },
         "sendBody": true,
@@ -47,7 +62,10 @@
       "name": "Upload to Storage",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [650, 300]
+      "position": [
+        650,
+        300
+      ]
     },
     {
       "parameters": {
@@ -56,9 +74,18 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {"name": "apikey", "value": "={{$env.SUPABASE_SERVICE_KEY}}"},
-            {"name": "Authorization", "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"},
-            {"name": "Content-Type", "value": "application/json"}
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
@@ -70,7 +97,10 @@
       "name": "Save Reference",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [850, 300]
+      "position": [
+        850,
+        300
+      ]
     },
     {
       "parameters": {
@@ -79,21 +109,35 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {"name": "x-api-key", "value": "={{$env.ANTHROPIC_API_KEY}}"},
-            {"name": "anthropic-version", "value": "2023-06-01"},
-            {"name": "content-type", "value": "application/json"}
+            {
+              "name": "x-api-key",
+              "value": "={{$env.ANTHROPIC_API_KEY}}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 500, messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: $('Validate Image').first().json.mime_type, data: $('Validate Image').first().json.base64_data }}, { type: 'text', text: 'Du bist ein Sonnenschutz-Experte. Analysiere dieses Bild eines Fensters. Bestimme: 1) Fenstertyp (Kunststoff, Holz, Alu), 2) Geschaetzte Masse (Breite x Hoehe in cm), 3) Welcher Sonnenschutz wuerde passen (Rollladen, Raffstore, etc). Antworte auf Deutsch, kurz und praegnant.' }]}] }) }}",
-        "options": {"timeout": 30000}
+        "options": {
+          "timeout": 30000
+        }
       },
       "id": "claude-vision",
       "name": "Claude Vision Analysis",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1050, 300]
+      "position": [
+        1050,
+        300
+      ]
     },
     {
       "parameters": {
@@ -104,7 +148,10 @@
       "name": "Parse Analysis",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1250, 300]
+      "position": [
+        1250,
+        300
+      ]
     },
     {
       "parameters": {
@@ -116,15 +163,79 @@
       "name": "Response",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1450, 300]
+      "position": [
+        1450,
+        300
+      ]
     }
   ],
   "connections": {
-    "Webhook": {"main": [[{"node": "Validate Image", "type": "main", "index": 0}]]},
-    "Validate Image": {"main": [[{"node": "Upload to Storage", "type": "main", "index": 0}]]},
-    "Upload to Storage": {"main": [[{"node": "Save Reference", "type": "main", "index": 0}]]},
-    "Save Reference": {"main": [[{"node": "Claude Vision Analysis", "type": "main", "index": 0}]]},
-    "Claude Vision Analysis": {"main": [[{"node": "Parse Analysis", "type": "main", "index": 0}]]},
-    "Parse Analysis": {"main": [[{"node": "Response", "type": "main", "index": 0}]]}
-  }
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Image": {
+      "main": [
+        [
+          {
+            "node": "Upload to Storage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Storage": {
+      "main": [
+        [
+          {
+            "node": "Save Reference",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Reference": {
+      "main": [
+        [
+          {
+            "node": "Claude Vision Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Vision Analysis": {
+      "main": [
+        [
+          {
+            "node": "Parse Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Analysis": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "id": "rollomax-upload-001"
 }

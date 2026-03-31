@@ -12,7 +12,10 @@
       "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [250, 300],
+      "position": [
+        250,
+        300
+      ],
       "webhookId": "track-webhook"
     },
     {
@@ -24,7 +27,10 @@
       "name": "Validate",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [450, 300]
+      "position": [
+        450,
+        300
+      ]
     },
     {
       "parameters": {
@@ -33,9 +39,18 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {"name": "apikey", "value": "={{$env.SUPABASE_SERVICE_KEY}}"},
-            {"name": "Authorization", "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"},
-            {"name": "Content-Type", "value": "application/json"}
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
           ]
         },
         "sendBody": true,
@@ -47,13 +62,30 @@
       "name": "Save Event",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [650, 300]
+      "position": [
+        650,
+        300
+      ]
     },
     {
       "parameters": {
         "conditions": {
-          "options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict"},
-          "conditions": [{"id": "ab-check", "leftValue": "={{$('Validate').first().json.ab_variant}}", "rightValue": "", "operator": {"type": "string", "operation": "notEmpty"}}],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "ab-check",
+              "leftValue": "={{$('Validate').first().json.ab_variant}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
           "combinator": "and"
         },
         "options": {}
@@ -62,7 +94,10 @@
       "name": "Has AB Variant?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [850, 300]
+      "position": [
+        850,
+        300
+      ]
     },
     {
       "parameters": {
@@ -71,10 +106,22 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {"name": "apikey", "value": "={{$env.SUPABASE_SERVICE_KEY}}"},
-            {"name": "Authorization", "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"},
-            {"name": "Content-Type", "value": "application/json"},
-            {"name": "Prefer", "value": "resolution=merge-duplicates"}
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates"
+            }
           ]
         },
         "sendBody": true,
@@ -86,7 +133,10 @@
       "name": "Save AB Assignment",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1050, 200]
+      "position": [
+        1050,
+        200
+      ]
     },
     {
       "parameters": {
@@ -98,14 +148,75 @@
       "name": "Response",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1250, 300]
+      "position": [
+        1250,
+        300
+      ]
     }
   ],
   "connections": {
-    "Webhook": {"main": [[{"node": "Validate", "type": "main", "index": 0}]]},
-    "Validate": {"main": [[{"node": "Save Event", "type": "main", "index": 0}]]},
-    "Save Event": {"main": [[{"node": "Has AB Variant?", "type": "main", "index": 0}]]},
-    "Has AB Variant?": {"main": [[{"node": "Save AB Assignment", "type": "main", "index": 0}], [{"node": "Response", "type": "main", "index": 0}]]},
-    "Save AB Assignment": {"main": [[{"node": "Response", "type": "main", "index": 0}]]}
-  }
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate": {
+      "main": [
+        [
+          {
+            "node": "Save Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Event": {
+      "main": [
+        [
+          {
+            "node": "Has AB Variant?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has AB Variant?": {
+      "main": [
+        [
+          {
+            "node": "Save AB Assignment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save AB Assignment": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "id": "rollomax-track-001"
 }
