@@ -1,0 +1,186 @@
+{
+  "name": "RolloMax Chat (PostgreSQL)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "rollomax-chat-webhook"
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const body = $input.first().json.body;\nconst headers = $input.first().json.headers;\n\nconst token = $env.WIDGET_AUTH_TOKEN;\nif (headers['x-widget-token'] !== token) {\n  throw new Error('UNAUTHORIZED');\n}\n\nif (!body.message || body.message.length === 0 || body.message.length > 1000) {\n  throw new Error('Invalid message');\n}\nif (!body.session_id) {\n  throw new Error('session_id required');\n}\nif (body.consent !== true) {\n  throw new Error('Consent required');\n}\n\nconst ip = headers['x-forwarded-for'] || headers['x-real-ip'] || 'unknown';\nconst ipHash = ip.replace(/\\./g, '-');\n\nconst wienTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Vienna' }));\nconst hour = wienTime.getHours();\nconst day = wienTime.getDay();\nconst isBusinessHours = (day >= 1 && day <= 5 && hour >= 8 && hour < 17);\n\nreturn [{\n  json: {\n    session_id: body.session_id,\n    message: body.message,\n    ip_hash: ipHash,\n    consent: body.consent,\n    page_url: body.page_url || '',\n    user_agent: headers['user-agent'] || '',\n    is_business_hours: isBusinessHours,\n    source_type: body.source_type || 'typed'\n  }\n}];"
+      },
+      "id": "validate-node",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO chat_sessions (id, ip_hash, consent_given, last_activity, metadata)\nVALUES ('{{ $json.session_id }}'::uuid, '{{ $json.ip_hash }}', true, NOW(), \n  '{\"page_url\": \"{{ $json.page_url }}\", \"user_agent\": \"{{ $json.user_agent }}\"}'::jsonb)\nON CONFLICT (id) DO UPDATE SET last_activity = NOW()\nRETURNING id;",
+        "options": {}
+      },
+      "id": "upsert-session",
+      "name": "Upsert Session",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [650, 300],
+      "credentials": {
+        "postgres": {
+          "id": "5Py2RKtPQ64qRt7A",
+          "name": "RolloMax Local PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const validateData = $('Validate Input').first().json;\nreturn [{ json: validateData }];"
+      },
+      "id": "passthrough",
+      "name": "Passthrough",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT role, content FROM chat_messages WHERE session_id = '{{ $json.session_id }}'::uuid ORDER BY created_at ASC LIMIT 10;",
+        "options": {}
+      },
+      "id": "load-history",
+      "name": "Load History",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1050, 200],
+      "credentials": {
+        "postgres": {
+          "id": "5Py2RKtPQ64qRt7A",
+          "name": "RolloMax Local PostgreSQL"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT category, title, content, url FROM knowledge_base ORDER BY category;",
+        "options": {}
+      },
+      "id": "load-kb",
+      "name": "Load Knowledge Base",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1050, 400],
+      "credentials": {
+        "postgres": {
+          "id": "5Py2RKtPQ64qRt7A",
+          "name": "RolloMax Local PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const validateData = $('Validate Input').first().json;\n\nlet historyRows = [];\ntry { historyRows = $('Load History').all(); } catch(e) { historyRows = []; }\n\nlet kbRows = [];\ntry { kbRows = $('Load Knowledge Base').all(); } catch(e) { kbRows = []; }\n\nconst history = historyRows.map(row => ({ role: row.json.role, content: row.json.content })).filter(m => m.role && m.content);\n\nlet kbContent = '';\nlet currentCategory = '';\nfor (const row of kbRows) {\n  const entry = row.json;\n  if (entry.category !== currentCategory) {\n    currentCategory = entry.category;\n    kbContent += '\\n--- ' + currentCategory.toUpperCase().replace(/_/g, ' ') + ' ---\\n';\n  }\n  kbContent += entry.title + ': ' + entry.content;\n  if (entry.url) kbContent += ' (Mehr: ' + entry.url + ')';\n  kbContent += '\\n';\n}\n\nconst month = new Date().getMonth() + 1;\nlet season = 'fruehling';\nif (month >= 6 && month <= 8) season = 'sommer';\nelse if (month >= 9 && month <= 11) season = 'herbst';\nelse if (month === 12 || month <= 2) season = 'winter';\n\nlet businessStatus = validateData.is_business_hours ? 'Büro geöffnet (Mo-Fr 08:00-17:00)' : 'Büro geschlossen';\n\nconst systemPrompt = `Du bist der RolloMax Berater - Sonnenschutz-Experte aus Wien.\\n\\nKERNREGELN:\\n- Sie-Form, österreichisches Deutsch\\n- Verwende IMMER echte Umlaute: ä, ö, ü, ß (NICHT ae, oe, ue, ss)\\n- KEINE Emojis, KEINE Em-Dashes (--)\\n- Erste Nachricht: Kurz erwähnen dass du KI-gestützt bist\\n\\nANTWORT-STIL - EXTREM WICHTIG:\\nDer Nutzer ist kaufbereit und will schnelle, klare Infos. NICHT werben, NICHT selbst loben.\\n\\nVERBOTEN:\\n- Sätze wie \"Bei RolloMax bieten wir hervorragende...\"\\n- \"Wir haben tolle Lösungen...\"\\n- Lange Fließtexte ohne Struktur\\n- Marketing-Sprache\\n\\nSTATTDESSEN:\\n- Direkt zur Sache, nützliche Infos zuerst\\n- Kurze Absätze (max 2-3 Sätze)\\n- Aufzählungen mit Bindestrich (-) für Optionen/Vorteile\\n- Bei Produktvergleichen: klare Gegenüberstellung\\n\\n--- FIRST QUOTE LOGIK ---\\nWenn der Nutzer nach Preisen fragt, AKTIV nach Maßen fragen!\\n\\n1. FRAGEN die du stellen sollst:\\n- Breite und Höhe des Fensters (in cm)\\n- Anzahl der Fenster\\n- Bezirk (für Fahrkosten)\\n\\n2. KALKULATION zeigen (sobald Maße bekannt):\\n- Material: [Preis aus Tabelle] x Anzahl\\n- Montage: 120 EUR/Stk (1-3), 96 EUR/Stk (4-10), 87 EUR/Stk (ab 10)\\n- Fahrkosten: 65 EUR (1020/1200) oder 110 EUR (andere Bezirke)\\n- GESAMT: Summe\\n- Mit Förderung (50%): ca. [Hälfte] EUR Eigenanteil\\n\\n3. BEISPIEL Antwort bei Preisfrage ohne Maße:\\n\"Für eine Schätzung brauche ich kurz:\\n- Breite und Höhe Ihrer Fenster (in cm)\\n- Anzahl der Fenster\\n- Ihr Bezirk in Wien\\n\\nDann kann ich Ihnen sofort einen Richtpreis nennen.\"\\n\\n4. BEISPIEL Antwort mit Maßen (120x150cm, 3 Fenster, 1020):\\n\"Ihre Schätzung für 3 Vorbaurollläden (120x150cm):\\n\\n- Material: 3 x 464 EUR = 1.392 EUR\\n- Montage: 3 x 120 EUR = 360 EUR\\n- Fahrkosten: 65 EUR\\n- Gesamt: ca. 1.817 EUR\\n\\nMit Wiener Förderung (50%) wäre Ihr Eigenanteil ca. 909 EUR.\\n\\nFür ein verbindliches Angebot: +43 1 212 2446\"\\n--- ENDE FIRST QUOTE LOGIK ---\\n\\nBEISPIEL GUTE ANTWORT (allgemein):\\n\"Für Ihre Terrasse gibt es zwei Optionen:\\n\\n- Gelenkarmmarkise: klassisch, günstig, ideal bis 4m Ausfall\\n- Kassettenmarkise: Stoff geschützt, langlebiger, bis 6m möglich\\n\\nBeide mit Motor nachrüstbar. Welche Breite brauchen Sie ungefähr?\"\\n\\nCONVERSION-FOKUS:\\n- Nach 2-3 Infos: konkrete Frage stellen ODER Termin anbieten\\n- Telefon: +43 1 212 2446\\n- Adresse: Leopoldsgasse 4, 1020 Wien\\n\\nJAHRESZEIT: ${season}\\nGESCHÄFTSZEIT: ${businessStatus}\\n\\nTHEMEN: Nur Sonnenschutz, Fenster, Montage. Sonst höflich ablehnen.\\n\\nANTWORT-FORMAT:\\n<<<RESPONSE_JSON>>>\\n{\"reply\":\"...\",\"intent\":\"general\",\"lead_data\":null,\"should_notify_team\":false,\"urgency\":\"low\"}\\n<<<END_RESPONSE_JSON>>>\\n\\nWISSENSBASIS:\\n${kbContent}`;\n\nconst messages = [...history];\nmessages.push({ role: 'user', content: validateData.message });\n\nreturn [{\n  json: {\n    model: 'claude-sonnet-4-6',\n    max_tokens: 1000,\n    system: systemPrompt,\n    messages: messages,\n    _session_id: validateData.session_id,\n    _user_message: validateData.message,\n    _is_business_hours: validateData.is_business_hours,\n    _source_type: validateData.source_type\n  }\n}];"
+      },
+      "id": "build-payload",
+      "name": "Build Claude Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $env.ANTHROPIC_API_KEY }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $json.model, max_tokens: $json.max_tokens, system: $json.system, messages: $json.messages }) }}",
+        "options": { "timeout": 30000 }
+      },
+      "id": "claude-api",
+      "name": "Claude API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1550, 300],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const input = $input.first().json;\nconst payload = $('Build Claude Payload').first().json;\n\nlet responseText = '';\nlet parsed = null;\n\nif (input.content && input.content[0]) {\n  responseText = input.content[0].text;\n  const jsonMatch = responseText.match(/<<<RESPONSE_JSON>>>([\\s\\S]*?)<<<END_RESPONSE_JSON>>>/);\n  if (jsonMatch) {\n    try { parsed = JSON.parse(jsonMatch[1].trim()); } catch(e) {}\n  }\n}\n\nif (!parsed) {\n  parsed = {\n    reply: responseText || 'Entschuldigung, ich konnte Ihre Anfrage nicht verarbeiten. Bitte kontaktieren Sie uns unter +43 1 212 2446.',\n    intent: 'general',\n    lead_data: null,\n    should_notify_team: false,\n    urgency: 'low'\n  };\n}\n\nreturn [{\n  json: {\n    reply: parsed.reply,\n    session_id: payload._session_id,\n    user_message: payload._user_message,\n    intent: parsed.intent || 'general',\n    has_lead_data: !!parsed.lead_data,\n    lead_data: parsed.lead_data,\n    should_notify_team: parsed.should_notify_team || false,\n    urgency: parsed.urgency || 'low',\n    source_type: payload._source_type || 'typed'\n  }\n}];"
+      },
+      "id": "parse-response",
+      "name": "Parse Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1800, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO chat_messages (session_id, role, content, source_type) VALUES ('{{ $json.session_id }}'::uuid, 'user', '{{ $json.user_message.replace(/'/g, \"''\") }}', '{{ $json.source_type }}');\nINSERT INTO chat_messages (session_id, role, content, intent) VALUES ('{{ $json.session_id }}'::uuid, 'assistant', '{{ $json.reply.replace(/'/g, \"''\") }}', '{{ $json.intent }}');",
+        "options": {}
+      },
+      "id": "save-messages",
+      "name": "Save Messages",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [2050, 300],
+      "credentials": {
+        "postgres": {
+          "id": "5Py2RKtPQ64qRt7A",
+          "name": "RolloMax Local PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ reply: $('Parse Response').first().json.reply, session_id: $('Parse Response').first().json.session_id, suggested_actions: ['Beratungstermin vereinbaren'] }) }}",
+        "options": {}
+      },
+      "id": "response-node",
+      "name": "Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2300, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Validate Input", "type": "main", "index": 0 }]] },
+    "Validate Input": { "main": [[{ "node": "Upsert Session", "type": "main", "index": 0 }]] },
+    "Upsert Session": { "main": [[{ "node": "Passthrough", "type": "main", "index": 0 }]] },
+    "Passthrough": { "main": [[{ "node": "Load History", "type": "main", "index": 0 }, { "node": "Load Knowledge Base", "type": "main", "index": 0 }]] },
+    "Load History": { "main": [[{ "node": "Build Claude Payload", "type": "main", "index": 0 }]] },
+    "Load Knowledge Base": { "main": [[{ "node": "Build Claude Payload", "type": "main", "index": 0 }]] },
+    "Build Claude Payload": { "main": [[{ "node": "Claude API", "type": "main", "index": 0 }]] },
+    "Claude API": { "main": [[{ "node": "Parse Response", "type": "main", "index": 0 }], [{ "node": "Parse Response", "type": "main", "index": 0 }]] },
+    "Parse Response": { "main": [[{ "node": "Save Messages", "type": "main", "index": 0 }]] },
+    "Save Messages": { "main": [[{ "node": "Response", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "active": false
+}
