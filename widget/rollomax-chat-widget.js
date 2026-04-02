@@ -377,6 +377,24 @@
       border-bottom-right-radius: 4px;
     }
 
+    /* Markdown formatting in messages */
+    .message-content strong {
+      font-weight: 700;
+    }
+    .message-content p {
+      margin: 0 0 8px 0;
+    }
+    .message-content p:last-child {
+      margin-bottom: 0;
+    }
+    .message-content ul, .message-content ol {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+    .message-content li {
+      margin: 4px 0;
+    }
+
     .message-meta {
       display: flex;
       align-items: center;
@@ -1376,6 +1394,49 @@
       return div.innerHTML;
     }
 
+    formatMarkdown(text) {
+      if (!text) return '';
+      var self = this;
+      // First escape HTML to prevent XSS
+      var escaped = this.escapeHtml(text);
+
+      // Split into paragraphs (double newline or single newline)
+      var paragraphs = escaped.split(/\n\n+/);
+      var result = [];
+
+      for (var i = 0; i < paragraphs.length; i++) {
+        var para = paragraphs[i].trim();
+        if (!para) continue;
+
+        // Check if this paragraph is a list
+        var lines = para.split(/\n/);
+        var isList = lines.length > 0 && /^[-*]\s/.test(lines[0].trim());
+
+        if (isList) {
+          // Render as unordered list
+          var listItems = [];
+          for (var j = 0; j < lines.length; j++) {
+            var line = lines[j].trim();
+            if (/^[-*]\s/.test(line)) {
+              var itemText = line.replace(/^[-*]\s+/, '');
+              // Apply bold formatting within list item
+              itemText = itemText.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+              listItems.push('<li>' + itemText + '</li>');
+            }
+          }
+          result.push('<ul>' + listItems.join('') + '</ul>');
+        } else {
+          // Regular paragraph - convert single newlines to <br>
+          var formatted = para.replace(/\n/g, '<br>');
+          // Apply bold formatting
+          formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+          result.push('<p>' + formatted + '</p>');
+        }
+      }
+
+      return result.join('');
+    }
+
     generateMessageId() {
       return 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
@@ -1386,7 +1447,9 @@
       div.className = 'message ' + msg.role;
       div.setAttribute('data-message-id', msg.id);
 
-      var contentHTML = '<div class="message-content">' + this.escapeHtml(msg.text) + '</div>';
+      // Use formatMarkdown for bot messages, escapeHtml for user messages
+      var formattedText = msg.role === 'bot' ? this.formatMarkdown(msg.text) : this.escapeHtml(msg.text);
+      var contentHTML = '<div class="message-content">' + formattedText + '</div>';
       var metaHTML = '<div class="message-meta">';
       if (msg.role === 'bot') {
         metaHTML += '<span class="message-ki-badge">KI</span>';
