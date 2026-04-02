@@ -1,6 +1,6 @@
 services:
   n8n:
-    image: n8nio/n8n:latest
+    image: n8nio/n8n:1.70.3
     restart: always
     expose:
       - "5678"
@@ -23,7 +23,6 @@ services:
       - WIDGET_AUTH_TOKEN=${WIDGET_AUTH_TOKEN}
       - RATE_LIMIT_PER_IP=${RATE_LIMIT_PER_IP}
       - RATE_LIMIT_WINDOW_MINUTES=${RATE_LIMIT_WINDOW_MINUTES}
-      - N8N_RUNNERS_DISABLED=true
     labels:
       - traefik.enable=true
       - traefik.http.routers.rollomax-webhook.rule=Host(`chat.rollomax.at`) && PathPrefix(`/webhook/`)
