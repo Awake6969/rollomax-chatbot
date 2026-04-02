@@ -1,0 +1,392 @@
+{
+  "id": "rollomax-weekly-001",
+  "name": "RolloMax Weekly Insights",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "weekly-001",
+      "name": "Weekly Monday 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/v_weekly_trend_comparison",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{$env.SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "weekly-002",
+      "name": "Fetch Trend Comparison",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        530,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/v_weekly_top_topics?limit=10",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{$env.SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "weekly-003",
+      "name": "Fetch Top Topics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        530,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/v_weekly_intent_distribution",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{$env.SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "weekly-004",
+      "name": "Fetch Intent Distribution",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        530,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/v_weekly_abandoned_sessions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{$env.SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "weekly-005",
+      "name": "Fetch Abandoned Sessions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        530,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/v_weekly_feedback_score",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{$env.SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "weekly-006",
+      "name": "Fetch Feedback Score",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        530,
+        740
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/v_weekly_lead_funnel",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{$env.SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "weekly-007",
+      "name": "Fetch Lead Funnel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        530,
+        900
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/v_weekly_product_interest",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{$env.SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "weekly-008",
+      "name": "Fetch Product Interest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        530,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Daten aus allen Quellen sammeln\nconst trends = $('Fetch Trend Comparison').all().map(i => i.json);\nconst topics = $('Fetch Top Topics').all().map(i => i.json);\nconst intents = $('Fetch Intent Distribution').all().map(i => i.json);\nconst abandoned = $('Fetch Abandoned Sessions').first()?.json || {};\nconst feedback = $('Fetch Feedback Score').first()?.json || {};\nconst funnel = $('Fetch Lead Funnel').all().map(i => i.json);\nconst products = $('Fetch Product Interest').all().map(i => i.json);\n\n// Datum formatieren\nconst now = new Date();\nconst weekStart = new Date(now - 7 * 24 * 60 * 60 * 1000);\nconst formatDate = (d) => d.toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' });\nconst dateRange = formatDate(weekStart) + ' - ' + formatDate(now);\n\n// Trend-Daten formatieren\nconst trendMap = {};\ntrends.forEach(t => { trendMap[t.metric] = t; });\n\nconst formatChange = (pct) => {\n  if (pct === null || pct === undefined) return 'N/A';\n  const sign = pct >= 0 ? '+' : '';\n  return sign + pct + '%';\n};\n\n// Top Topics formatieren (max 10)\nconst topTopicsText = topics.slice(0, 10)\n  .map((t, i) => (i + 1) + '. ' + t.word + ' (' + t.mentions + 'x, ' + t.unique_sessions + ' Sessions)')\n  .join('\\n') || 'Keine Daten';\n\n// Intent-Verteilung formatieren\nconst intentText = intents\n  .map(i => '  - ' + i.intent + ': ' + i.count + ' (' + i.percentage + '%)')\n  .join('\\n') || 'Keine Daten';\n\n// Lead Funnel formatieren\nconst funnelText = funnel\n  .map(f => '  Schritt ' + f.step + ' (' + f.step_name + '): ' + f.sessions_at_step + ' Sessions (' + f.percentage + '%)')\n  .join('\\n') || 'Keine Daten';\n\n// Produkt-Interesse formatieren\nconst productText = products\n  .map(p => '  - ' + p.product + ': ' + p.lead_count + ' Leads (High: ' + p.high_urgency + ', Medium: ' + p.medium_urgency + ', Low: ' + p.low_urgency + ')')\n  .join('\\n') || 'Keine Daten';\n\n// Email-Body zusammenbauen\nconst body = `\n================================================================================\nROLLOMAX CHATBOT - WOECHENTLICHER MARKETING-REPORT\n${dateRange}\n================================================================================\n\n1. TREND-VERGLEICH (Diese Woche vs. Letzte Woche)\n--------------------------------------------------------------------------------\n  Sessions:      ${trendMap.sessions?.this_week || 0} (Vorwoche: ${trendMap.sessions?.last_week || 0}) ${formatChange(trendMap.sessions?.change_pct)}\n  Leads:         ${trendMap.leads?.this_week || 0} (Vorwoche: ${trendMap.leads?.last_week || 0}) ${formatChange(trendMap.leads?.change_pct)}\n  Conversions:   ${trendMap.conversions?.this_week || 0} (Vorwoche: ${trendMap.conversions?.last_week || 0}) ${formatChange(trendMap.conversions?.change_pct)}\n  Avg Messages:  ${trendMap.avg_messages?.this_week || 0} (Vorwoche: ${trendMap.avg_messages?.last_week || 0}) ${formatChange(trendMap.avg_messages?.change_pct)}\n\n2. TOP 10 THEMEN/KEYWORDS\n--------------------------------------------------------------------------------\n${topTopicsText}\n\n3. INTENT-VERTEILUNG\n--------------------------------------------------------------------------------\n${intentText}\n\n4. ABBRUCH-ANALYSE\n--------------------------------------------------------------------------------\n  Abgebrochene Sessions (<3 Nachrichten, kein Lead): ${abandoned.abandoned_count || 0}\n  Abbruch-Rate: ${abandoned.abandonment_rate_pct || 0}%\n\n5. FEEDBACK & ZUFRIEDENHEIT\n--------------------------------------------------------------------------------\n  Gesamt-Feedback: ${feedback.total_feedback || 0} Bewertungen\n  Positiv (Daumen hoch): ${feedback.positive || 0}\n  Negativ (Daumen runter): ${feedback.negative || 0}\n  Zufriedenheitsrate: ${feedback.satisfaction_rate_pct || 'N/A'}%\n  Durchschnittliche Sterne: ${feedback.avg_star_rating || 'N/A'}/5\n\n6. LEAD-ERFASSUNGS-FUNNEL\n--------------------------------------------------------------------------------\n${funnelText}\n\n7. PRODUKT-INTERESSE\n--------------------------------------------------------------------------------\n${productText}\n\n================================================================================\nVERBESSERUNGSPOTENZIALE\n================================================================================\n\n${abandoned.abandonment_rate_pct > 50 ? '! ACHTUNG: Hohe Abbruch-Rate (' + abandoned.abandonment_rate_pct + '%). Pruefen Sie die Einstiegsnachrichten und Quick-Reply Buttons.' : ''}\n${feedback.satisfaction_rate_pct < 70 ? '! ACHTUNG: Niedrige Zufriedenheit (' + feedback.satisfaction_rate_pct + '%). Pruefen Sie negative Feedback-Kommentare.' : ''}\n${trendMap.leads?.change_pct < -20 ? '! ACHTUNG: Lead-Rueckgang (' + trendMap.leads.change_pct + '%). Analysieren Sie den Funnel auf Blockaden.' : ''}\n\nBasierend auf den Top-Themen sollten Sie pruefen:\n- Sind die haeufigsten Fragen gut in der Knowledge Base beantwortet?\n- Gibt es wiederkehrende Themen, die auf der Website prominenter platziert werden sollten?\n- Welche Produkte werden am meisten angefragt - stimmt das Angebot?\n\n================================================================================\nDieser Report wurde automatisch generiert.\nBei Fragen wenden Sie sich an Ihren Chatbot-Administrator.\n================================================================================\n`.trim();\n\nconst subject = 'RolloMax Chatbot Wochenreport ' + dateRange;\n\nreturn [{ json: { subject, body, dateRange } }];"
+      },
+      "id": "weekly-009",
+      "name": "Build Weekly Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        850,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "chatbot@rollomax.at",
+        "toEmail": "team@rollomax.at",
+        "subject": "={{ $json.subject }}",
+        "text": "={{ $json.body }}",
+        "options": {}
+      },
+      "id": "weekly-010",
+      "name": "Send Weekly Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1130,
+        500
+      ]
+    }
+  ],
+  "connections": {
+    "Weekly Monday 09:00": {
+      "main": [
+        [
+          {
+            "node": "Fetch Trend Comparison",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Top Topics",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Intent Distribution",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Abandoned Sessions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Feedback Score",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Lead Funnel",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Product Interest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Trend Comparison": {
+      "main": [
+        [
+          {
+            "node": "Build Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Top Topics": {
+      "main": [
+        [
+          {
+            "node": "Build Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Intent Distribution": {
+      "main": [
+        [
+          {
+            "node": "Build Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Abandoned Sessions": {
+      "main": [
+        [
+          {
+            "node": "Build Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Feedback Score": {
+      "main": [
+        [
+          {
+            "node": "Build Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Lead Funnel": {
+      "main": [
+        [
+          {
+            "node": "Build Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Product Interest": {
+      "main": [
+        [
+          {
+            "node": "Build Weekly Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Weekly Report": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Vienna"
+  },
+  "pinData": {},
+  "versionId": "1",
+  "tags": []
+}
