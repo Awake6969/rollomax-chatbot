@@ -35,17 +35,17 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://wytglqaihaozmtcapkpt.supabase.co/rest/v1/chat_sessions",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/chat_sessions",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -74,17 +74,17 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ 'https://wytglqaihaozmtcapkpt.supabase.co' + '/rest/v1/chat_messages?session_id=eq.' + $('Validate & Rate Limit').first().json.session_id + '&order=created_at.asc&limit=10&select=*' }}",
+        "url": "={{ $env.SUPABASE_URL + '/rest/v1/chat_messages?session_id=eq.' + $('Validate & Rate Limit').first().json.session_id + '&order=created_at.asc&limit=10&select=*' }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"
             }
           ]
         },
@@ -102,17 +102,17 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ 'https://wytglqaihaozmtcapkpt.supabase.co' + '/rest/v1/chat_sessions?id=eq.' + $('Validate & Rate Limit').first().json.session_id + '&select=lead_collection_step,collected_lead_data' }}",
+        "url": "={{ $env.SUPABASE_URL + '/rest/v1/chat_sessions?id=eq.' + $('Validate & Rate Limit').first().json.session_id + '&select=lead_collection_step,collected_lead_data' }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"
             }
           ]
         },
@@ -130,17 +130,17 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "https://wytglqaihaozmtcapkpt.supabase.co/rest/v1/knowledge_base?order=category.asc",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/knowledge_base?order=category.asc",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MTU5MTgsImV4cCI6MjA5MDQ5MTkxOH0.VMnqUzwJ5klVfFJdA3hcy4u7lYhrGx7o7A1w245KgPA"
+              "value": "={{$env.SUPABASE_ANON_KEY}}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MTU5MTgsImV4cCI6MjA5MDQ5MTkxOH0.VMnqUzwJ5klVfFJdA3hcy4u7lYhrGx7o7A1w245KgPA"
+              "value": "={{ 'Bearer ' + $env.SUPABASE_ANON_KEY }}"
             }
           ]
         },
@@ -178,7 +178,7 @@
           "parameters": [
             {
               "name": "x-api-key",
-              "value": "={{ $env.ANTHROPIC_API_KEY }}"
+              "value": "={{$env.ANTHROPIC_API_KEY}}"
             },
             {
               "name": "anthropic-version",
@@ -243,17 +243,17 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://wytglqaihaozmtcapkpt.supabase.co/rest/v1/chat_messages",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/chat_messages",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -282,17 +282,17 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "={{ 'https://wytglqaihaozmtcapkpt.supabase.co' + '/rest/v1/chat_sessions?id=eq.' + $json.session_id }}",
+        "url": "={{ $env.SUPABASE_URL + '/rest/v1/chat_sessions?id=eq.' + $json.session_id }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -349,17 +349,17 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://wytglqaihaozmtcapkpt.supabase.co/rest/v1/leads",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/leads",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -472,7 +472,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://waha:3000/api/sendText",
+        "url": "={{$env.WAHA_URL || 'http://localhost:3000'}}/api/sendText",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -484,7 +484,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ chatId: '436509907599@c.us', text: $json.alert_text, session: 'default' }) }}",
+        "jsonBody": "={{ JSON.stringify({ chatId: $env.ADIS_WHATSAPP_JID || '', text: $json.alert_text, session: 'default' }) }}",
         "options": {
           "timeout": 5000
         }
@@ -502,17 +502,17 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "={{ 'https://wytglqaihaozmtcapkpt.supabase.co' + '/rest/v1/leads?session_id=eq.' + $json.session_id }}",
+        "url": "={{ $env.SUPABASE_URL + '/rest/v1/leads?session_id=eq.' + $json.session_id }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
             },
             {
               "name": "Authorization",
-              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5dGdscWFpaGFvem10Y2Fwa3B0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxNTkxOCwiZXhwIjoyMDkwNDkxOTE4fQ.bhGd3rJUVGnAKmGM2fdETT5iStQ20Fu8gMNHy02kP60"
+              "value": "={{ 'Bearer ' + $env.SUPABASE_SERVICE_KEY }}"
             },
             {
               "name": "Content-Type",

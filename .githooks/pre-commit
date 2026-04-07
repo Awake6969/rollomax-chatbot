@@ -1,0 +1,25 @@
+#!/bin/bash
+# Pre-commit hook: Block commits containing API keys
+
+echo "Checking for secrets..."
+
+# Pattern for common API keys (split to avoid self-detection)
+PATTERNS=(
+    "sk-ant-api[0-9]"
+    "sk-[a-zA-Z0-9]{48}"
+    "AIza[0-9A-Za-z_-]{35}"
+    "ghp_[a-zA-Z0-9]{36}"
+)
+
+for pattern in "${PATTERNS[@]}"; do
+    # Only check ADDED lines (starting with +), not removed lines
+    if git diff --cached --diff-filter=d | grep "^+" | grep -qE "$pattern"; then
+        echo "ERROR: Potential API key detected matching pattern: $pattern"
+        echo "Please remove the secret before committing."
+        echo "Use environment variables instead: \$env.YOUR_KEY_NAME"
+        exit 1
+    fi
+done
+
+echo "No secrets detected."
+exit 0
