@@ -107,6 +107,10 @@
       box-shadow: 0 2px 8px rgba(201,169,110,0.3);
       position: relative;
     }
+    @keyframes onlinePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.4); }
+      50% { box-shadow: 0 0 0 4px rgba(76,175,80,0); }
+    }
     .quick-chat-avatar::after {
       content: '';
       position: absolute;
@@ -117,6 +121,7 @@
       background: var(--online);
       border-radius: 50%;
       border: 2px solid var(--primary);
+      animation: onlinePulse 2s ease-in-out infinite;
     }
     .quick-chat-avatar img {
       width: 100%;
@@ -173,15 +178,6 @@
       fill: currentColor;
     }
 
-    /* Subtle pulse animation on the green dot */
-    @keyframes onlinePulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.4); }
-      50% { box-shadow: 0 0 0 4px rgba(76,175,80,0); }
-    }
-    .quick-chat-avatar::after {
-      animation: onlinePulse 2s ease-in-out infinite;
-    }
-
     /* Mobile responsive */
     @media (max-width: 400px) {
       .quick-chat-bar {
@@ -231,7 +227,7 @@
     }
 
     /* ── Inline mode overrides ─────────────────────────────────────── */
-    :host([data-mode="inline"]) .bubble-btn { display: none; }
+    :host([data-mode="inline"]) .quick-chat-bar { display: none; }
     :host([data-mode="inline"]) .chat-window {
       position: relative;
       bottom: auto;
@@ -1397,34 +1393,6 @@
     }
 
     /* ── Toggle / Open / Close chat ─────────────────────────────────── */
-    toggleChat() {
-      if (this.isOpen) {
-        this.closeChat();
-      } else {
-        this.openChat();
-      }
-    }
-
-    openChat() {
-      if (this._proactiveShown) {
-        this.trackEvent('proactive_clicked', { variant: this._abVariant });
-        this._proactiveShown = false;
-      }
-
-      this.isOpen = true;
-      this.$chatWindow.classList.add('is-open');
-      if (this.$quickChatBar) this.$quickChatBar.classList.add('is-open');
-
-      this.trackEvent('chat_opened');
-
-      if (this.consentGiven) {
-        this.showChatUI();
-        this.focusInput();
-      } else {
-        this.showConsentUI();
-      }
-    }
-
     closeChat() {
       this.isOpen = false;
       this.$chatWindow.classList.remove('is-open');
@@ -1433,6 +1401,11 @@
     }
 
     showChat() {
+      if (this._proactiveShown) {
+        this.trackEvent('proactive_clicked', { variant: this._abVariant });
+        this._proactiveShown = false;
+      }
+
       this.isOpen = true;
       this.$chatWindow.classList.add('is-open');
       if (this.$quickChatBar) this.$quickChatBar.classList.add('is-open');
