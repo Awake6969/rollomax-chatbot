@@ -1,0 +1,55 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - region "Notifications (F8)":
+      - list
+    - region "Notifications alt+T"
+    - button "Nach oben scrollen":
+      - img
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - img [ref=e7]
+        - generic [ref=e9]:
+          - heading "Ihre Privatsphaere ist uns wichtig" [level=3] [ref=e10]
+          - paragraph [ref=e11]: Wir nutzen Cookies und aehnliche Technologien, um Ihnen die bestmoegliche Erfahrung auf unserer Website zu bieten. Sie entscheiden, welche Kategorien Sie zulassen moechten.
+      - button "Alle akzeptieren" [ref=e12] [cursor=pointer]
+      - button "Nur notwendige Cookies akzeptieren" [ref=e13] [cursor=pointer]
+      - generic [ref=e14]:
+        - button "Einstellungen anpassen" [ref=e15] [cursor=pointer]
+        - link "Datenschutzerklaerung" [ref=e16] [cursor=pointer]:
+          - /url: /datenschutz
+  - generic:
+    - button "Chat oeffnen" [ref=e17] [cursor=pointer]:
+      - generic [ref=e19]: R
+      - generic [ref=e20]:
+        - generic [ref=e21]: RolloMax Berater
+        - generic [ref=e22]: Fragen Sie mich etwas...
+      - img [ref=e24]
+    - generic:
+      - generic:
+        - generic: R
+        - generic:
+          - text: RolloMax Berater
+          - generic: KI
+        - generic:
+          - button "Sound umschalten":
+            - img
+          - button "Einstellungen":
+            - img
+          - button "Chat schliessen":
+            - img
+          - generic:
+            - button "Chat-Verlauf loeschen":
+              - img
+              - text: Chat-Verlauf loeschen
+            - button "Einwilligung widerrufen":
+              - img
+              - text: Einwilligung widerrufen
+      - generic:
+        - heading "Datenschutzhinweis" [level=2]
+        - paragraph: Dieser Chat wird von einer kuenstlichen Intelligenz (KI) betrieben. Ihre Nachrichten werden verschluesselt uebertragen und nach 90 Tagen automatisch geloescht. Es werden keine personenbezogenen Daten ohne Ihre ausdrueckliche Einwilligung gespeichert.
+        - link "Datenschutzerklaerung":
+          - /url: https://rollomax.at/datenschutz/
+        - generic:
+          - checkbox "Ich stimme der Verarbeitung meiner Daten gemaess der Datenschutzerklaerung zu."
+          - generic: Ich stimme der Verarbeitung meiner Daten gemaess der Datenschutzerklaerung zu.
+        - button "Akzeptieren und Chat starten" [disabled]
