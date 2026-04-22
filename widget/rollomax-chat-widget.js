@@ -55,70 +55,158 @@
 
     *, *::before, *::after { box-sizing: border-box; }
 
-    /* ── Bubble button (bubble mode only) ──────────────────────────── */
-    .bubble-btn {
+    /* ── Quick Chat Bar (Premium Launcher) ────────────────────────── */
+    .quick-chat-bar {
       position: fixed;
-      bottom: 90px;
+      bottom: 24px;
       right: 24px;
       z-index: 9999;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 20px 8px 8px;
       background: var(--primary);
-      color: var(--accent);
-      border: 2px solid var(--accent);
+      border: 1px solid rgba(201,169,110,0.3);
+      border-radius: 28px;
       cursor: pointer;
+      box-shadow:
+        0 4px 24px rgba(0,0,0,0.25),
+        0 0 0 1px rgba(201,169,110,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+      transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 56px;
+      max-width: 320px;
+    }
+    .quick-chat-bar:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.3),
+        0 0 0 1px rgba(201,169,110,0.2),
+        0 0 20px rgba(201,169,110,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+      border-color: rgba(201,169,110,0.5);
+    }
+    .quick-chat-bar:active {
+      transform: translateY(0);
+    }
+    .quick-chat-bar.is-open {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+    }
+
+    .quick-chat-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent) 0%, #B8944F 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-      transition: transform 200ms ease-out, box-shadow 200ms ease-out;
-      padding: 0;
-      min-width: 44px;
-      min-height: 44px;
-      animation: pulseGlow 3s ease-in-out infinite;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(201,169,110,0.3);
+      position: relative;
     }
-    .bubble-btn.is-open { animation: none; }
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
-      50% { box-shadow: 0 4px 16px rgba(201,169,110,0.4), 0 0 0 4px rgba(201,169,110,0.1); }
+    .quick-chat-avatar::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 10px;
+      height: 10px;
+      background: var(--online);
+      border-radius: 50%;
+      border: 2px solid var(--primary);
     }
-    .bubble-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    .quick-chat-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
     }
-    .bubble-btn svg { width: 28px; height: 28px; fill: currentColor; pointer-events: none; }
-    .bubble-btn .close-icon { display: none; }
-    .bubble-btn.is-open .chat-icon { display: none; }
-    .bubble-btn.is-open .close-icon { display: block; }
-
-    .bubble-tooltip {
-      position: fixed;
-      bottom: 158px;
-      right: 24px;
-      background: #fff;
+    .quick-chat-avatar-fallback {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-weight: 700;
       color: var(--primary);
-      padding: 10px 16px;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      font-size: 14px;
+    }
+
+    .quick-chat-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .quick-chat-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: var(--font-body);
+    }
+    .quick-chat-placeholder {
+      font-size: 15px;
+      color: rgba(255,255,255,0.7);
       font-family: var(--font-body);
       white-space: nowrap;
-      opacity: 0;
-      transform: translateY(8px);
-      transition: opacity 300ms ease-out, transform 300ms ease-out;
-      pointer-events: none;
-      z-index: 9998;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .bubble-tooltip.is-visible {
+
+    .quick-chat-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-left: 4px;
+      opacity: 0.8;
+      transition: opacity 200ms ease-out, transform 200ms ease-out;
+    }
+    .quick-chat-bar:hover .quick-chat-icon {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateX(2px);
     }
+    .quick-chat-icon svg {
+      width: 100%;
+      height: 100%;
+      fill: currentColor;
+    }
+
+    /* Subtle pulse animation on the green dot */
+    @keyframes onlinePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.4); }
+      50% { box-shadow: 0 0 0 4px rgba(76,175,80,0); }
+    }
+    .quick-chat-avatar::after {
+      animation: onlinePulse 2s ease-in-out infinite;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 400px) {
+      .quick-chat-bar {
+        right: 16px;
+        bottom: 16px;
+        max-width: calc(100vw - 32px);
+        padding: 6px 16px 6px 6px;
+      }
+      .quick-chat-avatar {
+        width: 36px;
+        height: 36px;
+      }
+      .quick-chat-placeholder {
+        font-size: 14px;
+      }
+    }
+
+    /* Legacy bubble-btn class for compatibility */
+    .bubble-btn { display: none; }
+    .bubble-tooltip { display: none; }
 
     /* ── Chat window (bubble mode) ─────────────────────────────────── */
     .chat-window {
       position: fixed;
-      bottom: 160px;
+      bottom: 96px;
       right: 24px;
       z-index: 9999;
       width: 400px;
@@ -1061,11 +1149,19 @@
     }
 
     bubbleButtonHTML() {
-      return '<button class="bubble-btn" aria-label="Chat oeffnen">' +
-        '<span class="chat-icon">' + ICON_CHAT + '</span>' +
-        '<span class="close-icon">' + ICON_CLOSE + '</span>' +
-        '</button>' +
-        '<div class="bubble-tooltip">Fragen? Wir helfen!</div>';
+      return '<div class="quick-chat-bar" role="button" tabindex="0" aria-label="Chat oeffnen">' +
+        '<div class="quick-chat-avatar">' +
+          '<img src="/widget/avatar.png" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+          '<span class="quick-chat-avatar-fallback" style="display:none">R</span>' +
+        '</div>' +
+        '<div class="quick-chat-content">' +
+          '<span class="quick-chat-label">RolloMax Berater</span>' +
+          '<span class="quick-chat-placeholder">Fragen Sie mich etwas...</span>' +
+        '</div>' +
+        '<div class="quick-chat-icon">' +
+          '<svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>' +
+        '</div>' +
+      '</div>';
     }
 
     chatWindowHTML() {
@@ -1127,7 +1223,7 @@
     /* ── Cache DOM refs ─────────────────────────────────────────────── */
     cacheElements() {
       var s = this.shadowRoot;
-      this.$bubbleBtn = s.querySelector('.bubble-btn');
+      this.$quickChatBar = s.querySelector('.quick-chat-bar');
       this.$chatWindow = s.querySelector('.chat-window');
       this.$consentScreen = s.querySelector('#consent-screen');
       this.$consentCb = s.querySelector('#consent-cb');
@@ -1142,7 +1238,6 @@
       this.$closeBtn = s.querySelector('.close-btn');
       this.$deleteChatBtn = s.querySelector('.delete-chat-btn');
       this.$revokeConsentBtn = s.querySelector('.revoke-consent-btn');
-      this.$tooltip = s.querySelector('.bubble-tooltip');
       this.$uploadBtn = s.querySelector('#upload-btn');
       this.$uploadInput = s.querySelector('#upload-input');
       this.$feedbackOverlay = s.querySelector('#feedback-overlay');
@@ -1153,9 +1248,15 @@
     bindEvents() {
       var self = this;
 
-      // Bubble button
-      if (this.$bubbleBtn) {
-        this.$bubbleBtn.addEventListener('click', function() { self.toggleChat(); });
+      // Quick Chat Bar (click and keyboard)
+      if (this.$quickChatBar) {
+        this.$quickChatBar.addEventListener('click', function() { self.showChat(); });
+        this.$quickChatBar.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            self.showChat();
+          }
+        });
       }
 
       // Close button
@@ -1312,13 +1413,13 @@
 
       this.isOpen = true;
       this.$chatWindow.classList.add('is-open');
-      if (this.$bubbleBtn) this.$bubbleBtn.classList.add('is-open');
-      if (this.$tooltip) this.$tooltip.classList.remove('is-visible');
+      if (this.$quickChatBar) this.$quickChatBar.classList.add('is-open');
 
       this.trackEvent('chat_opened');
 
       if (this.consentGiven) {
         this.showChatUI();
+        this.focusInput();
       } else {
         this.showConsentUI();
       }
@@ -1327,18 +1428,32 @@
     closeChat() {
       this.isOpen = false;
       this.$chatWindow.classList.remove('is-open');
-      if (this.$bubbleBtn) this.$bubbleBtn.classList.remove('is-open');
+      if (this.$quickChatBar) this.$quickChatBar.classList.remove('is-open');
       this.closeSettings();
     }
 
     showChat() {
-      // For inline mode: auto-open
       this.isOpen = true;
+      this.$chatWindow.classList.add('is-open');
+      if (this.$quickChatBar) this.$quickChatBar.classList.add('is-open');
+
+      this.trackEvent('chat_opened');
+
       if (this.consentGiven) {
         this.showChatUI();
+        this.focusInput();
       } else {
         this.showConsentUI();
       }
+    }
+
+    focusInput() {
+      var self = this;
+      setTimeout(function() {
+        if (self.$msgInput) {
+          self.$msgInput.focus();
+        }
+      }, 350);
     }
 
     showConsentUI() {
@@ -2188,9 +2303,12 @@
         var delay = 45000 + Math.random() * 15000;
 
         this._proactiveTimer = setTimeout(function() {
-          if (!self.isOpen && !self._proactiveShown && self.$tooltip) {
-            self.$tooltip.textContent = variants[self._abVariant];
-            self.$tooltip.classList.add('is-visible');
+          if (!self.isOpen && !self._proactiveShown && self.$quickChatBar) {
+            var placeholder = self.$quickChatBar.querySelector('.quick-chat-placeholder');
+            if (placeholder) {
+              placeholder.textContent = variants[self._abVariant];
+              placeholder.style.color = 'rgba(255,255,255,0.9)';
+            }
             self._proactiveShown = true;
             sessionStorage.setItem('rollomax_proactive_shown', 'true');
             self.trackEvent('proactive_shown', { variant: self._abVariant });
