@@ -1568,7 +1568,7 @@
     sendFeedback(type, data) {
       fetch(this.apiUrl + '/webhook/feedback', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Widget-Token': this.token },
+        headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Widget-Token': this.token },
         body: JSON.stringify({ session_id: this.sessionId, feedback_type: type, data: data })
       }).catch(function(err) { console.warn('Feedback send failed:', err); });
     }
@@ -1689,7 +1689,7 @@
       var response = await fetch(this.apiUrl + '/webhook/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=utf-8',
           'X-Widget-Token': this.token,
           'X-Session-ID': this.sessionId
         },
@@ -1738,7 +1738,7 @@
         var response = await fetch(this.apiUrl + '/webhook/chat', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
             'X-Widget-Token': this.token,
             'X-Session-ID': this.sessionId
           },
@@ -1815,7 +1815,7 @@
         await fetch(this.apiUrl + '/webhook/delete-session', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
             'X-Widget-Token': this.token
           },
           body: JSON.stringify({ session_id: this.sessionId })
@@ -1875,7 +1875,7 @@
         fetch(self.apiUrl + '/webhook/upload-image', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
             'X-Widget-Token': self.token
           },
           body: JSON.stringify({
@@ -1965,12 +1965,47 @@
               self.openConfiguratorModal();
             });
             break;
+
+          case 'configurator_odl':
+          case 'configurator_wsys':
+          case 'configurator_wsysplus': {
+            var lineMap = { configurator_odl: 'odl', configurator_wsys: 'wsys', configurator_wsysplus: 'wsysplus' };
+            var labelMap = { configurator_odl: 'Markisen & Pergolen konfigurieren', configurator_wsys: 'Raffstoren & Rollläden konfigurieren', configurator_wsysplus: 'Fenster + Sonnenschutz konfigurieren' };
+            var line = lineMap[action];
+            btn.className = 'action-btn secondary';
+            btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' + labelMap[action];
+            btn.addEventListener('click', (function(l) {
+              return function() { self.openKaufberater(l); };
+            })(line));
+            break;
+          }
         }
 
         div.appendChild(btn);
       });
 
       return div;
+    }
+
+    openKaufberater(line) {
+      var url = 'https://rollomax.at/kaufberater/?line=' + line;
+      fetch(this.apiUrl + '/webhook/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'X-Widget-Token': this.token,
+          'X-Session-ID': this.sessionId
+        },
+        body: JSON.stringify({
+          session_id: this.sessionId,
+          message: '__configurator_open__',
+          configurator_line: line,
+          consent: true,
+          page_url: window.location.href
+        })
+      }).catch(function() {});
+      window.open(url, '_blank', 'noopener,noreferrer');
+      this.trackEvent('kaufberater_opened', { line: line });
     }
 
     openWhatsApp() {
@@ -2168,7 +2203,7 @@
       fetch(this.apiUrl + '/webhook/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=utf-8',
           'X-Widget-Token': this.token,
           'X-Session-ID': this.sessionId
         },
@@ -2318,7 +2353,7 @@
       fetch(this.apiUrl + '/webhook/track', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=utf-8',
           'X-Widget-Token': this.token
         },
         body: JSON.stringify(payload)
@@ -2331,7 +2366,7 @@
         await fetch(this.apiUrl + '/webhook/delete-session', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
             'X-Widget-Token': this.token
           },
           body: JSON.stringify({ session_id: this.sessionId })
