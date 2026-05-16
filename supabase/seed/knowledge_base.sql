@@ -1,4 +1,4 @@
--- ============================================================
+﻿-- ============================================================
 -- knowledge_base.sql
 -- RolloMax KI-Chatbot: Wissensdatenbank Seed-Daten
 -- Quelle: rollomax.at
@@ -10,8 +10,8 @@
 INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALUES
 (
     'unternehmen',
-    'RolloMax Wien Uebersicht',
-    'RolloMax ist ein Familienbetrieb fuer Sonnenschutz mit Sitz in der Leopoldsgasse 4, 1020 Wien. Inhaber ist Adis Kavaz. Das Unternehmen hat eine Bewertung von 4,7 Sternen auf Google bei 119 Rezensionen.',
+    'RolloMax Wien Übersicht',
+    'RolloMax ist ein Familienbetrieb für Sonnenschutz mit Sitz in der Leopoldsgasse 4, 1020 Wien. Inhaber ist Adis Kavaz. Das Unternehmen hat eine Bewertung von 4,7 Sternen auf Google bei 119 Rezensionen.',
     ARRAY['RolloMax', 'Wien', 'Sonnenschutz', 'Familienbetrieb', 'Leopoldsgasse', 'Adis Kavaz', '1020'],
     NULL
 ),
@@ -24,16 +24,16 @@ INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALU
 ),
 (
     'unternehmen',
-    'Oeffnungszeiten',
-    'Unsere Oeffnungszeiten sind Montag bis Donnerstag von 08:00 bis 12:00 Uhr und 13:00 bis 17:00 Uhr, Freitag von 08:00 bis 16:00 Uhr. Besuchen Sie auch unseren Schauraum in der Leopoldsgasse 4, 1020 Wien.',
-    ARRAY['Oeffnungszeiten', 'Schauraum', 'Montag', 'Freitag', 'Uhrzeit', 'offen', 'geoeffnet'],
+    'Öffnungszeiten',
+    'Unsere Öffnungszeiten sind Montag bis Donnerstag von 08:00 bis 12:00 Uhr und 13:00 bis 17:00 Uhr, Freitag von 08:00 bis 16:00 Uhr. Besuchen Sie auch unseren Schauraum in der Leopoldsgasse 4, 1020 Wien.',
+    ARRAY['Öffnungszeiten', 'Schauraum', 'Montag', 'Freitag', 'Uhrzeit', 'offen', 'geöffnet'],
     NULL
 ),
 (
     'unternehmen',
     'Anfahrt',
-    'Sie finden uns in der Leopoldsgasse 4, 1020 Wien. Unser Standort ist oeffentlich sehr gut erreichbar.',
-    ARRAY['Anfahrt', 'Adresse', 'Leopoldsgasse', '1020 Wien', 'oeffentlich', 'erreichbar', 'Standort'],
+    'Sie finden uns in der Leopoldsgasse 4, 1020 Wien. Unser Standort ist öffentlich sehr gut erreichbar.',
+    ARRAY['Anfahrt', 'Adresse', 'Leopoldsgasse', '1020 Wien', 'öffentlich', 'erreichbar', 'Standort'],
     NULL
 );
 
@@ -44,28 +44,28 @@ INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALU
 (
     'innenbeschattung',
     'Rollo',
-    'Der Rollo ist ein klassischer Sicht- und Sonnenschutz fuer den Innenbereich. Wir bieten eine grosse Stoff- und Farbauswahl fuer individuelle Gestaltung. Die Bedienung ist einfach und unkompliziert.',
+    'Der Rollo ist ein klassischer Sicht- und Sonnenschutz für den Innenbereich. Wir bieten eine große Stoff- und Farbauswahl für individuelle Gestaltung. Die Bedienung ist einfach und unkompliziert.',
     ARRAY['Rollo', 'Sichtschutz', 'Sonnenschutz', 'innen', 'Stoff', 'Farbe'],
     'https://rollomax.at/rollo/'
 ),
 (
     'innenbeschattung',
     'Plissee',
-    'Das Plissee ist ein flexibler Sonnenschutz, der von oben und unten verstellbar ist. Es eignet sich ideal fuer Dachfenster und Sonderformen. Durch die flexible Positionierung koennen Sie den Lichteinfall praezise steuern.',
+    'Das Plissee ist ein flexibler Sonnenschutz, der von oben und unten verstellbar ist. Es eignet sich ideal für Dachfenster und Sonderformen. Durch die flexible Positionierung koennen Sie den Lichteinfall praezise steuern.',
     ARRAY['Plissee', 'Dachfenster', 'Sonderformen', 'flexibel', 'verstellbar', 'Sonnenschutz'],
     'https://rollomax.at/plissee/'
 ),
 (
     'innenbeschattung',
     'Duette (Wabenplissee)',
-    'Das Duette, auch Wabenplissee genannt, verfuegt ueber eine spezielle Wabenstruktur fuer optimale Waermedaemmung. Es wirkt energiesparend sowohl im Winter als auch im Sommer und traegt zur Reduktion Ihrer Heiz- und Kuehlkosten bei.',
+    'Das Duette, auch Wabenplissee genannt, verfuegt ueber eine spezielle Wabenstruktur für optimale Waermedaemmung. Es wirkt energiesparend sowohl im Winter als auch im Sommer und traegt zur Reduktion Ihrer Heiz- und Kuehlkosten bei.',
     ARRAY['Duette', 'Wabenplissee', 'Waermedaemmung', 'energiesparend', 'Isolation', 'Waben'],
     'https://rollomax.at/duette/'
 ),
 (
     'innenbeschattung',
     'Jalousie',
-    'Die Aluminium-Jalousie bietet praezise Lichtsteuerung fuer den Innenbereich. Die Lamellen lassen sich individuell einstellen, sodass Sie den Lichteinfall genau nach Ihren Wuenschen regulieren koennen.',
+    'Die Aluminium-Jalousie bietet praezise Lichtsteuerung für den Innenbereich. Die Lamellen lassen sich individuell einstellen, sodass Sie den Lichteinfall genau nach Ihren Wuenschen regulieren koennen.',
     ARRAY['Jalousie', 'Aluminium', 'Lichtsteuerung', 'Lamellen', 'innen'],
     'https://rollomax.at/jalousie/'
 ),
@@ -79,47 +79,47 @@ INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALU
 (
     'innenbeschattung',
     'Vertikaljalousie',
-    'Die Vertikaljalousie ist ideal fuer grosse Fensterflaechen und Schiebtueren. Die vertikalen Lamellen sorgen fuer einen eleganten Sonnenschutz und lassen sich einfach zur Seite schieben.',
-    ARRAY['Vertikaljalousie', 'vertikal', 'Lamellen', 'grosse Fenster', 'Schiebtueren', 'Sonnenschutz'],
+    'Die Vertikaljalousie ist ideal für große Fensterflaechen und Schiebtueren. Die vertikalen Lamellen sorgen für einen eleganten Sonnenschutz und lassen sich einfach zur Seite schieben.',
+    ARRAY['Vertikaljalousie', 'vertikal', 'Lamellen', 'große Fenster', 'Schiebtueren', 'Sonnenschutz'],
     'https://rollomax.at/vertikaljalousie/'
 );
 
 -- =========================
--- Kategorie: aussenbeschattung
+-- Kategorie: Außenbeschattung
 -- =========================
 INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALUES
 (
-    'aussenbeschattung',
+    'Außenbeschattung',
     'Rolllaeden',
-    'Rolllaeden bieten effektiven Waerme-, Kaelte- und Laermschutz fuer Ihr Zuhause. Sie erhoehen die Sicherheit und sind elektrisch oder manuell bedienbar. Eine zuverlaessige Loesung fuer jede Jahreszeit.',
+    'Rolllaeden bieten effektiven Waerme-, Kaelte- und Laermschutz für Ihr Zuhause. Sie erhoehen die Sicherheit und sind elektrisch oder manuell bedienbar. Eine zuverlaessige Loesung für jede Jahreszeit.',
     ARRAY['Rolllaeden', 'Waermeschutz', 'Kaelteschutz', 'Laermschutz', 'Sicherheit', 'elektrisch', 'manuell'],
     'https://rollomax.at/rolllaeden/'
 ),
 (
-    'aussenbeschattung',
+    'Außenbeschattung',
     'Textilrollos (Screens)',
     'Textilrollos, auch Screens genannt, sind ein aussenliegender textiler Sonnenschutz. Sie bieten blendfreien Durchblick nach aussen und schuetzen gleichzeitig vor Hitze und UV-Strahlung.',
     ARRAY['Textilrollos', 'Screens', 'textil', 'aussen', 'Sonnenschutz', 'blendfrei', 'UV-Schutz'],
     'https://rollomax.at/textilrollos/'
 ),
 (
-    'aussenbeschattung',
+    'Außenbeschattung',
     'Solar Rolllaeden',
     'Solarbetriebene Rolllaeden funktionieren kabellos und unabhaengig vom Stromnetz. Sie sind besonders einfach nachzuruesten, da keine Verkabelung notwendig ist. Eine umweltfreundliche und praktische Loesung.',
     ARRAY['Solar', 'Rolllaeden', 'solarbetrieben', 'kabellos', 'Nachruestung', 'Stromnetz', 'umweltfreundlich'],
     'https://rollomax.at/solar-rolllaeden/'
 ),
 (
-    'aussenbeschattung',
+    'Außenbeschattung',
     'Aussenjalousien/Raffstores',
-    'Aussenjalousien, auch Raffstores genannt, ermoeglichen praezise Lichtsteuerung von aussen. Sie blockieren 75 bis 80 Prozent der Sonnenhitze und sind die beste Loesung fuer sommerlichen Waermeschutz.',
+    'Aussenjalousien, auch Raffstores genannt, ermoeglichen praezise Lichtsteuerung von aussen. Sie blockieren 75 bis 80 Prozent der Sonnenhitze und sind die beste Loesung für sommerlichen Waermeschutz.',
     ARRAY['Aussenjalousien', 'Raffstores', 'Lichtsteuerung', 'aussen', 'Waermeschutz', 'Sonnenhitze', 'Hitzeschutz'],
     'https://rollomax.at/aussenjalousien/'
 ),
 (
-    'aussenbeschattung',
+    'Außenbeschattung',
     'Insektenschutz',
-    'Wir bieten 6 verschiedene Typen von Insektenschutz an: Spannrahmen, Drehrahmen, Schiebeanlagen, Rollos, Plissees und Lichtschachtabdeckungen. Jeder Insektenschutz wird als Massanfertigung fuer Ihr Fenster produziert.',
+    'Wir bieten 6 verschiedene Typen von Insektenschutz an: Spannrahmen, Drehrahmen, Schiebeanlagen, Rollos, Plissees und Lichtschachtabdeckungen. Jeder Insektenschutz wird als Massanfertigung für Ihr Fenster produziert.',
     ARRAY['Insektenschutz', 'Spannrahmen', 'Drehrahmen', 'Schiebeanlagen', 'Rollos', 'Plissees', 'Lichtschacht', 'Massanfertigung'],
     'https://rollomax.at/insektenschutz/'
 );
@@ -131,21 +131,21 @@ INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALU
 (
     'markisen',
     'Gelenkarmmarkise',
-    'Die Gelenkarmmarkise ist die klassische Terrassenmarkise. Sie ist in einer grossen Stoff- und Farbauswahl erhaeltlich und kann elektrisch oder manuell bedient werden. Ideal fuer die Beschattung Ihrer Terrasse oder Ihres Balkons.',
+    'Die Gelenkarmmarkise ist die klassische Terrassenmarkise. Sie ist in einer großen Stoff- und Farbauswahl erhaeltlich und kann elektrisch oder manuell bedient werden. Ideal für die Beschattung Ihrer Terrasse oder Ihres Balkons.',
     ARRAY['Gelenkarmmarkise', 'Terrasse', 'Markise', 'Stoff', 'elektrisch', 'manuell', 'Balkon'],
     'https://rollomax.at/gelenkarmmarkise/'
 ),
 (
     'markisen',
     'Pergolamarkisen',
-    'Pergolamarkisen sind besonders robuste Markisen fuer groessere Flaechen. Sie zeichnen sich durch hohe Windstabilitaet und Langlebigkeit aus und eignen sich hervorragend fuer grosse Terrassenbereiche.',
-    ARRAY['Pergolamarkisen', 'Pergola', 'robust', 'windstabil', 'langlebig', 'grosse Flaechen'],
+    'Pergolamarkisen sind besonders robuste Markisen für groessere Flaechen. Sie zeichnen sich durch hohe Windstabilitaet und Langlebigkeit aus und eignen sich hervorragend für große Terrassenbereiche.',
+    ARRAY['Pergolamarkisen', 'Pergola', 'robust', 'windstabil', 'langlebig', 'große Flaechen'],
     'https://rollomax.at/pergolamarkisen/'
 ),
 (
     'markisen',
     'Wintergartenmarkisen',
-    'Wintergartenmarkisen wurden speziell fuer Wintergaerten und Glasdaecher entwickelt. Sie sind sowohl fuer die Aussen- als auch fuer die Innenmontage geeignet und schuetzen zuverlaessig vor Ueberhitzung.',
+    'Wintergartenmarkisen wurden speziell für Wintergaerten und Glasdaecher entwickelt. Sie sind sowohl für die Aussen- als auch für die Innenmontage geeignet und schuetzen zuverlaessig vor Ueberhitzung.',
     ARRAY['Wintergartenmarkisen', 'Wintergarten', 'Glasdach', 'Aussenmontage', 'Innenmontage', 'Ueberhitzung'],
     'https://rollomax.at/wintergartenmarkisen/'
 );
@@ -164,21 +164,21 @@ INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALU
 (
     'ueberdachungen',
     'Faltdach',
-    'Das textile Faltdach bietet flexible Beschattung fuer Ihre Terrasse. Es ist leicht, elegant und laesst sich bei Bedarf einfach zusammenfalten.',
+    'Das textile Faltdach bietet flexible Beschattung für Ihre Terrasse. Es ist leicht, elegant und laesst sich bei Bedarf einfach zusammenfalten.',
     ARRAY['Faltdach', 'textil', 'flexibel', 'Beschattung', 'leicht', 'elegant', 'Terrasse'],
     'https://rollomax.at/faltdach/'
 ),
 (
     'ueberdachungen',
     'Glasdach',
-    'Das Glasdach ist eine feststehende Glasueberdachung, die lichtdurchlaessig und wettergeschuetzt ist. Ideal fuer eine helle, geschuetzte Terrasse oder einen Eingangsbereich.',
+    'Das Glasdach ist eine feststehende Glasueberdachung, die lichtdurchlaessig und wettergeschuetzt ist. Ideal für eine helle, geschuetzte Terrasse oder einen Eingangsbereich.',
     ARRAY['Glasdach', 'Glas', 'Ueberdachung', 'lichtdurchlaessig', 'wettergeschuetzt', 'feststehend'],
     'https://rollomax.at/glasdach/'
 ),
 (
     'ueberdachungen',
     'SHADE-System',
-    'Das SHADE-System ist ein innovatives Beschattungssystem und Gewinner des German Design Award. Es ueberzeugt durch sein modernes Design und bietet hochwertige Beschattung fuer anspruchsvolle Architektur.',
+    'Das SHADE-System ist ein innovatives Beschattungssystem und Gewinner des German Design Award. Es ueberzeugt durch sein modernes Design und bietet hochwertige Beschattung für anspruchsvolle Architektur.',
     ARRAY['SHADE', 'SHADE-System', 'innovativ', 'German Design Award', 'modern', 'Design', 'Beschattung'],
     'https://rollomax.at/shade-system/'
 );
@@ -190,7 +190,7 @@ INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALU
 (
     'rund_ums_haus',
     'Fenster',
-    'Wir bieten hochwertige Fenster fuer Neubau und Sanierung. Unsere Fenster zeichnen sich durch beste Waermedaemmung und hohe Qualitaet aus.',
+    'Wir bieten hochwertige Fenster für Neubau und Sanierung. Unsere Fenster zeichnen sich durch beste Waermedaemmung und hohe Qualitaet aus.',
     ARRAY['Fenster', 'Neubau', 'Sanierung', 'Waermedaemmung', 'Qualitaet'],
     'https://rollomax.at/fenster/'
 ),
@@ -223,14 +223,14 @@ INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALU
 (
     'services',
     'Kostenlose Beratung',
-    'Wir bieten Ihnen eine persoenliche Beratung im Schauraum oder bei Ihnen vor Ort. Die Beratung ist unverbindlich und kostenlos. Unsere Experten helfen Ihnen, die passende Loesung fuer Ihre Anforderungen zu finden.',
+    'Wir bieten Ihnen eine persoenliche Beratung im Schauraum oder bei Ihnen vor Ort. Die Beratung ist unverbindlich und kostenlos. Unsere Experten helfen Ihnen, die passende Loesung für Ihre Anforderungen zu finden.',
     ARRAY['Beratung', 'kostenlos', 'unverbindlich', 'Schauraum', 'vor Ort', 'persoenlich'],
     NULL
 ),
 (
     'services',
     'Aufmass',
-    'Wir fuehren ein professionelles Aufmass bei Ihnen zu Hause durch. Das Aufmass ist die Grundlage fuer massgeschneiderte Produkte, die exakt zu Ihren Fenstern und Tueren passen.',
+    'Wir fuehren ein professionelles Aufmass bei Ihnen zu Hause durch. Das Aufmass ist die Grundlage für massgeschneiderte Produkte, die exakt zu Ihren Fenstern und Tueren passen.',
     ARRAY['Aufmass', 'professionell', 'massgeschneidert', 'Vermessung', 'zu Hause'],
     NULL
 ),
@@ -251,34 +251,34 @@ INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALU
 (
     'services',
     'Wartung',
-    'Regelmaessige Wartung sorgt fuer eine lange Lebensdauer Ihrer Sonnenschutzprodukte. Wir pruefen, reinigen und justieren Ihre Anlagen fachgerecht.',
+    'Regelmaessige Wartung sorgt für eine lange Lebensdauer Ihrer Sonnenschutzprodukte. Wir prüfen, reinigen und justieren Ihre Anlagen fachgerecht.',
     ARRAY['Wartung', 'Lebensdauer', 'Pflege', 'regelmaessig', 'Justierung'],
     NULL
 ),
 (
     'services',
     'Nachruestung',
-    'Wir bieten die Umruestung von manuell auf elektrisch oder Smart-Home-Steuerung an. Modernisieren Sie Ihre bestehenden Sonnenschutzanlagen fuer mehr Komfort.',
+    'Wir bieten die Umruestung von manuell auf elektrisch oder Smart-Home-Steuerung an. Modernisieren Sie Ihre bestehenden Sonnenschutzanlagen für mehr Komfort.',
     ARRAY['Nachruestung', 'Umruestung', 'elektrisch', 'Smart-Home', 'Modernisierung', 'Komfort'],
     NULL
 ),
 (
     'services',
     'Montage ohne Bohren',
-    'Viele unserer Produkte koennen ohne Bohren montiert werden. Wir verwenden Klemmtraeger fuer Fenster oder spezielle Klebehalter. Diese Loesung ist ideal fuer Mietwohnungen, da keine Schaeden an Fenstern oder Waenden entstehen.',
+    'Viele unserer Produkte koennen ohne Bohren montiert werden. Wir verwenden Klemmtraeger für Fenster oder spezielle Klebehalter. Diese Loesung ist ideal für Mietwohnungen, da keine Schaeden an Fenstern oder Waenden entstehen.',
     ARRAY['Montage ohne Bohren', 'Klemmtraeger', 'Klebehalter', 'Mietwohnung', 'bohrfrei', 'schadensfrei'],
     NULL
 );
 
 -- =========================
--- Kategorie: foerderung
+-- Kategorie: Förderung
 -- =========================
 INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALUES
 (
-    'foerderung',
-    'Foerderung Stadt Wien',
-    'Die Stadt Wien foerdert Aussenbeschattung in mehrgeschossigen Wohnbauten mit bis zu 1.500 EUR. Die Foerderung gilt fuer Rolllaeden, Aussenjalousien und Markisen. Wir beraten Sie gerne zu den Voraussetzungen und unterstuetzen Sie bei der Antragstellung.',
-    ARRAY['Foerderung', 'Stadt Wien', 'Aussenbeschattung', '1500 EUR', 'Rolllaeden', 'Aussenjalousien', 'Markisen', 'Zuschuss'],
+    'Förderung',
+    'Förderung Stadt Wien',
+    'Die Stadt Wien fördert Außenbeschattung in mehrgeschossigen Wohnbauten mit bis zu 1.500 EUR. Die Förderung gilt für Rolllaeden, Aussenjalousien und Markisen. Wir beraten Sie gerne zu den Voraussetzungen und unterstuetzen Sie bei der Antragstellung.',
+    ARRAY['Förderung', 'Stadt Wien', 'Außenbeschattung', '1500 EUR', 'Rolllaeden', 'Aussenjalousien', 'Markisen', 'Zuschuss'],
     NULL
 );
 
@@ -289,28 +289,28 @@ INSERT INTO public.knowledge_base (category, title, content, keywords, url) VALU
 (
     'faq',
     'Aussen vs. Innen Sonnenschutz',
-    'Aussenbeschattung blockiert 75 bis 80 Prozent der Sonnenhitze, bevor sie das Glas erreicht. Innenbeschattung schafft nur 15 bis 20 Prozent. Fuer effektiven Waermeschutz ist Aussenbeschattung daher die beste Wahl.',
-    ARRAY['Aussenbeschattung', 'Innenbeschattung', 'Vergleich', 'Waermeschutz', 'Sonnenhitze', 'Unterschied'],
+    'Außenbeschattung blockiert 75 bis 80 Prozent der Sonnenhitze, bevor sie das Glas erreicht. Innenbeschattung schafft nur 15 bis 20 Prozent. für effektiven Waermeschutz ist Außenbeschattung daher die beste Wahl.',
+    ARRAY['Außenbeschattung', 'Innenbeschattung', 'Vergleich', 'Waermeschutz', 'Sonnenhitze', 'Unterschied'],
     NULL
 ),
 (
     'faq',
     'Rollo vs. Jalousie vs. Plissee',
-    'Rollos bieten gleichmaessigen Sicht- und Sonnenschutz. Jalousien ermoeglichen praezise Lichtsteuerung durch verstellbare Lamellen. Plissees sind besonders flexibel und ideal fuer Sonderformen wie Dachfenster. Welches Produkt am besten zu Ihnen passt, klaeren wir gerne in einer persoenlichen Beratung.',
+    'Rollos bieten gleichmaessigen Sicht- und Sonnenschutz. Jalousien ermoeglichen praezise Lichtsteuerung durch verstellbare Lamellen. Plissees sind besonders flexibel und ideal für Sonderformen wie Dachfenster. Welches Produkt am besten zu Ihnen passt, klaeren wir gerne in einer persoenlichen Beratung.',
     ARRAY['Rollo', 'Jalousie', 'Plissee', 'Vergleich', 'Unterschied', 'Lichtsteuerung', 'Sichtschutz'],
     NULL
 ),
 (
     'faq',
     'Beste Verdunkelung',
-    'Fuer maximale Verdunkelung empfehlen wir Rolllaeden fuer aussen oder Verdunkelungsrollos mit seitlichen Fuehrungsschienen fuer innen. Duette-Wabenplissees bieten zusaetzlich hervorragende Waermedaemmung und sind eine gute Ergaenzung.',
+    'für maximale Verdunkelung empfehlen wir Rolllaeden für aussen oder Verdunkelungsrollos mit seitlichen Fuehrungsschienen für innen. Duette-Wabenplissees bieten zusaetzlich hervorragende Waermedaemmung und sind eine gute Ergaenzung.',
     ARRAY['Verdunkelung', 'Rolllaeden', 'Verdunkelungsrollo', 'Fuehrungsschienen', 'Duette', 'dunkel', 'Schlafzimmer'],
     NULL
 ),
 (
     'faq',
     'Montage ohne Bohren',
-    'Ja, viele unserer Produkte koennen ohne Bohren montiert werden. Wir verwenden Klemmtraeger fuer Fenster oder spezielle Klebehalter. Diese Loesung ist ideal fuer Mietwohnungen, da keine Schaeden an Fenstern oder Waenden entstehen.',
+    'Ja, viele unserer Produkte koennen ohne Bohren montiert werden. Wir verwenden Klemmtraeger für Fenster oder spezielle Klebehalter. Diese Loesung ist ideal für Mietwohnungen, da keine Schaeden an Fenstern oder Waenden entstehen.',
     ARRAY['Montage ohne Bohren', 'Klemmtraeger', 'Klebehalter', 'Mietwohnung', 'bohrfrei', 'ohne Bohren'],
     NULL
 ),

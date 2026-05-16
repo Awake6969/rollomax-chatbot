@@ -1145,7 +1145,7 @@
     }
 
     bubbleButtonHTML() {
-      return '<div class="quick-chat-bar" role="button" tabindex="0" aria-label="Chat oeffnen">' +
+      return '<div class="quick-chat-bar" role="button" tabindex="0" aria-label="Chat öffnen">' +
         '<div class="quick-chat-avatar">' +
           '<img src="/widget/avatar.png" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
           '<span class="quick-chat-avatar-fallback" style="display:none">R</span>' +
@@ -1171,7 +1171,7 @@
 
     headerHTML() {
       var closeBtnHTML = this.mode === 'bubble'
-        ? '<button class="header-btn close-btn" aria-label="Chat schliessen">' + ICON_CLOSE + '</button>'
+        ? '<button class="header-btn close-btn" aria-label="Chat schließen">' + ICON_CLOSE + '</button>'
         : '';
       var soundIcon = this._soundEnabled ? ICON_SOUND_ON : ICON_SOUND_OFF;
       return '<div class="chat-header">' +
@@ -1182,7 +1182,7 @@
           '<button class="header-btn settings-btn" aria-label="Einstellungen">' + ICON_DOTS + '</button>' +
           closeBtnHTML +
           '<div class="settings-menu">' +
-            '<button class="settings-item delete-chat-btn">' + ICON_DELETE + ' Chat-Verlauf loeschen</button>' +
+            '<button class="settings-item delete-chat-btn">' + ICON_DELETE + ' Chat-Verlauf löschen</button>' +
             '<div class="settings-divider"></div>' +
             '<button class="settings-item revoke-consent-btn">' + ICON_REVOKE + ' Einwilligung widerrufen</button>' +
           '</div>' +
@@ -1193,11 +1193,11 @@
     consentScreenHTML() {
       return '<div class="consent-screen" id="consent-screen">' +
         '<h2 class="consent-title">Datenschutzhinweis</h2>' +
-        '<p class="consent-text">Dieser Chat wird von einer kuenstlichen Intelligenz (KI) betrieben. Ihre Nachrichten werden verschluesselt uebertragen und nach 90 Tagen automatisch geloescht. Es werden keine personenbezogenen Daten ohne Ihre ausdrueckliche Einwilligung gespeichert.</p>' +
-        '<a class="consent-link" href="https://rollomax.at/datenschutz/" target="_blank" rel="noopener">Datenschutzerklaerung</a>' +
+        '<p class="consent-text">Dieser Chat wird von einer künstlichen Intelligenz (KI) betrieben. Ihre Nachrichten werden verschlüsselt übertragen und nach 90 Tagen automatisch gelöscht. Es werden keine personenbezogenen Daten ohne Ihre ausdrückliche Einwilligung gespeichert.</p>' +
+        '<a class="consent-link" href="https://rollomax.at/datenschutz/" target="_blank" rel="noopener">Datenschutzerklärung</a>' +
         '<div class="consent-check-area">' +
           '<input type="checkbox" id="consent-cb">' +
-          '<label for="consent-cb">Ich stimme der Verarbeitung meiner Daten gemaess der Datenschutzerklaerung zu.</label>' +
+          '<label for="consent-cb">Ich stimme der Verarbeitung meiner Daten gemäß der Datenschutzerklärung zu.</label>' +
         '</div>' +
         '<button class="consent-btn" id="consent-accept-btn" disabled>Akzeptieren und Chat starten</button>' +
       '</div>';
@@ -1445,10 +1445,10 @@
       if (this.messages.length === 0) {
         this.addMessage(WELCOME_MSG, 'bot');
         this.renderSuggestedActions([
-          'Rolllaeden & Raffstoren',
+          'Rollläden & Raffstoren',
           'Markisen & Terrasse',
           'Kostenlose Beratung',
-          'Foerderung Wien'
+          'Förderung Wien'
         ], 'quick_reply');
       }
 
@@ -1675,7 +1675,7 @@
         submitBtn.textContent = 'Wird gesendet...';
 
         self.submitLeadForm(name, email, phone).then(function() {
-          form.innerHTML = '<div class="lead-success">Vielen Dank! Ihre Daten wurden erfolgreich uebermittelt. Wir melden uns in Kuerze bei Ihnen.</div>';
+          form.innerHTML = '<div class="lead-success">Vielen Dank! Ihre Daten wurden erfolgreich übermittelt. Wir melden uns in Kürze bei Ihnen.</div>';
           self.trackEvent('lead_captured', { source: 'chat' });
         }).catch(function() {
           submitBtn.disabled = false;
@@ -2066,8 +2066,8 @@
 
       this._configSteps = [
         { label: 'Was suchen Sie?', options: ['Rollladen', 'Raffstore', 'Markise', 'Jalousie', 'Plissee', 'Insektenschutz', 'Anderes'] },
-        { label: 'Neubau oder Nachruestung?', options: ['Neubau', 'Nachruestung', 'Reparatur'] },
-        { label: 'Wie viele Fenster/Tueren?', input: 'number', placeholder: 'z.B. 5' },
+        { label: 'Neubau oder Nachrüstung?', options: ['Neubau', 'Nachrüstung', 'Reparatur'] },
+        { label: 'Wie viele Fenster/Türen?', input: 'number', placeholder: 'z.B. 5' },
         { label: 'Ihre Postleitzahl?', input: 'text', placeholder: 'z.B. 1020' },
         { label: 'Wie erreichen wir Sie?', fields: ['name', 'email', 'phone'] }
       ];
@@ -2224,7 +2224,7 @@
       }).catch(function() {});
 
       this.closeModal();
-      this.addMessage('Vielen Dank fuer Ihre Anfrage! Wir melden uns in Kuerze bei Ihnen.', 'bot');
+      this.addMessage('Vielen Dank für Ihre Anfrage! Wir melden uns in Kürze bei Ihnen.', 'bot');
       this.trackEvent('configurator_completed', { product: this._configData.step0 });
     }
 
@@ -2244,9 +2244,9 @@
       this.$feedbackOverlay.innerHTML =
         '<h3 class="feedback-title">Wie war Ihre Erfahrung?</h3>' +
         '<div class="feedback-stars">' + starsHTML + '</div>' +
-        '<textarea class="feedback-comment" rows="3" placeholder="Was koennen wir verbessern? (optional)"></textarea>' +
+        '<textarea class="feedback-comment" rows="3" placeholder="Was können wir verbessern? (optional)"></textarea>' +
         '<button class="feedback-submit">Absenden</button>' +
-        '<button class="feedback-skip">Ueberspringen</button>';
+        '<button class="feedback-skip">Überspringen</button>';
 
       this.$feedbackOverlay.classList.add('is-visible');
 
