@@ -4,6 +4,9 @@
   /* ── Capture script ref before DOM changes ─────────────────────────── */
   const _currentScript = document.currentScript;
 
+  /* ── Instance registry for external API ────────────────────────────── */
+  var _instances = { inline: null, bubble: null };
+
   /* ── CSS (all styles live inside Shadow DOM) ───────────────────────── */
   const FONT_FACE_CSS = `
     @font-face {
@@ -51,6 +54,17 @@
       font-size: 16px;
       line-height: 1.5;
       box-sizing: border-box;
+    }
+
+    :host([data-theme="service-dark"]) {
+      --primary: #0e0e0e;
+      --accent: #e41915;
+      --accent-hover: #c2110d;
+      --chat-bg: rgba(14,14,14,0.96);
+      --user-bubble: #e41915;
+      --user-text: #ffffff;
+      --bot-bubble: rgba(255,255,255,0.10);
+      --bot-text: #f0f0f0;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -601,9 +615,30 @@
       this._abortController = null;
     }
 
+    apiOpen() {
+      if (this.mode === 'bubble' && !this.isOpen) {
+        this.showChat();
+      }
+    }
+
+    apiPrefill(text) {
+      if (!text) return;
+      this.apiOpen();
+      if (!this.consentGiven) {
+        this.grantConsent();
+      }
+      this.handleSend(text, 'service_problem_button');
+    }
+
     connectedCallback() {
       this.token = this.getAttribute('data-token') || '';
       this.mode = this.getAttribute('data-mode') || 'bubble';
+
+      if (this.mode === 'inline') {
+        _instances.inline = this;
+      } else {
+        _instances.bubble = this;
+      }
 
       // Inject @font-face into host document (required for Shadow DOM font loading)
       if (!document.getElementById('rollomax-fonts')) {
@@ -1213,11 +1248,13 @@
     var token = script.getAttribute('data-token') || '';
     var mode = script.getAttribute('data-mode') || 'bubble';
     var container = script.getAttribute('data-container') || '';
+    var theme = script.getAttribute('data-theme') || '';
 
     function initWidget() {
       var widget = document.createElement('rollomax-chat');
       widget.setAttribute('data-token', token);
       widget.setAttribute('data-mode', mode);
+      if (theme) widget.setAttribute('data-theme', theme);
       if (container) widget.setAttribute('data-container', container);
 
       if (mode === 'inline' && container) {
@@ -1230,6 +1267,19 @@
       } else {
         document.body.appendChild(widget);
       }
+    }
+
+    if (!window.RolloMaxChat) {
+      window.RolloMaxChat = {
+        open: function() {
+          var inst = _instances.inline || _instances.bubble;
+          if (inst) inst.apiOpen();
+        },
+        prefill: function(text) {
+          var inst = _instances.inline || _instances.bubble;
+          if (inst) inst.apiPrefill(text);
+        }
+      };
     }
 
     if (document.readyState === 'loading') {
