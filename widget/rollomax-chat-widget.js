@@ -292,8 +292,8 @@
       right: auto;
       width: 100%;
       height: auto;
-      min-height: 420px;
-      max-height: 520px;
+      min-height: 520px;
+      max-height: 680px;
       max-width: none;
       border-radius: var(--radius);
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
