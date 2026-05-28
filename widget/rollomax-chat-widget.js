@@ -291,10 +291,10 @@
       bottom: auto;
       right: auto;
       width: 100%;
-      height: 100%;
-      min-height: 500px;
+      height: auto;
+      min-height: 420px;
+      max-height: 520px;
       max-width: none;
-      max-height: none;
       border-radius: var(--radius);
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       transform: none;
@@ -2124,28 +2124,10 @@
       return '';
     }
 
-    /* ── Booking modal ──────────────────────────────────────────────── */
+    /* ── Booking: E-Mail-Anfrage ────────────────────────────────────── */
     openBookingModal() {
-      var calUrl = this.getAttribute('data-calcom-url') || 'https://cal.com/rollomax/beratung';
-
-      this.$modalOverlay.innerHTML =
-        '<div class="modal-content">' +
-          '<div class="modal-header">' +
-            '<h3 class="modal-title">Beratungstermin buchen</h3>' +
-            '<button class="modal-close">' + ICON_CLOSE + '</button>' +
-          '</div>' +
-          '<div class="modal-body">' +
-            '<iframe src="' + calUrl + '?embed=true" frameborder="0"></iframe>' +
-          '</div>' +
-        '</div>';
-
-      this.$modalOverlay.classList.add('is-visible');
+      window.open('mailto:team@rollomax.at?subject=Reparatur-Anfrage&body=Hallo%20RolloMax-Team%2C%0A%0Aich%20habe%20ein%20Problem%20mit%20meinem%20Rollladen%20und%20moechte%20gerne%20einen%20Reparaturtermin%20vereinbaren.%0A%0AMein%20Problem%3A%20', '_self');
       this.trackEvent('booking_started');
-
-      var self = this;
-      this.$modalOverlay.querySelector('.modal-close').addEventListener('click', function() {
-        self.closeModal();
-      });
     }
 
     closeModal() {
