@@ -1,0 +1,160 @@
+{
+  "name": "RolloMax Delete Session",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "delete-session",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "11a2b3c4-d5e6-7890-abcd-ef1234500001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ],
+      "webhookId": "d8b94f02-3e5f-4c7b-ad2e-4f6e8b0d1f3a"
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const body = $input.first().json.body;\nconst headers = $input.first().json.headers;\n\n// Auth check\nif (headers['x-widget-token'] !== process.env.WIDGET_AUTH_TOKEN) {\n  throw new Error('UNAUTHORIZED');\n}\n\n// Validate session_id\nif (!body.session_id || typeof body.session_id !== 'string') {\n  throw new Error('session_id is required');\n}\n\nreturn [{\n  json: {\n    session_id: body.session_id\n  }\n}];"
+      },
+      "id": "22b3c4d5-e6f7-8901-bcde-f12345600002",
+      "name": "Validate Token",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        530,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/chat_messages?session_id=eq.={{$json.session_id}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{$env.SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "33c4d5e6-f7a8-9012-cdef-123456700003",
+      "name": "Delete Messages",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        810,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/chat_sessions?id=eq.={{$json.session_id}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{$env.SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "44d5e6f7-a8b9-0123-defa-234567800004",
+      "name": "Delete Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1090,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true }) }}",
+        "options": {}
+      },
+      "id": "55e6f7a8-b9c0-1234-efab-345678900005",
+      "name": "Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1370,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Token": {
+      "main": [
+        [
+          {
+            "node": "Delete Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Messages": {
+      "main": [
+        [
+          {
+            "node": "Delete Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Session": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "versionId": "1",
+  "tags": []
+}

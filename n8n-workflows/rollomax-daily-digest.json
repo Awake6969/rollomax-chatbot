@@ -1,0 +1,215 @@
+{
+  "name": "RolloMax Daily Digest",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "aa11bb22-cc33-4444-ddee-ff5566770001",
+      "name": "Daily 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/chat_sessions?created_at=gte.={{new Date(Date.now() - 86400000).toISOString()}}&select=id,message_count,converted",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{$env.SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aa11bb22-cc33-4444-ddee-ff5566770002",
+      "name": "Fetch Sessions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        530,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/leads?created_at=gte.={{new Date(Date.now() - 86400000).toISOString()}}&select=id,urgency,product_interest,name",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{$env.SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aa11bb22-cc33-4444-ddee-ff5566770003",
+      "name": "Fetch Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        530,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/chat_messages?created_at=gte.={{new Date(Date.now() - 86400000).toISOString()}}&source_type=in.(quick_reply,suggested_action)&select=content,source_type",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{$env.SUPABASE_SERVICE_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer ={{$env.SUPABASE_SERVICE_KEY}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aa11bb22-cc33-4444-ddee-ff5566770004",
+      "name": "Fetch Button Clicks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        530,
+        740
+      ]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const sessions = $('Fetch Sessions').all().map(i => i.json);\nconst leads = $('Fetch Leads').all().map(i => i.json);\nconst buttons = $('Fetch Button Clicks').all().map(i => i.json);\n\nconst sessionCount = Array.isArray(sessions) ? sessions.length : 0;\nconst leadCount = Array.isArray(leads) ? leads.length : 0;\nconst highUrgency = Array.isArray(leads) ? leads.filter(l => l.urgency === 'high').length : 0;\n\n// Button stats\nconst btnStats = {};\nif (Array.isArray(buttons)) {\n  buttons.forEach(b => {\n    const key = b.content || 'Unbekannt';\n    btnStats[key] = (btnStats[key] || 0) + 1;\n  });\n}\nconst topButtons = Object.entries(btnStats)\n  .sort((a, b) => b[1] - a[1])\n  .slice(0, 3)\n  .map(([text, count]) => text + ': ' + count + 'x')\n  .join(', ') || 'Keine Klicks';\n\nconst date = new Date().toLocaleDateString('de-AT', { timeZone: 'Europe/Vienna' });\n\nconst body = [\n  'RolloMax Chatbot - Tagesbericht ' + date,\n  '==========================================',\n  '',\n  'Chat-Sessions gestern: ' + sessionCount,\n  'Neue Leads: ' + leadCount,\n  'Davon dringend (high): ' + highUrgency,\n  '',\n  'Top-3 geklickte Buttons: ' + topButtons,\n  '',\n  'Viele Gruesse,',\n  'Ihr RolloMax Chatbot'\n].join('\\n');\n\nreturn [{ json: { subject: 'RolloMax Chatbot Tagesbericht - ' + date, body: body } }];"
+      },
+      "id": "aa11bb22-cc33-4444-ddee-ff5566770005",
+      "name": "Build Digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        810,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "chatbot@rollomax.at",
+        "toEmail": "team@rollomax.at",
+        "subject": "={{ $json.subject }}",
+        "text": "={{ $json.body }}",
+        "options": {}
+      },
+      "id": "aa11bb22-cc33-4444-ddee-ff5566770006",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1090,
+        520
+      ]
+    }
+  ],
+  "connections": {
+    "Daily 09:00": {
+      "main": [
+        [
+          {
+            "node": "Fetch Sessions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Leads",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Button Clicks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Sessions": {
+      "main": [
+        [
+          {
+            "node": "Build Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Leads": {
+      "main": [
+        [
+          {
+            "node": "Build Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Button Clicks": {
+      "main": [
+        [
+          {
+            "node": "Build Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Digest": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Vienna"
+  },
+  "pinData": {},
+  "versionId": "1",
+  "tags": []
+}

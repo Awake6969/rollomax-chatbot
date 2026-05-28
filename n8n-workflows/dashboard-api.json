@@ -1,0 +1,399 @@
+{
+  "name": "RolloMax Dashboard API",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "dashboard/stats",
+        "responseMode": "responseNode",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "id": "webhook-stats",
+      "name": "GET /stats",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 200],
+      "webhookId": "dashboard-stats"
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "dashboard/sessions",
+        "responseMode": "responseNode",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "id": "webhook-sessions",
+      "name": "GET /sessions",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 400],
+      "webhookId": "dashboard-sessions"
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "dashboard/session/:id",
+        "responseMode": "responseNode",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "id": "webhook-session-detail",
+      "name": "GET /session/:id",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 600],
+      "webhookId": "dashboard-session-detail"
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "dashboard/analytics",
+        "responseMode": "responseNode",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "id": "webhook-analytics",
+      "name": "GET /analytics",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 800],
+      "webhookId": "dashboard-analytics"
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const headers = $input.first().json.headers;\nconst token = $env.DASHBOARD_API_TOKEN;\n\nif (!token || headers['authorization'] !== `Bearer ${token}`) {\n  throw new Error('UNAUTHORIZED');\n}\n\nreturn [{ json: { authorized: true } }];"
+      },
+      "id": "auth-stats",
+      "name": "Auth Stats",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 200]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const headers = $input.first().json.headers;\nconst token = $env.DASHBOARD_API_TOKEN;\n\nif (!token || headers['authorization'] !== `Bearer ${token}`) {\n  throw new Error('UNAUTHORIZED');\n}\n\nconst query = $input.first().json.query || {};\nreturn [{ json: { \n  authorized: true,\n  limit: parseInt(query.limit) || 20,\n  offset: parseInt(query.offset) || 0\n}}];"
+      },
+      "id": "auth-sessions",
+      "name": "Auth Sessions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 400]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const headers = $input.first().json.headers;\nconst params = $input.first().json.params;\nconst token = $env.DASHBOARD_API_TOKEN;\n\nif (!token || headers['authorization'] !== `Bearer ${token}`) {\n  throw new Error('UNAUTHORIZED');\n}\n\nif (!params.id) {\n  throw new Error('Session ID required');\n}\n\nreturn [{ json: { \n  authorized: true,\n  session_id: params.id\n}}];"
+      },
+      "id": "auth-session-detail",
+      "name": "Auth Session Detail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 600]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const headers = $input.first().json.headers;\nconst query = $input.first().json.query || {};\nconst token = $env.DASHBOARD_API_TOKEN;\n\nif (!token || headers['authorization'] !== `Bearer ${token}`) {\n  throw new Error('UNAUTHORIZED');\n}\n\nlet days = 7;\nif (query.period === '1d') days = 1;\nelse if (query.period === '30d') days = 30;\nelse if (query.period === '7d') days = 7;\n\nreturn [{ json: { \n  authorized: true,\n  days: days\n}}];"
+      },
+      "id": "auth-analytics",
+      "name": "Auth Analytics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 800]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  (SELECT COUNT(*) FROM chat_sessions WHERE created_at >= CURRENT_DATE) as today_sessions,\n  (SELECT COUNT(*) FROM chat_sessions WHERE created_at >= CURRENT_DATE - INTERVAL '7 days') as week_sessions,\n  (SELECT COUNT(*) FROM chat_messages WHERE created_at >= CURRENT_DATE) as today_messages,\n  (SELECT ROUND(AVG(EXTRACT(EPOCH FROM (last_activity - created_at)) / 60)::numeric, 1) FROM chat_sessions WHERE last_activity > created_at AND created_at >= CURRENT_DATE - INTERVAL '7 days') as avg_duration_minutes;",
+        "options": {}
+      },
+      "id": "query-stats",
+      "name": "Query Stats",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [650, 200],
+      "credentials": {
+        "postgres": {
+          "id": "5Py2RKtPQ64qRt7A",
+          "name": "RolloMax Local PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH session_data AS (\n  SELECT \n    s.id,\n    s.created_at,\n    s.last_activity,\n    COUNT(m.id) as message_count,\n    (SELECT content FROM chat_messages WHERE session_id = s.id AND role = 'user' ORDER BY created_at ASC LIMIT 1) as first_message,\n    (SELECT intent FROM chat_messages WHERE session_id = s.id AND intent IS NOT NULL ORDER BY created_at DESC LIMIT 1) as primary_intent\n  FROM chat_sessions s\n  LEFT JOIN chat_messages m ON s.id = m.session_id\n  GROUP BY s.id\n  ORDER BY s.created_at DESC\n  LIMIT {{ $json.limit }} OFFSET {{ $json.offset }}\n)\nSELECT * FROM session_data;",
+        "options": {}
+      },
+      "id": "query-sessions",
+      "name": "Query Sessions",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [650, 400],
+      "credentials": {
+        "postgres": {
+          "id": "5Py2RKtPQ64qRt7A",
+          "name": "RolloMax Local PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT COUNT(*) as total FROM chat_sessions;",
+        "options": {}
+      },
+      "id": "query-sessions-total",
+      "name": "Query Sessions Total",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [650, 320],
+      "credentials": {
+        "postgres": {
+          "id": "5Py2RKtPQ64qRt7A",
+          "name": "RolloMax Local PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  s.id,\n  s.created_at,\n  s.last_activity,\n  s.metadata\nFROM chat_sessions s\nWHERE s.id = '{{ $json.session_id }}'::uuid;",
+        "options": {}
+      },
+      "id": "query-session-info",
+      "name": "Query Session Info",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [650, 560],
+      "credentials": {
+        "postgres": {
+          "id": "5Py2RKtPQ64qRt7A",
+          "name": "RolloMax Local PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT role, content, created_at, intent, source_type\nFROM chat_messages\nWHERE session_id = '{{ $json.session_id }}'::uuid\nORDER BY created_at ASC;",
+        "options": {}
+      },
+      "id": "query-session-messages",
+      "name": "Query Session Messages",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [650, 640],
+      "credentials": {
+        "postgres": {
+          "id": "5Py2RKtPQ64qRt7A",
+          "name": "RolloMax Local PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DATE(created_at) as date, COUNT(*) as count\nFROM chat_sessions\nWHERE created_at >= CURRENT_DATE - INTERVAL '{{ $json.days }} days'\nGROUP BY DATE(created_at)\nORDER BY date;",
+        "options": {}
+      },
+      "id": "query-sessions-per-day",
+      "name": "Query Sessions/Day",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [650, 750],
+      "credentials": {
+        "postgres": {
+          "id": "5Py2RKtPQ64qRt7A",
+          "name": "RolloMax Local PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT EXTRACT(HOUR FROM created_at)::int as hour, COUNT(*) as count\nFROM chat_messages\nWHERE created_at >= CURRENT_DATE - INTERVAL '{{ $json.days }} days'\nGROUP BY EXTRACT(HOUR FROM created_at)\nORDER BY hour;",
+        "options": {}
+      },
+      "id": "query-messages-per-hour",
+      "name": "Query Messages/Hour",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [650, 830],
+      "credentials": {
+        "postgres": {
+          "id": "5Py2RKtPQ64qRt7A",
+          "name": "RolloMax Local PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT COALESCE(intent, 'general') as intent, COUNT(*) as count\nFROM chat_messages\nWHERE role = 'assistant' AND created_at >= CURRENT_DATE - INTERVAL '{{ $json.days }} days'\nGROUP BY intent\nORDER BY count DESC\nLIMIT 10;",
+        "options": {}
+      },
+      "id": "query-intents",
+      "name": "Query Intents",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [650, 910],
+      "credentials": {
+        "postgres": {
+          "id": "5Py2RKtPQ64qRt7A",
+          "name": "RolloMax Local PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT content as question, COUNT(*) as count\nFROM chat_messages\nWHERE role = 'user' AND created_at >= CURRENT_DATE - INTERVAL '{{ $json.days }} days'\nGROUP BY content\nORDER BY count DESC\nLIMIT 10;",
+        "options": {}
+      },
+      "id": "query-top-questions",
+      "name": "Query Top Questions",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [650, 990],
+      "credentials": {
+        "postgres": {
+          "id": "5Py2RKtPQ64qRt7A",
+          "name": "RolloMax Local PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ today_sessions: $('Query Stats').first().json.today_sessions || 0, week_sessions: $('Query Stats').first().json.week_sessions || 0, today_messages: $('Query Stats').first().json.today_messages || 0, avg_duration_minutes: parseFloat($('Query Stats').first().json.avg_duration_minutes) || 0 }) }}",
+        "options": {}
+      },
+      "id": "response-stats",
+      "name": "Response Stats",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const sessions = $('Query Sessions').all().map(r => ({\n  id: r.json.id,\n  created_at: r.json.created_at,\n  message_count: parseInt(r.json.message_count) || 0,\n  first_message: r.json.first_message ? r.json.first_message.substring(0, 100) : '',\n  last_activity: r.json.last_activity,\n  primary_intent: r.json.primary_intent || 'general'\n}));\n\nlet total = 0;\ntry { total = parseInt($('Query Sessions Total').first().json.total) || 0; } catch(e) {}\n\nreturn [{ json: { sessions, total } }];"
+      },
+      "id": "format-sessions",
+      "name": "Format Sessions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 360]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "response-sessions",
+      "name": "Response Sessions",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1050, 360]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "let sessionInfo = null;\ntry { sessionInfo = $('Query Session Info').first().json; } catch(e) {}\n\nlet messages = [];\ntry { messages = $('Query Session Messages').all().map(r => r.json); } catch(e) {}\n\nif (!sessionInfo || !sessionInfo.id) {\n  return [{ json: { error: 'Session not found' } }];\n}\n\nreturn [{ json: {\n  id: sessionInfo.id,\n  created_at: sessionInfo.created_at,\n  last_activity: sessionInfo.last_activity,\n  metadata: sessionInfo.metadata || {},\n  messages: messages\n}}];"
+      },
+      "id": "format-session-detail",
+      "name": "Format Session Detail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 600]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "response-session-detail",
+      "name": "Response Session Detail",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1050, 600]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "let sessionsPerDay = [];\ntry { sessionsPerDay = $('Query Sessions/Day').all().map(r => ({ date: r.json.date, count: parseInt(r.json.count) })); } catch(e) {}\n\nlet messagesPerHour = [];\ntry { messagesPerHour = $('Query Messages/Hour').all().map(r => ({ hour: parseInt(r.json.hour), count: parseInt(r.json.count) })); } catch(e) {}\n\nlet intents = [];\ntry { intents = $('Query Intents').all().map(r => ({ intent: r.json.intent, count: parseInt(r.json.count) })); } catch(e) {}\n\nlet topQuestions = [];\ntry { topQuestions = $('Query Top Questions').all().map(r => ({ question: r.json.question.substring(0, 80), count: parseInt(r.json.count) })); } catch(e) {}\n\nreturn [{ json: {\n  sessions_per_day: sessionsPerDay,\n  messages_per_hour: messagesPerHour,\n  intent_distribution: intents,\n  top_questions: topQuestions\n}}];"
+      },
+      "id": "format-analytics",
+      "name": "Format Analytics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 870]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "response-analytics",
+      "name": "Response Analytics",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1100, 870]
+    }
+  ],
+  "connections": {
+    "GET /stats": { "main": [[{ "node": "Auth Stats", "type": "main", "index": 0 }]] },
+    "Auth Stats": { "main": [[{ "node": "Query Stats", "type": "main", "index": 0 }]] },
+    "Query Stats": { "main": [[{ "node": "Response Stats", "type": "main", "index": 0 }]] },
+
+    "GET /sessions": { "main": [[{ "node": "Auth Sessions", "type": "main", "index": 0 }]] },
+    "Auth Sessions": { "main": [[{ "node": "Query Sessions", "type": "main", "index": 0 }, { "node": "Query Sessions Total", "type": "main", "index": 0 }]] },
+    "Query Sessions": { "main": [[{ "node": "Format Sessions", "type": "main", "index": 0 }]] },
+    "Query Sessions Total": { "main": [[{ "node": "Format Sessions", "type": "main", "index": 0 }]] },
+    "Format Sessions": { "main": [[{ "node": "Response Sessions", "type": "main", "index": 0 }]] },
+
+    "GET /session/:id": { "main": [[{ "node": "Auth Session Detail", "type": "main", "index": 0 }]] },
+    "Auth Session Detail": { "main": [[{ "node": "Query Session Info", "type": "main", "index": 0 }, { "node": "Query Session Messages", "type": "main", "index": 0 }]] },
+    "Query Session Info": { "main": [[{ "node": "Format Session Detail", "type": "main", "index": 0 }]] },
+    "Query Session Messages": { "main": [[{ "node": "Format Session Detail", "type": "main", "index": 0 }]] },
+    "Format Session Detail": { "main": [[{ "node": "Response Session Detail", "type": "main", "index": 0 }]] },
+
+    "GET /analytics": { "main": [[{ "node": "Auth Analytics", "type": "main", "index": 0 }]] },
+    "Auth Analytics": { "main": [[{ "node": "Query Sessions/Day", "type": "main", "index": 0 }, { "node": "Query Messages/Hour", "type": "main", "index": 0 }, { "node": "Query Intents", "type": "main", "index": 0 }, { "node": "Query Top Questions", "type": "main", "index": 0 }]] },
+    "Query Sessions/Day": { "main": [[{ "node": "Format Analytics", "type": "main", "index": 0 }]] },
+    "Query Messages/Hour": { "main": [[{ "node": "Format Analytics", "type": "main", "index": 0 }]] },
+    "Query Intents": { "main": [[{ "node": "Format Analytics", "type": "main", "index": 0 }]] },
+    "Query Top Questions": { "main": [[{ "node": "Format Analytics", "type": "main", "index": 0 }]] },
+    "Format Analytics": { "main": [[{ "node": "Response Analytics", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "active": false
+}

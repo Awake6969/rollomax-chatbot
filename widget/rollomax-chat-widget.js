@@ -69,70 +69,154 @@
 
     *, *::before, *::after { box-sizing: border-box; }
 
-    /* ── Bubble button (bubble mode only) ──────────────────────────── */
-    .bubble-btn {
+    /* ── Quick Chat Bar (Premium Launcher) ────────────────────────── */
+    .quick-chat-bar {
       position: fixed;
-      bottom: 90px;
+      bottom: 24px;
       right: 24px;
       z-index: 9999;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 20px 8px 8px;
       background: var(--primary);
-      color: var(--accent);
-      border: 2px solid var(--accent);
+      border: 1px solid rgba(201,169,110,0.3);
+      border-radius: 28px;
       cursor: pointer;
+      box-shadow:
+        0 4px 24px rgba(0,0,0,0.25),
+        0 0 0 1px rgba(201,169,110,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+      transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 56px;
+      max-width: 320px;
+    }
+    .quick-chat-bar:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.3),
+        0 0 0 1px rgba(201,169,110,0.2),
+        0 0 20px rgba(201,169,110,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+      border-color: rgba(201,169,110,0.5);
+    }
+    .quick-chat-bar:active {
+      transform: translateY(0);
+    }
+    .quick-chat-bar.is-open {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+    }
+
+    .quick-chat-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent) 0%, #B8944F 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-      transition: transform 200ms ease-out, box-shadow 200ms ease-out;
-      padding: 0;
-      min-width: 44px;
-      min-height: 44px;
-      animation: pulseGlow 3s ease-in-out infinite;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(201,169,110,0.3);
+      position: relative;
     }
-    .bubble-btn.is-open { animation: none; }
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
-      50% { box-shadow: 0 4px 16px rgba(201,169,110,0.4), 0 0 0 4px rgba(201,169,110,0.1); }
+    @keyframes onlinePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.4); }
+      50% { box-shadow: 0 0 0 4px rgba(76,175,80,0); }
     }
-    .bubble-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    .quick-chat-avatar::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 10px;
+      height: 10px;
+      background: var(--online);
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      animation: onlinePulse 2s ease-in-out infinite;
     }
-    .bubble-btn svg { width: 28px; height: 28px; fill: currentColor; pointer-events: none; }
-    .bubble-btn .close-icon { display: none; }
-    .bubble-btn.is-open .chat-icon { display: none; }
-    .bubble-btn.is-open .close-icon { display: block; }
-
-    .bubble-tooltip {
-      position: fixed;
-      bottom: 158px;
-      right: 24px;
-      background: #fff;
+    .quick-chat-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .quick-chat-avatar-fallback {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-weight: 700;
       color: var(--primary);
-      padding: 10px 16px;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      font-size: 14px;
+    }
+
+    .quick-chat-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .quick-chat-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: var(--font-body);
+    }
+    .quick-chat-placeholder {
+      font-size: 15px;
+      color: rgba(255,255,255,0.7);
       font-family: var(--font-body);
       white-space: nowrap;
-      opacity: 0;
-      transform: translateY(8px);
-      transition: opacity 300ms ease-out, transform 300ms ease-out;
-      pointer-events: none;
-      z-index: 9998;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .bubble-tooltip.is-visible {
+
+    .quick-chat-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-left: 4px;
+      opacity: 0.8;
+      transition: opacity 200ms ease-out, transform 200ms ease-out;
+    }
+    .quick-chat-bar:hover .quick-chat-icon {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateX(2px);
     }
+    .quick-chat-icon svg {
+      width: 100%;
+      height: 100%;
+      fill: currentColor;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 400px) {
+      .quick-chat-bar {
+        right: 16px;
+        bottom: 16px;
+        max-width: calc(100vw - 32px);
+        padding: 6px 16px 6px 6px;
+      }
+      .quick-chat-avatar {
+        width: 36px;
+        height: 36px;
+      }
+      .quick-chat-placeholder {
+        font-size: 14px;
+      }
+    }
+
+    /* Legacy bubble-btn class for compatibility */
+    .bubble-btn { display: none; }
+    .bubble-tooltip { display: none; }
 
     /* ── Chat window (bubble mode) ─────────────────────────────────── */
     .chat-window {
       position: fixed;
-      bottom: 160px;
+      bottom: 96px;
       right: 24px;
       z-index: 9999;
       width: 400px;
@@ -157,7 +241,7 @@
     }
 
     /* ── Inline mode overrides ─────────────────────────────────────── */
-    :host([data-mode="inline"]) .bubble-btn { display: none; }
+    :host([data-mode="inline"]) .quick-chat-bar { display: none; }
     :host([data-mode="inline"]) .chat-window {
       position: relative;
       bottom: auto;
@@ -391,6 +475,24 @@
       border-bottom-right-radius: 4px;
     }
 
+    /* Markdown formatting in messages */
+    .message-content strong {
+      font-weight: 700;
+    }
+    .message-content p {
+      margin: 0 0 8px 0;
+    }
+    .message-content p:last-child {
+      margin-bottom: 0;
+    }
+    .message-content ul, .message-content ol {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+    .message-content li {
+      margin: 4px 0;
+    }
+
     .message-meta {
       display: flex;
       align-items: center;
@@ -581,6 +683,363 @@
       color: var(--primary);
     }
 
+
+    /* ── Avatar ────────────────────────────────────────────────────── */
+    .chat-avatar {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      overflow: hidden;
+    }
+    .chat-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ── Sound toggle ──────────────────────────────────────────────── */
+    .sound-btn {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      border: none;
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      padding: 0;
+      transition: background 150ms ease-out;
+    }
+    .sound-btn:hover { background: rgba(255,255,255,0.1); }
+    .sound-btn svg { width: 20px; height: 20px; fill: currentColor; pointer-events: none; }
+    .sound-btn.is-muted { opacity: 0.5; }
+
+    /* ── Message feedback (thumbs) ─────────────────────────────────── */
+    .message-feedback {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+    .feedback-btn {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border: none;
+      background: transparent;
+      color: #999;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      padding: 0;
+      transition: color 150ms ease-out, background 150ms ease-out;
+    }
+    .feedback-btn:hover { color: var(--primary); background: rgba(0,0,0,0.05); }
+    .feedback-btn.selected { color: var(--accent); }
+    .feedback-btn svg { width: 16px; height: 16px; fill: currentColor; pointer-events: none; }
+
+    /* ── Typing indicator with text ────────────────────────────────── */
+    .typing-text {
+      font-size: 14px;
+      color: #666;
+      margin-right: 8px;
+    }
+
+    /* ── Product card ──────────────────────────────────────────────── */
+    .product-card {
+      width: 280px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin: 8px 0;
+    }
+    .product-card-image {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      background: var(--bot-bubble);
+    }
+    .product-card-content { padding: 12px; }
+    .product-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--primary);
+      margin: 0 0 4px;
+    }
+    .product-card-desc {
+      font-size: 14px;
+      color: #666;
+      margin: 0 0 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .product-card-btn {
+      display: inline-block;
+      padding: 8px 16px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: opacity 150ms ease-out;
+    }
+    .product-card-btn:hover { opacity: 0.9; }
+
+    /* ── Image upload ──────────────────────────────────────────────── */
+    .upload-btn {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      border: none;
+      background: transparent;
+      color: #999;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      padding: 0;
+      transition: color 150ms ease-out;
+      flex-shrink: 0;
+    }
+    .upload-btn:hover { color: var(--accent); }
+    .upload-btn svg { width: 22px; height: 22px; fill: currentColor; pointer-events: none; }
+    .upload-input { display: none; }
+
+    .image-preview {
+      align-self: flex-end;
+      max-width: 200px;
+      margin: 8px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .image-preview img { width: 100%; height: auto; display: block; }
+
+    /* ── Action buttons ────────────────────────────────────────────── */
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: var(--font);
+      cursor: pointer;
+      min-height: 44px;
+      transition: opacity 150ms ease-out;
+    }
+    .action-btn svg { width: 18px; height: 18px; fill: currentColor; }
+    .action-btn.primary { background: var(--accent); color: #fff; }
+    .action-btn.secondary {
+      background: transparent;
+      border: 1.5px solid var(--accent);
+      color: var(--accent);
+    }
+    .action-btn.whatsapp { background: #25D366; color: #fff; }
+    .action-btn:hover { opacity: 0.9; }
+
+    /* ── Session feedback overlay ──────────────────────────────────── */
+    .feedback-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 300ms ease-out;
+    }
+    .feedback-overlay.is-visible { opacity: 1; pointer-events: auto; }
+    .feedback-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary);
+      margin: 0 0 16px;
+      text-align: center;
+    }
+    .feedback-stars { display: flex; gap: 8px; margin-bottom: 16px; }
+    .feedback-star {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: transparent;
+      color: #DDD;
+      cursor: pointer;
+      padding: 0;
+      transition: color 150ms ease-out, transform 150ms ease-out;
+    }
+    .feedback-star:hover { transform: scale(1.1); }
+    .feedback-star.active { color: #FFB800; }
+    .feedback-star svg { width: 100%; height: 100%; fill: currentColor; }
+    .feedback-comment {
+      width: 100%;
+      max-width: 300px;
+      padding: 12px;
+      border: 1.5px solid #DDD;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: var(--font);
+      resize: none;
+      margin-bottom: 16px;
+    }
+    .feedback-comment:focus { border-color: var(--accent); outline: none; }
+    .feedback-submit {
+      padding: 12px 32px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      min-height: 48px;
+      transition: opacity 150ms ease-out;
+    }
+    .feedback-submit:hover { opacity: 0.9; }
+    .feedback-skip {
+      margin-top: 12px;
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 14px;
+      cursor: pointer;
+      min-height: 44px;
+      padding: 12px 16px;
+    }
+    .feedback-skip:hover { color: var(--primary); }
+
+    /* ── Modal overlay ─────────────────────────────────────────────── */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 300ms ease-out;
+    }
+    .modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
+    .modal-content {
+      width: 90%;
+      max-width: 400px;
+      max-height: 80%;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid #E5E5E5;
+    }
+    .modal-title { font-size: 18px; font-weight: 600; color: var(--primary); margin: 0; }
+    .modal-close {
+      width: 44px;
+      height: 44px;
+      border: none;
+      background: transparent;
+      color: #666;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+    .modal-close:hover { background: #F5F5F5; }
+    .modal-close svg { width: 20px; height: 20px; fill: currentColor; }
+    .modal-body { flex: 1; overflow-y: auto; padding: 16px; }
+    .modal-body iframe { width: 100%; height: 400px; border: none; }
+
+    /* ── Configurator ──────────────────────────────────────────────── */
+    .config-progress { display: flex; gap: 4px; margin-bottom: 20px; }
+    .config-progress-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #DDD;
+    }
+    .config-progress-dot.active { background: var(--accent); }
+    .config-progress-dot.completed { background: var(--online); }
+    .config-label { font-size: 16px; font-weight: 500; color: var(--primary); margin-bottom: 12px; }
+    .config-options { display: flex; flex-direction: column; gap: 8px; }
+    .config-option {
+      padding: 14px 16px;
+      border: 1.5px solid #DDD;
+      border-radius: 10px;
+      background: #fff;
+      font-size: 16px;
+      font-family: var(--font);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 150ms ease-out;
+    }
+    .config-option:hover { border-color: var(--accent); }
+    .config-option.selected { border-color: var(--accent); background: rgba(201,169,110,0.1); }
+    .config-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid #DDD;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: var(--font);
+      margin-bottom: 12px;
+    }
+    .config-input:focus { border-color: var(--accent); outline: none; }
+    .config-nav { display: flex; gap: 8px; margin-top: 20px; }
+    .config-nav button {
+      flex: 1;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      min-height: 48px;
+    }
+    .config-back { background: #F5F5F5; border: none; color: var(--primary); }
+    .config-next { background: var(--accent); border: none; color: #fff; }
+
     /* ── Utility ────────────────────────────────────────────────────── */
     .hidden { display: none !important; }
   `;
@@ -592,6 +1051,18 @@
   const ICON_SEND = '<svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
   const ICON_DELETE = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
   const ICON_REVOKE = '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/></svg>';
+  const ICON_THUMB_UP = '<svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>';
+  const ICON_THUMB_DOWN = '<svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>';
+  const ICON_SOUND_ON = '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+  const ICON_SOUND_OFF = '<svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+  const ICON_CAMERA = '<svg viewBox="0 0 24 24"><path d="M12 15.2c1.77 0 3.2-1.43 3.2-3.2s-1.43-3.2-3.2-3.2-3.2 1.43-3.2 3.2 1.43 3.2 3.2 3.2zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>';
+  const ICON_WHATSAPP = '<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
+  const ICON_CALENDAR = '<svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>';
+  const ICON_STAR = '<svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
+  const ICON_STAR_OUTLINE = '<svg viewBox="0 0 24 24"><path d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"/></svg>';
+
+  /* ── Notification Sound (base64 encoded short pling) ───────────────── */
+  const NOTIFICATION_SOUND = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYNBrP+AAAAAAAAAAAAAAAAAAAAAP/7kGQAAANUMEoFPeACNQV40KEABIEBN3mEOYACMQV3cIQgAOBAEAwSAAABhGDEOC8XB4EAQBMEAQBAMI//FocBAEAYOf/+nO//4QQBP/+Xm///hBAEAwTB8Hz//5cHwfggCAIAgOAgP+D4Pg+D4IAgD/+UdxAGCYJg+D4P/9hIDAMEwTBMFB6Hw/B//lHcQBgmCYPg+D//Y//tgxAADwAABpAAAACAAADSAAAAEP/7YMQeA8AAAaQAAAAgAAA0gAAABEAAAGkAAAAIAAANIAAAARBu+eFtaJT/+2DEJgPAAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABA=';
 
   /* ── Welcome message ───────────────────────────────────────────────── */
   const WELCOME_MSG = 'Willkommen bei RolloMax Wien! Ich bin Ihr Sonnenschutz-Berater und helfe Ihnen gerne bei allen Fragen rund um Sonnenschutz. Hinweis: Dieser Chat wird von einer KI unterstuetzt. Wie kann ich Ihnen weiterhelfen?';
@@ -613,6 +1084,13 @@
       this.apiUrl = 'https://chat.rollomax.at';
       this._settingsOpen = false;
       this._abortController = null;
+      this._soundEnabled = localStorage.getItem('rollomax_sound') === 'true';
+      this._audio = null;
+      this._feedbackShown = false;
+      this._proactiveShown = false;
+      this._inChatProactiveShown = false;
+      this._lastActivityTime = Date.now();
+      this._abVariant = null;
     }
 
     apiOpen() {
@@ -657,16 +1135,7 @@
         this.showChat();
       }
 
-      // Tooltip timer (bubble mode, first visit only)
-      if (this.mode === 'bubble' && !sessionStorage.getItem('rollomax_tooltip_shown')) {
-        var self = this;
-        this._tooltipTimer = setTimeout(function() {
-          if (!self.isOpen && self.$tooltip) {
-            self.$tooltip.classList.add('is-visible');
-            sessionStorage.setItem('rollomax_tooltip_shown', 'true');
-          }
-        }, 5000);
-      }
+      this.initProactiveMessages();
     }
 
     /* ── Helpers ────────────────────────────────────────────────────── */
@@ -711,11 +1180,19 @@
     }
 
     bubbleButtonHTML() {
-      return '<button class="bubble-btn" aria-label="Chat oeffnen">' +
-        '<span class="chat-icon">' + ICON_CHAT + '</span>' +
-        '<span class="close-icon">' + ICON_CLOSE + '</span>' +
-        '</button>' +
-        '<div class="bubble-tooltip">Fragen? Wir helfen!</div>';
+      return '<div class="quick-chat-bar" role="button" tabindex="0" aria-label="Chat öffnen">' +
+        '<div class="quick-chat-avatar">' +
+          '<img src="/widget/avatar.png" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+          '<span class="quick-chat-avatar-fallback" style="display:none">R</span>' +
+        '</div>' +
+        '<div class="quick-chat-content">' +
+          '<span class="quick-chat-label">RolloMax Berater</span>' +
+          '<span class="quick-chat-placeholder">Fragen Sie mich etwas...</span>' +
+        '</div>' +
+        '<div class="quick-chat-icon">' +
+          '<svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>' +
+        '</div>' +
+      '</div>';
     }
 
     chatWindowHTML() {
@@ -729,15 +1206,18 @@
 
     headerHTML() {
       var closeBtnHTML = this.mode === 'bubble'
-        ? '<button class="header-btn close-btn" aria-label="Chat schliessen">' + ICON_CLOSE + '</button>'
+        ? '<button class="header-btn close-btn" aria-label="Chat schließen">' + ICON_CLOSE + '</button>'
         : '';
+      var soundIcon = this._soundEnabled ? ICON_SOUND_ON : ICON_SOUND_OFF;
       return '<div class="chat-header">' +
-        '<div class="chat-header-title"><span class="online-dot"></span>RolloMax Sonnenschutz-Berater <span class="ki-badge">KI</span></div>' +
+        '<div class="chat-avatar" id="chat-avatar"><img src="/widget/avatar.png" alt="RolloMax" onerror="this.style.display=\'none\';this.parentElement.textContent=\'R\'"></div>' +
+        '<div class="chat-header-title"><span class="online-dot"></span>RolloMax Berater <span class="ki-badge">KI</span></div>' +
         '<div class="header-actions">' +
+          '<button class="sound-btn' + (this._soundEnabled ? '' : ' is-muted') + '" aria-label="Sound umschalten">' + soundIcon + '</button>' +
           '<button class="header-btn settings-btn" aria-label="Einstellungen">' + ICON_DOTS + '</button>' +
           closeBtnHTML +
           '<div class="settings-menu">' +
-            '<button class="settings-item delete-chat-btn">' + ICON_DELETE + ' Chat-Verlauf loeschen</button>' +
+            '<button class="settings-item delete-chat-btn">' + ICON_DELETE + ' Chat-Verlauf löschen</button>' +
             '<div class="settings-divider"></div>' +
             '<button class="settings-item revoke-consent-btn">' + ICON_REVOKE + ' Einwilligung widerrufen</button>' +
           '</div>' +
@@ -748,11 +1228,11 @@
     consentScreenHTML() {
       return '<div class="consent-screen" id="consent-screen">' +
         '<h2 class="consent-title">Datenschutzhinweis</h2>' +
-        '<p class="consent-text">Dieser Chat wird von einer kuenstlichen Intelligenz (KI) betrieben. Ihre Nachrichten werden verschluesselt uebertragen und nach 90 Tagen automatisch geloescht. Es werden keine personenbezogenen Daten ohne Ihre ausdrueckliche Einwilligung gespeichert.</p>' +
-        '<a class="consent-link" href="https://rollomax.at/datenschutz/" target="_blank" rel="noopener">Datenschutzerklaerung</a>' +
+        '<p class="consent-text">Dieser Chat wird von einer künstlichen Intelligenz (KI) betrieben. Ihre Nachrichten werden verschlüsselt übertragen und nach 90 Tagen automatisch gelöscht. Es werden keine personenbezogenen Daten ohne Ihre ausdrückliche Einwilligung gespeichert.</p>' +
+        '<a class="consent-link" href="https://rollomax.at/datenschutz/" target="_blank" rel="noopener">Datenschutzerklärung</a>' +
         '<div class="consent-check-area">' +
           '<input type="checkbox" id="consent-cb">' +
-          '<label for="consent-cb">Ich stimme der Verarbeitung meiner Daten gemaess der Datenschutzerklaerung zu.</label>' +
+          '<label for="consent-cb">Ich stimme der Verarbeitung meiner Daten gemäß der Datenschutzerklärung zu.</label>' +
         '</div>' +
         '<button class="consent-btn" id="consent-accept-btn" disabled>Akzeptieren und Chat starten</button>' +
       '</div>';
@@ -762,15 +1242,19 @@
       return '<div class="messages-area hidden" id="messages-area"></div>' +
         '<div class="suggested-actions hidden" id="suggested-actions"></div>' +
         '<div class="input-area hidden" id="input-area">' +
+          '<button class="upload-btn" id="upload-btn" aria-label="Bild hochladen">' + ICON_CAMERA + '</button>' +
+          '<input type="file" class="upload-input" id="upload-input" accept="image/jpeg,image/png,image/webp">' +
           '<textarea id="msg-input" rows="1" placeholder="Nachricht eingeben..." aria-label="Nachricht"></textarea>' +
           '<button class="send-btn" id="send-btn" aria-label="Senden" disabled>' + ICON_SEND + '</button>' +
-        '</div>';
+        '</div>' +
+        '<div class="feedback-overlay" id="feedback-overlay"></div>' +
+        '<div class="modal-overlay" id="modal-overlay"></div>';
     }
 
     /* ── Cache DOM refs ─────────────────────────────────────────────── */
     cacheElements() {
       var s = this.shadowRoot;
-      this.$bubbleBtn = s.querySelector('.bubble-btn');
+      this.$quickChatBar = s.querySelector('.quick-chat-bar');
       this.$chatWindow = s.querySelector('.chat-window');
       this.$consentScreen = s.querySelector('#consent-screen');
       this.$consentCb = s.querySelector('#consent-cb');
@@ -785,16 +1269,25 @@
       this.$closeBtn = s.querySelector('.close-btn');
       this.$deleteChatBtn = s.querySelector('.delete-chat-btn');
       this.$revokeConsentBtn = s.querySelector('.revoke-consent-btn');
-      this.$tooltip = s.querySelector('.bubble-tooltip');
+      this.$uploadBtn = s.querySelector('#upload-btn');
+      this.$uploadInput = s.querySelector('#upload-input');
+      this.$feedbackOverlay = s.querySelector('#feedback-overlay');
+      this.$modalOverlay = s.querySelector('#modal-overlay');
     }
 
     /* ── Events ─────────────────────────────────────────────────────── */
     bindEvents() {
       var self = this;
 
-      // Bubble button
-      if (this.$bubbleBtn) {
-        this.$bubbleBtn.addEventListener('click', function() { self.toggleChat(); });
+      // Quick Chat Bar (click and keyboard)
+      if (this.$quickChatBar) {
+        this.$quickChatBar.addEventListener('click', function() { self.showChat(); });
+        this.$quickChatBar.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            self.showChat();
+          }
+        });
       }
 
       // Close button
@@ -860,6 +1353,71 @@
         self.closeSettings();
         self.revokeConsent();
       });
+
+      // Feedback buttons (delegated)
+      this.$messagesArea.addEventListener('click', function(e) {
+        var btn = e.target.closest('.feedback-btn');
+        if (!btn) return;
+        var feedbackDiv = btn.closest('.message-feedback');
+        var messageId = feedbackDiv.getAttribute('data-message-id');
+        var rating = btn.getAttribute('data-rating');
+        feedbackDiv.querySelectorAll('.feedback-btn').forEach(function(b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        self.sendFeedback('message', { message_id: messageId, rating: rating });
+      });
+
+      // Sound toggle
+      var soundBtn = this.shadowRoot.querySelector('.sound-btn');
+      if (soundBtn) {
+        soundBtn.addEventListener('click', function() {
+          self._soundEnabled = !self._soundEnabled;
+          localStorage.setItem('rollomax_sound', self._soundEnabled ? 'true' : 'false');
+          soundBtn.innerHTML = self._soundEnabled ? ICON_SOUND_ON : ICON_SOUND_OFF;
+          soundBtn.classList.toggle('is-muted', !self._soundEnabled);
+          if (self._soundEnabled) { self.playNotificationSound(); }
+        });
+      }
+
+      // Image upload
+      if (this.$uploadBtn && this.$uploadInput) {
+        this.$uploadBtn.addEventListener('click', function() {
+          self.$uploadInput.click();
+        });
+
+        this.$uploadInput.addEventListener('change', function(e) {
+          var file = e.target.files[0];
+          if (!file) return;
+
+          if (file.size > 5 * 1024 * 1024) {
+            alert('Bild zu gross. Maximal 5MB erlaubt.');
+            return;
+          }
+          if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+            alert('Nur JPG, PNG oder WebP erlaubt.');
+            return;
+          }
+
+          self.uploadImage(file);
+          e.target.value = '';
+        });
+      }
+
+      // Session feedback timer (check every 30 seconds)
+      this._feedbackCheckInterval = setInterval(function() {
+        if (self.isOpen && self.consentGiven && !self._feedbackShown) {
+          var inactiveTime = Date.now() - self._lastActivityTime;
+          if (inactiveTime > 120000) {
+            self.showSessionFeedback();
+          }
+        }
+      }, 30000);
+
+      // Modal backdrop click (delegated, once)
+      this.$modalOverlay.addEventListener('click', function(e) {
+        if (e.target === self.$modalOverlay) {
+          self.closeModal();
+        }
+      });
     }
 
     /* ── Textarea auto-grow ─────────────────────────────────────────── */
@@ -870,43 +1428,40 @@
     }
 
     /* ── Toggle / Open / Close chat ─────────────────────────────────── */
-    toggleChat() {
-      if (this.isOpen) {
-        this.closeChat();
-      } else {
-        this.openChat();
-      }
-    }
-
-    openChat() {
-      this.isOpen = true;
-      this.$chatWindow.classList.add('is-open');
-      if (this.$bubbleBtn) this.$bubbleBtn.classList.add('is-open');
-      if (this.$tooltip) this.$tooltip.classList.remove('is-visible');
-      if (this._tooltipTimer) { clearTimeout(this._tooltipTimer); this._tooltipTimer = null; }
-
-      if (this.consentGiven) {
-        this.showChatUI();
-      } else {
-        this.showConsentUI();
-      }
-    }
-
     closeChat() {
       this.isOpen = false;
       this.$chatWindow.classList.remove('is-open');
-      if (this.$bubbleBtn) this.$bubbleBtn.classList.remove('is-open');
+      if (this.$quickChatBar) this.$quickChatBar.classList.remove('is-open');
       this.closeSettings();
     }
 
     showChat() {
-      // For inline mode: auto-open
+      if (this._proactiveShown) {
+        this.trackEvent('proactive_clicked', { variant: this._abVariant });
+        this._proactiveShown = false;
+      }
+
       this.isOpen = true;
+      this.$chatWindow.classList.add('is-open');
+      if (this.$quickChatBar) this.$quickChatBar.classList.add('is-open');
+
+      this.trackEvent('chat_opened');
+
       if (this.consentGiven) {
         this.showChatUI();
+        this.focusInput();
       } else {
         this.showConsentUI();
       }
+    }
+
+    focusInput() {
+      var self = this;
+      setTimeout(function() {
+        if (self.$msgInput) {
+          self.$msgInput.focus();
+        }
+      }, 350);
     }
 
     showConsentUI() {
@@ -925,10 +1480,10 @@
       if (this.messages.length === 0) {
         this.addMessage(WELCOME_MSG, 'bot');
         this.renderSuggestedActions([
-          'Rolllaeden & Raffstoren',
+          'Rollläden & Raffstoren',
           'Markisen & Terrasse',
           'Kostenlose Beratung',
-          'Foerderung Wien'
+          'Förderung Wien'
         ], 'quick_reply');
       }
 
@@ -955,39 +1510,119 @@
     }
 
     /* ── Messages ───────────────────────────────────────────────────── */
-    addMessage(text, role) {
-      var msg = { text: text, role: role, time: new Date() };
-      this.messages.push(msg);
-      this.renderMessage(msg);
+    escapeHtml(text) {
+      if (!text) return '';
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    formatMarkdown(text) {
+      if (!text) return '';
+      var self = this;
+      // First escape HTML to prevent XSS
+      var escaped = this.escapeHtml(text);
+
+      // Split into paragraphs (double newline or single newline)
+      var paragraphs = escaped.split(/\n\n+/);
+      var result = [];
+
+      for (var i = 0; i < paragraphs.length; i++) {
+        var para = paragraphs[i].trim();
+        if (!para) continue;
+
+        // Check if this paragraph is a list
+        var lines = para.split(/\n/);
+        var isList = lines.length > 0 && /^[-*]\s/.test(lines[0].trim());
+
+        if (isList) {
+          // Render as unordered list
+          var listItems = [];
+          for (var j = 0; j < lines.length; j++) {
+            var line = lines[j].trim();
+            if (/^[-*]\s/.test(line)) {
+              var itemText = line.replace(/^[-*]\s+/, '');
+              // Apply bold formatting within list item
+              itemText = itemText.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+              listItems.push('<li>' + itemText + '</li>');
+            }
+          }
+          result.push('<ul>' + listItems.join('') + '</ul>');
+        } else {
+          // Regular paragraph - convert single newlines to <br>
+          var formatted = para.replace(/\n/g, '<br>');
+          // Apply bold formatting
+          formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+          result.push('<p>' + formatted + '</p>');
+        }
+      }
+
+      return result.join('');
+    }
+
+    generateMessageId() {
+      return 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 
     renderMessage(msg) {
+      var self = this;
       var div = document.createElement('div');
       div.className = 'message ' + msg.role;
+      div.setAttribute('data-message-id', msg.id);
 
-      var content = document.createElement('div');
-      content.className = 'message-content';
-      content.textContent = msg.text;
-      div.appendChild(content);
-
-      var meta = document.createElement('div');
-      meta.className = 'message-meta';
-
+      // Use formatMarkdown for bot messages, escapeHtml for user messages
+      var formattedText = msg.role === 'bot' ? this.formatMarkdown(msg.text) : this.escapeHtml(msg.text);
+      var contentHTML = '<div class="message-content">' + formattedText + '</div>';
+      var metaHTML = '<div class="message-meta">';
       if (msg.role === 'bot') {
-        var badge = document.createElement('span');
-        badge.className = 'message-ki-badge';
-        badge.textContent = 'KI';
-        meta.appendChild(badge);
+        metaHTML += '<span class="message-ki-badge">KI</span>';
+      }
+      metaHTML += '<span class="message-time">' + this.formatTime(msg.time) + '</span>';
+      metaHTML += '</div>';
+
+      var feedbackHTML = '';
+      if (msg.role === 'bot') {
+        feedbackHTML = '<div class="message-feedback" data-message-id="' + msg.id + '">' +
+          '<button class="feedback-btn" data-rating="up" aria-label="Hilfreich">' + ICON_THUMB_UP + '</button>' +
+          '<button class="feedback-btn" data-rating="down" aria-label="Nicht hilfreich">' + ICON_THUMB_DOWN + '</button>' +
+          '</div>';
       }
 
-      var time = document.createElement('span');
-      time.className = 'message-time';
-      time.textContent = this.formatTime(msg.time);
-      meta.appendChild(time);
+      div.innerHTML = contentHTML + metaHTML + feedbackHTML;
 
-      div.appendChild(meta);
+      if (msg.extras && msg.extras.product_card) {
+        div.appendChild(this.createProductCard(msg.extras.product_card));
+      }
+      if (msg.extras && msg.extras.actions && msg.extras.actions.length > 0) {
+        div.appendChild(this.createActionButtons(msg.extras.actions));
+      }
+
       this.$messagesArea.appendChild(div);
+    }
+
+    sendFeedback(type, data) {
+      fetch(this.apiUrl + '/webhook/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Widget-Token': this.token },
+        body: JSON.stringify({ session_id: this.sessionId, feedback_type: type, data: data })
+      }).catch(function(err) { console.warn('Feedback send failed:', err); });
+    }
+
+    addMessage(text, role, extras) {
+      var msg = {
+        id: this.generateMessageId(),
+        text: text,
+        role: role,
+        time: new Date(),
+        extras: extras || {}
+      };
+      this.messages.push(msg);
+      this.renderMessage(msg);
       this.scrollToBottom();
+      if (role === 'bot' && this._soundEnabled) {
+        this.playNotificationSound();
+      }
+      return msg;
     }
 
     scrollToBottom() {
@@ -997,12 +1632,24 @@
       });
     }
 
+    playNotificationSound() {
+      if (!this._soundEnabled) return;
+      try {
+        if (!this._audio) {
+          this._audio = new Audio(NOTIFICATION_SOUND);
+          this._audio.volume = 0.3;
+        }
+        this._audio.currentTime = 0;
+        this._audio.play().catch(function() {});
+      } catch(e) {}
+    }
+
     /* ── Typing indicator ───────────────────────────────────────────── */
     showTypingIndicator() {
       if (this._typingEl) return;
       var el = document.createElement('div');
       el.className = 'typing-indicator';
-      el.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+      el.innerHTML = '<span class="typing-text">RolloMax tippt</span><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
       this._typingEl = el;
       this.$messagesArea.appendChild(el);
       this.scrollToBottom();
@@ -1063,7 +1710,8 @@
         submitBtn.textContent = 'Wird gesendet...';
 
         self.submitLeadForm(name, email, phone).then(function() {
-          form.innerHTML = '<div class="lead-success">Vielen Dank! Ihre Daten wurden erfolgreich uebermittelt. Wir melden uns in Kuerze bei Ihnen.</div>';
+          form.innerHTML = '<div class="lead-success">Vielen Dank! Ihre Daten wurden erfolgreich übermittelt. Wir melden uns in Kürze bei Ihnen.</div>';
+          self.trackEvent('lead_captured', { source: 'chat' });
         }).catch(function() {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Absenden';
@@ -1076,7 +1724,7 @@
       var response = await fetch(this.apiUrl + '/webhook/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=utf-8',
           'X-Widget-Token': this.token,
           'X-Session-ID': this.sessionId
         },
@@ -1097,6 +1745,8 @@
       var text = overrideText || this.$msgInput.value.trim();
       if (!text || this.isLoading) return;
 
+      this._lastActivityTime = Date.now();
+      this.resetInChatProactive();
       this.addMessage(text, 'user');
       if (!overrideText) {
         this.$msgInput.value = '';
@@ -1123,7 +1773,7 @@
         var response = await fetch(this.apiUrl + '/webhook/chat', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
             'X-Widget-Token': this.token,
             'X-Session-ID': this.sessionId
           },
@@ -1157,6 +1807,30 @@
           this.renderLeadForm();
         }
 
+        var productCard = data.product_card || data.show_product_card;
+        if (productCard) {
+          var lastMsg = this.messages[this.messages.length - 1];
+          if (lastMsg) {
+            lastMsg.extras = lastMsg.extras || {};
+            lastMsg.extras.product_card = productCard;
+            var msgEl = this.$messagesArea.querySelector('[data-message-id="' + lastMsg.id + '"]');
+            if (msgEl) {
+              msgEl.appendChild(this.createProductCard(productCard));
+            }
+          }
+        }
+
+        var actions = data.actions || data.show_actions;
+        if (actions && actions.length > 0) {
+          var lastMsg2 = this.messages[this.messages.length - 1];
+          if (lastMsg2) {
+            var msgEl2 = this.$messagesArea.querySelector('[data-message-id="' + lastMsg2.id + '"]');
+            if (msgEl2) {
+              msgEl2.appendChild(this.createActionButtons(actions));
+            }
+          }
+        }
+
       } catch (err) {
         clearTimeout(timeoutId);
         this.hideTypingIndicator();
@@ -1176,7 +1850,7 @@
         await fetch(this.apiUrl + '/webhook/delete-session', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
             'X-Widget-Token': this.token
           },
           body: JSON.stringify({ session_id: this.sessionId })
@@ -1204,13 +1878,530 @@
       this.showConsentUI();
     }
 
+    disconnectedCallback() {
+      if (this._feedbackCheckInterval) {
+        clearInterval(this._feedbackCheckInterval);
+        this._feedbackCheckInterval = null;
+      }
+      if (this._proactiveTimer) {
+        clearTimeout(this._proactiveTimer);
+        this._proactiveTimer = null;
+      }
+      if (this._inChatProactiveTimer) {
+        clearTimeout(this._inChatProactiveTimer);
+        this._inChatProactiveTimer = null;
+      }
+    }
+
+    /* ── Image upload ───────────────────────────────────────────────── */
+    uploadImage(file) {
+      var self = this;
+      var reader = new FileReader();
+
+      reader.onload = function(e) {
+        var base64 = e.target.result;
+
+        // Show preview in chat
+        self.addImagePreview(base64);
+
+        // Upload to server
+        self.showTypingIndicator();
+
+        fetch(self.apiUrl + '/webhook/upload-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'X-Widget-Token': self.token
+          },
+          body: JSON.stringify({
+            session_id: self.sessionId,
+            image: base64,
+            mime_type: file.type
+          })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          self.hideTypingIndicator();
+          if (data.analysis) {
+            self.addMessage(data.analysis, 'bot');
+          }
+          self.trackEvent('image_uploaded');
+        })
+        .catch(function(err) {
+          self.hideTypingIndicator();
+          self.addMessage('Bild konnte nicht analysiert werden. Bitte versuchen Sie es erneut.', 'bot');
+        });
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    addImagePreview(base64) {
+      var div = document.createElement('div');
+      div.className = 'image-preview';
+      var img = document.createElement('img');
+      img.alt = 'Hochgeladenes Bild';
+      img.src = base64;
+      div.appendChild(img);
+      this.$messagesArea.appendChild(div);
+      this.scrollToBottom();
+    }
+
+    /* ── Product card ───────────────────────────────────────────────── */
+    createProductCard(card) {
+      var div = document.createElement('div');
+      div.className = 'product-card';
+      div.innerHTML =
+        '<img class="product-card-image" loading="lazy" src="' + this.escapeHtml(card.image || '') + '" alt="' + this.escapeHtml(card.title || '') + '" onerror="this.style.display=\'none\'">' +
+        '<div class="product-card-content">' +
+          '<h4 class="product-card-title">' + this.escapeHtml(card.title || '') + '</h4>' +
+          '<p class="product-card-desc">' + this.escapeHtml(card.description || '') + '</p>' +
+          '<a class="product-card-btn" href="' + this.escapeHtml(card.url || '#') + '" target="_blank" rel="noopener">Mehr erfahren</a>' +
+        '</div>';
+
+      var self = this;
+      div.querySelector('.product-card-btn').addEventListener('click', function() {
+        self.trackEvent('product_card_clicked', { product: card.type });
+      });
+
+      return div;
+    }
+
+    /* ── Action buttons ─────────────────────────────────────────────── */
+    createActionButtons(actions) {
+      var self = this;
+      var div = document.createElement('div');
+      div.className = 'action-buttons';
+
+      actions.forEach(function(action) {
+        var btn = document.createElement('button');
+
+        switch(action) {
+          case 'booking':
+            btn.className = 'action-btn primary';
+            btn.innerHTML = ICON_CALENDAR + ' Termin buchen';
+            btn.addEventListener('click', function() {
+              self.openBookingModal();
+            });
+            break;
+
+          case 'whatsapp':
+            btn.className = 'action-btn whatsapp';
+            btn.innerHTML = ICON_WHATSAPP + ' WhatsApp Chat';
+            btn.addEventListener('click', function() {
+              self.openWhatsApp();
+            });
+            break;
+
+          case 'configurator':
+            btn.className = 'action-btn secondary';
+            btn.innerHTML = 'Anfrage stellen';
+            btn.addEventListener('click', function() {
+              self.openConfiguratorModal();
+            });
+            break;
+
+          case 'configurator_odl':
+          case 'configurator_wsys':
+          case 'configurator_wsysplus': {
+            var lineMap = { configurator_odl: 'odl', configurator_wsys: 'wsys', configurator_wsysplus: 'wsysplus' };
+            var labelMap = { configurator_odl: 'Markisen & Pergolen konfigurieren', configurator_wsys: 'Raffstoren & Rollläden konfigurieren', configurator_wsysplus: 'Fenster + Sonnenschutz konfigurieren' };
+            var line = lineMap[action];
+            btn.className = 'action-btn secondary';
+            btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' + labelMap[action];
+            btn.addEventListener('click', (function(l) {
+              return function() { self.openKaufberater(l); };
+            })(line));
+            break;
+          }
+        }
+
+        div.appendChild(btn);
+      });
+
+      return div;
+    }
+
+    openKaufberater(line) {
+      var url = 'https://rollomax.at/kaufberater/?line=' + line;
+      fetch(this.apiUrl + '/webhook/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'X-Widget-Token': this.token,
+          'X-Session-ID': this.sessionId
+        },
+        body: JSON.stringify({
+          session_id: this.sessionId,
+          message: '__configurator_open__',
+          configurator_line: line,
+          consent: true,
+          page_url: window.location.href
+        })
+      }).catch(function() {});
+      window.open(url, '_blank', 'noopener,noreferrer');
+      this.trackEvent('kaufberater_opened', { line: line });
+    }
+
+    openWhatsApp() {
+      var lastTopic = this.getLastTopic();
+      var text = encodeURIComponent('Hallo, ich komme vom Website-Chat und haette eine Frage' + (lastTopic ? ' zu ' + lastTopic : '') + '.');
+      var url = 'https://wa.me/436509907599?text=' + text;
+      window.open(url, '_blank');
+      this.trackEvent('whatsapp_handover');
+    }
+
+    getLastTopic() {
+      var topics = ['Rollladen', 'Raffstore', 'Markise', 'Jalousie', 'Plissee', 'Insektenschutz'];
+      for (var i = this.messages.length - 1; i >= 0; i--) {
+        var msg = this.messages[i];
+        for (var j = 0; j < topics.length; j++) {
+          if (msg.text && msg.text.toLowerCase().indexOf(topics[j].toLowerCase()) !== -1) {
+            return topics[j];
+          }
+        }
+      }
+      return '';
+    }
+
+    /* ── Booking modal ──────────────────────────────────────────────── */
+    openBookingModal() {
+      var calUrl = this.getAttribute('data-calcom-url') || 'https://cal.com/rollomax/beratung';
+
+      this.$modalOverlay.innerHTML =
+        '<div class="modal-content">' +
+          '<div class="modal-header">' +
+            '<h3 class="modal-title">Beratungstermin buchen</h3>' +
+            '<button class="modal-close">' + ICON_CLOSE + '</button>' +
+          '</div>' +
+          '<div class="modal-body">' +
+            '<iframe src="' + calUrl + '?embed=true" frameborder="0"></iframe>' +
+          '</div>' +
+        '</div>';
+
+      this.$modalOverlay.classList.add('is-visible');
+      this.trackEvent('booking_started');
+
+      var self = this;
+      this.$modalOverlay.querySelector('.modal-close').addEventListener('click', function() {
+        self.closeModal();
+      });
+    }
+
+    closeModal() {
+      this.$modalOverlay.classList.remove('is-visible');
+      this.$modalOverlay.innerHTML = '';
+    }
+
+    /* ── Configurator modal ─────────────────────────────────────────── */
+    openConfiguratorModal() {
+      var self = this;
+      this._configStep = 0;
+      this._configData = {};
+
+      this._configSteps = [
+        { label: 'Was suchen Sie?', options: ['Rollladen', 'Raffstore', 'Markise', 'Jalousie', 'Plissee', 'Insektenschutz', 'Anderes'] },
+        { label: 'Neubau oder Nachrüstung?', options: ['Neubau', 'Nachrüstung', 'Reparatur'] },
+        { label: 'Wie viele Fenster/Türen?', input: 'number', placeholder: 'z.B. 5' },
+        { label: 'Ihre Postleitzahl?', input: 'text', placeholder: 'z.B. 1020' },
+        { label: 'Wie erreichen wir Sie?', fields: ['name', 'email', 'phone'] }
+      ];
+
+      this.renderConfiguratorStep();
+    }
+
+    renderConfiguratorStep() {
+      var self = this;
+      var step = this._configSteps[this._configStep];
+      var totalSteps = this._configSteps.length;
+
+      var progressHTML = '<div class="config-progress">';
+      for (var i = 0; i < totalSteps; i++) {
+        var cls = i < this._configStep ? 'completed' : (i === this._configStep ? 'active' : '');
+        progressHTML += '<div class="config-progress-dot ' + cls + '"></div>';
+      }
+      progressHTML += '</div>';
+
+      var contentHTML = '<div class="config-label">' + this.escapeHtml(step.label) + '</div>';
+
+      if (step.options) {
+        contentHTML += '<div class="config-options">';
+        step.options.forEach(function(opt) {
+          contentHTML += '<button class="config-option" data-value="' + self.escapeHtml(opt) + '">' + self.escapeHtml(opt) + '</button>';
+        });
+        contentHTML += '</div>';
+      } else if (step.input) {
+        contentHTML += '<input type="' + step.input + '" class="config-input" placeholder="' + this.escapeHtml(step.placeholder || '') + '">';
+      } else if (step.fields) {
+        contentHTML += '<input type="text" class="config-input" placeholder="Ihr Name" data-field="name">';
+        contentHTML += '<input type="email" class="config-input" placeholder="E-Mail Adresse" data-field="email">';
+        contentHTML += '<input type="tel" class="config-input" placeholder="Telefonnummer" data-field="phone">';
+      }
+
+      var navHTML = '<div class="config-nav">';
+      if (this._configStep > 0) {
+        navHTML += '<button class="config-back">Zurueck</button>';
+      }
+      if (this._configStep < totalSteps - 1) {
+        navHTML += '<button class="config-next">Weiter</button>';
+      } else {
+        navHTML += '<button class="config-next">Absenden</button>';
+      }
+      navHTML += '</div>';
+
+      this.$modalOverlay.innerHTML =
+        '<div class="modal-content">' +
+          '<div class="modal-header">' +
+            '<h3 class="modal-title">Anfrage stellen</h3>' +
+            '<button class="modal-close">' + ICON_CLOSE + '</button>' +
+          '</div>' +
+          '<div class="modal-body">' +
+            progressHTML +
+            contentHTML +
+            navHTML +
+          '</div>' +
+        '</div>';
+
+      this.$modalOverlay.classList.add('is-visible');
+
+      this.$modalOverlay.querySelector('.modal-close').addEventListener('click', function() {
+        self.closeModal();
+      });
+
+      var backBtn = this.$modalOverlay.querySelector('.config-back');
+      if (backBtn) {
+        backBtn.addEventListener('click', function() {
+          self._configStep--;
+          self.renderConfiguratorStep();
+        });
+      }
+
+      var nextBtn = this.$modalOverlay.querySelector('.config-next');
+      if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+          self.saveConfiguratorStep();
+        });
+      }
+
+      this.$modalOverlay.querySelectorAll('.config-option').forEach(function(opt) {
+        opt.addEventListener('click', function() {
+          self.$modalOverlay.querySelectorAll('.config-option').forEach(function(o) {
+            o.classList.remove('selected');
+          });
+          opt.classList.add('selected');
+        });
+      });
+    }
+
+    saveConfiguratorStep() {
+      var step = this._configSteps[this._configStep];
+
+      if (step.options) {
+        var selected = this.$modalOverlay.querySelector('.config-option.selected');
+        if (!selected) {
+          alert('Bitte waehlen Sie eine Option.');
+          return;
+        }
+        this._configData['step' + this._configStep] = selected.getAttribute('data-value');
+      } else if (step.input) {
+        var input = this.$modalOverlay.querySelector('.config-input');
+        if (!input.value.trim()) {
+          alert('Bitte fuellen Sie das Feld aus.');
+          return;
+        }
+        this._configData['step' + this._configStep] = input.value.trim();
+      } else if (step.fields) {
+        var name = this.$modalOverlay.querySelector('[data-field="name"]').value.trim();
+        var email = this.$modalOverlay.querySelector('[data-field="email"]').value.trim();
+        var phone = this.$modalOverlay.querySelector('[data-field="phone"]').value.trim();
+
+        if (!name || (!email && !phone)) {
+          alert('Bitte geben Sie Ihren Namen und mindestens E-Mail oder Telefon an.');
+          return;
+        }
+        this._configData.name = name;
+        this._configData.email = email;
+        this._configData.phone = phone;
+      }
+
+      if (this._configStep < this._configSteps.length - 1) {
+        this._configStep++;
+        this.renderConfiguratorStep();
+      } else {
+        this.submitConfigurator();
+      }
+    }
+
+    submitConfigurator() {
+      var self = this;
+
+      fetch(this.apiUrl + '/webhook/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'X-Widget-Token': this.token,
+          'X-Session-ID': this.sessionId
+        },
+        body: JSON.stringify({
+          session_id: this.sessionId,
+          message: 'Neue Anfrage via Konfigurator: ' + (this._configData.step0 || '') + ', ' + (this._configData.step1 || ''),
+          consent: true,
+          lead: {
+            name: this._configData.name || '',
+            email: this._configData.email || '',
+            phone: this._configData.phone || '',
+            interest: this._configData.step0 || '',
+            project_type: this._configData.step1 || '',
+            quantity: this._configData.step2 || '',
+            plz: this._configData.step3 || ''
+          }
+        })
+      }).catch(function() {});
+
+      this.closeModal();
+      this.addMessage('Vielen Dank für Ihre Anfrage! Wir melden uns in Kürze bei Ihnen.', 'bot');
+      this.trackEvent('configurator_completed', { product: this._configData.step0 });
+    }
+
+    /* ── Session feedback ───────────────────────────────────────────── */
+    showSessionFeedback() {
+      if (this._feedbackShown) return;
+      if (this.messages.filter(function(m) { return m.role === 'bot'; }).length < 3) return;
+
+      this._feedbackShown = true;
+      this._selectedStars = 0;
+
+      var starsHTML = '';
+      for (var i = 1; i <= 5; i++) {
+        starsHTML += '<button class="feedback-star" data-star="' + i + '">' + ICON_STAR_OUTLINE + '</button>';
+      }
+
+      this.$feedbackOverlay.innerHTML =
+        '<h3 class="feedback-title">Wie war Ihre Erfahrung?</h3>' +
+        '<div class="feedback-stars">' + starsHTML + '</div>' +
+        '<textarea class="feedback-comment" rows="3" placeholder="Was können wir verbessern? (optional)"></textarea>' +
+        '<button class="feedback-submit">Absenden</button>' +
+        '<button class="feedback-skip">Überspringen</button>';
+
+      this.$feedbackOverlay.classList.add('is-visible');
+
+      var self = this;
+
+      this.$feedbackOverlay.querySelectorAll('.feedback-star').forEach(function(star) {
+        star.addEventListener('click', function() {
+          self._selectedStars = parseInt(star.getAttribute('data-star'));
+          self.updateFeedbackStars();
+        });
+      });
+
+      this.$feedbackOverlay.querySelector('.feedback-submit').addEventListener('click', function() {
+        if (self._selectedStars === 0) {
+          alert('Bitte waehlen Sie eine Bewertung.');
+          return;
+        }
+        var comment = self.$feedbackOverlay.querySelector('.feedback-comment').value.trim();
+        self.sendFeedback('session', { stars: self._selectedStars, comment: comment });
+        self.trackEvent('feedback_submitted', { stars: self._selectedStars });
+        self.closeFeedbackOverlay();
+      });
+
+      this.$feedbackOverlay.querySelector('.feedback-skip').addEventListener('click', function() {
+        self.closeFeedbackOverlay();
+      });
+    }
+
+    updateFeedbackStars() {
+      var self = this;
+      this.$feedbackOverlay.querySelectorAll('.feedback-star').forEach(function(star, i) {
+        var starNum = i + 1;
+        star.innerHTML = starNum <= self._selectedStars ? ICON_STAR : ICON_STAR_OUTLINE;
+        star.classList.toggle('active', starNum <= self._selectedStars);
+      });
+    }
+
+    closeFeedbackOverlay() {
+      this.$feedbackOverlay.classList.remove('is-visible');
+      this.$feedbackOverlay.innerHTML = '';
+    }
+
+    /* ── Proactive messages ─────────────────────────────────────────── */
+    initProactiveMessages() {
+      var self = this;
+
+      var variants = {
+        'A': 'Kann ich Ihnen bei etwas helfen?',
+        'B': 'Sind Sie sich unsicher, was bei Ihnen passt?',
+        'C': 'Soll ich Ihnen einen Vorschlag machen?',
+        'D': 'Haben Sie Fragen zum Sonnenschutz?'
+      };
+
+      this._abVariant = sessionStorage.getItem('rollomax_ab_variant');
+      if (!this._abVariant) {
+        var keys = Object.keys(variants);
+        this._abVariant = keys[Math.floor(Math.random() * keys.length)];
+        sessionStorage.setItem('rollomax_ab_variant', this._abVariant);
+      }
+
+      if (this.mode === 'bubble' && !sessionStorage.getItem('rollomax_proactive_shown')) {
+        var delay = 45000 + Math.random() * 15000;
+
+        this._proactiveTimer = setTimeout(function() {
+          if (!self.isOpen && !self._proactiveShown && self.$quickChatBar) {
+            var placeholder = self.$quickChatBar.querySelector('.quick-chat-placeholder');
+            if (placeholder) {
+              placeholder.textContent = variants[self._abVariant];
+              placeholder.style.color = 'rgba(255,255,255,0.9)';
+            }
+            self._proactiveShown = true;
+            sessionStorage.setItem('rollomax_proactive_shown', 'true');
+            self.trackEvent('proactive_shown', { variant: self._abVariant });
+          }
+        }, delay);
+      }
+    }
+
+    resetInChatProactive() {
+      var self = this;
+      if (this._inChatProactiveTimer) {
+        clearTimeout(this._inChatProactiveTimer);
+      }
+
+      this._inChatProactiveTimer = setTimeout(function() {
+        if (self.isOpen && self.consentGiven && !self._inChatProactiveShown) {
+          self._inChatProactiveShown = true;
+          self.addMessage('Kann ich Ihnen noch bei etwas helfen?', 'bot');
+        }
+      }, 90000);
+    }
+
+    /* ── Analytics tracking ─────────────────────────────────────────── */
+    trackEvent(eventType, eventData) {
+      if (!this.sessionId) return;
+
+      var payload = {
+        session_id: this.sessionId,
+        event_type: eventType,
+        event_data: eventData || {},
+        ab_variant: this._abVariant
+      };
+
+      fetch(this.apiUrl + '/webhook/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'X-Widget-Token': this.token
+        },
+        body: JSON.stringify(payload)
+      }).catch(function() {});
+    }
+
     /* ── Revoke consent ─────────────────────────────────────────────── */
     async revokeConsent() {
       try {
         await fetch(this.apiUrl + '/webhook/delete-session', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
             'X-Widget-Token': this.token
           },
           body: JSON.stringify({ session_id: this.sessionId })

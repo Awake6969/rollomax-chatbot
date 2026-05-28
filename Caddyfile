@@ -26,5 +26,6 @@ chat.rollomax.at {
     # N8N webhook proxy
     handle /webhook/* {
         reverse_proxy n8n:5678
+        header_down Content-Type "application/json; charset=utf-8"
     }
 }
