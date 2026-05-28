@@ -4,6 +4,9 @@
   /* ── Capture script ref before DOM changes ─────────────────────────── */
   const _currentScript = document.currentScript;
 
+  /* ── Instance registry for external API ────────────────────────────── */
+  var _instances = { inline: null, bubble: null };
+
   /* ── CSS (all styles live inside Shadow DOM) ───────────────────────── */
   const FONT_FACE_CSS = `
     @font-face {
@@ -601,9 +604,30 @@
       this._abortController = null;
     }
 
+    apiOpen() {
+      if (this.mode === 'bubble' && !this.isOpen) {
+        this.showChat();
+      }
+    }
+
+    apiPrefill(text) {
+      if (!text) return;
+      this.apiOpen();
+      if (!this.consentGiven) {
+        this.grantConsent();
+      }
+      this.handleSend(text, 'service_problem_button');
+    }
+
     connectedCallback() {
       this.token = this.getAttribute('data-token') || '';
       this.mode = this.getAttribute('data-mode') || 'bubble';
+
+      if (this.mode === 'inline') {
+        _instances.inline = this;
+      } else {
+        _instances.bubble = this;
+      }
 
       // Inject @font-face into host document (required for Shadow DOM font loading)
       if (!document.getElementById('rollomax-fonts')) {
@@ -1230,6 +1254,19 @@
       } else {
         document.body.appendChild(widget);
       }
+    }
+
+    if (!window.RolloMaxChat) {
+      window.RolloMaxChat = {
+        open: function() {
+          var inst = _instances.inline || _instances.bubble;
+          if (inst) inst.apiOpen();
+        },
+        prefill: function(text) {
+          var inst = _instances.inline || _instances.bubble;
+          if (inst) inst.apiPrefill(text);
+        }
+      };
     }
 
     if (document.readyState === 'loading') {
