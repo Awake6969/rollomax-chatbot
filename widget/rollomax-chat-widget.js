@@ -56,16 +56,60 @@
       box-sizing: border-box;
     }
 
-    :host([data-theme="service-dark"]) {
-      --primary: #0e0e0e;
+    :host([data-theme="service-light"]) {
+      --primary: #1F1F1F;
       --accent: #e41915;
       --accent-hover: #c2110d;
-      --chat-bg: rgba(14,14,14,0.96);
+      --chat-bg: #FFFFFF;
       --user-bubble: #e41915;
       --user-text: #ffffff;
-      --bot-bubble: rgba(255,255,255,0.10);
-      --bot-text: #f0f0f0;
+      --bot-bubble: #FFFFFF;
+      --bot-text: #1F1F1F;
     }
+
+    /* Booking CTA (inline only) */
+    .booking-cta { display: none; }
+    :host([data-mode="inline"]) .booking-cta {
+      display: block;
+      padding: 18px;
+      background: linear-gradient(135deg, #e41915, #b8120d);
+      color: #fff;
+      text-align: center;
+    }
+    :host([data-mode="inline"]) .booking-cta.hidden { display: none; }
+    .booking-cta-title {
+      font-family: var(--font-heading);
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .booking-cta-sub {
+      font-size: 13px;
+      opacity: 0.92;
+      margin: 5px 0 13px;
+    }
+    .booking-cta-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 13px;
+      background: #fff;
+      color: #e41915;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    .booking-cta-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+    }
+    .booking-cta-btn svg { width: 18px; height: 18px; }
 
     *, *::before, *::after { box-sizing: border-box; }
 
@@ -1239,7 +1283,12 @@
     }
 
     chatBodyHTML() {
-      return '<div class="messages-area hidden" id="messages-area"></div>' +
+      return '<div class="booking-cta hidden" id="booking-cta">' +
+          '<div class="booking-cta-title">Direkt Termin sichern</div>' +
+          '<div class="booking-cta-sub">Freie Termine diese Woche, kostenloser Kostenvoranschlag</div>' +
+          '<button class="booking-cta-btn" id="booking-cta-btn" type="button">' + ICON_CALENDAR + ' Termin in 30 Sekunden buchen</button>' +
+        '</div>' +
+        '<div class="messages-area hidden" id="messages-area"></div>' +
         '<div class="suggested-actions hidden" id="suggested-actions"></div>' +
         '<div class="input-area hidden" id="input-area">' +
           '<button class="upload-btn" id="upload-btn" aria-label="Bild hochladen">' + ICON_CAMERA + '</button>' +
@@ -1260,6 +1309,8 @@
       this.$consentCb = s.querySelector('#consent-cb');
       this.$consentAcceptBtn = s.querySelector('#consent-accept-btn');
       this.$messagesArea = s.querySelector('#messages-area');
+      this.$bookingCta = s.querySelector('#booking-cta');
+      this.$bookingCtaBtn = s.querySelector('#booking-cta-btn');
       this.$suggestedActions = s.querySelector('#suggested-actions');
       this.$inputArea = s.querySelector('#input-area');
       this.$msgInput = s.querySelector('#msg-input');
@@ -1309,6 +1360,14 @@
 
       // Send button
       this.$sendBtn.addEventListener('click', function() { self.handleSend(); });
+
+      // Booking CTA (inline service-light)
+      if (this.$bookingCtaBtn) {
+        this.$bookingCtaBtn.addEventListener('click', function() {
+          self.trackEvent('booking_cta_click');
+          self.openBookingModal();
+        });
+      }
 
       // Textarea input and keyboard
       this.$msgInput.addEventListener('input', function() {
@@ -1475,6 +1534,7 @@
       this.$consentScreen.classList.add('hidden');
       this.$messagesArea.classList.remove('hidden');
       this.$inputArea.classList.remove('hidden');
+      if (this.$bookingCta) this.$bookingCta.classList.remove('hidden');
 
       // Send welcome message if no messages yet
       if (this.messages.length === 0) {
