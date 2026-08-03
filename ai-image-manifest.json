@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "site": "chat.rollomax.at",
+  "audited_at": "2026-08-03",
+  "policy": "EU Article 50 plus Omnix blanket AI image disclosure",
+  "images": [],
+  "reviewed_non_ai_images": [
+    {
+      "path": "widget/avatar.png",
+      "sha256": "da19ac483a765875a5bc5041d27760bf801467b21f0432d56651daa97e229a6a",
+      "evidence": "Flat green circle with a manually rendered letter R placeholder"
+    }
+  ],
+  "inventory": {
+    "roots": [
+      "widget"
+    ]
+  }
+}
