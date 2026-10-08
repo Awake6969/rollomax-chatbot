@@ -1109,9 +1109,34 @@
   const NOTIFICATION_SOUND = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYNBrP+AAAAAAAAAAAAAAAAAAAAAP/7kGQAAANUMEoFPeACNQV40KEABIEBN3mEOYACMQV3cIQgAOBAEAwSAAABhGDEOC8XB4EAQBMEAQBAMI//FocBAEAYOf/+nO//4QQBP/+Xm///hBAEAwTB8Hz//5cHwfggCAIAgOAgP+D4Pg+D4IAgD/+UdxAGCYJg+D4P/9hIDAMEwTBMFB6Hw/B//lHcQBgmCYPg+D//Y//tgxAADwAABpAAAACAAADSAAAAEP/7YMQeA8AAAaQAAAAgAAA0gAAABEAAAGkAAAAIAAANIAAAARBu+eFtaJT/+2DEJgPAAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABA=';
 
   /* ── Welcome message ───────────────────────────────────────────────── */
-  const WELCOME_MSG = 'Willkommen bei RolloMax Wien! Ich bin Ihr Sonnenschutz-Berater und helfe Ihnen gerne bei allen Fragen rund um Sonnenschutz. Hinweis: Dieser Chat wird von einer KI unterstuetzt. Wie kann ich Ihnen weiterhelfen?';
+  const WELCOME_MSG = 'Willkommen bei RolloMax Wien! Ich bin Ihr Sonnenschutz-Berater und helfe Ihnen gerne bei allen Fragen rund um Sonnenschutz. Hinweis: Dieser Chat wird von einer KI unterstützt. Wie kann ich Ihnen weiterhelfen?';
 
-  const ERROR_MSG = 'Verbindungsfehler. Bitte versuchen Sie es spaeter erneut oder kontaktieren Sie uns unter +43 (0) 1 21 22 446.';
+  /* ── Überdachungs-Begrüßung B1 (freigegeben, Wortlaut nicht ändern) ──── */
+  const UD_WELCOME_MSG = 'Was kostet Ihre neue Überdachung? Finden Sie Ihren ungefähren Preis in nur 30 Sekunden heraus. Drei kurze Fragen, und Sie wissen mehr.';
+
+  /* ── Überdachungsseiten-Pfade (identisch zu isUdPage in tools/rollomax_ud/ud_core.js, dort nicht ändern) ─ */
+  const UD_PATH_PREFIXES = [
+    '/produkte/ueberdachungen',
+    '/produkt/lamellendach',
+    '/produkt/glasdach',
+    '/produkt/faltdach',
+    '/produkt/faltpergola',
+    '/produkt/pergolamarkisen',
+    '/produkt/pergolamarkise-perea',
+    '/lamellendach-pergola-wien',
+    '/ratgeber/pergola-lamellendach-oder-pergolamarkise',
+  ];
+
+  function isUdPage(pathname) {
+    var path = String(pathname || '');
+    if (!path) return false;
+    for (var i = 0; i < UD_PATH_PREFIXES.length; i++) {
+      if (path.indexOf(UD_PATH_PREFIXES[i]) === 0) return true;
+    }
+    return false;
+  }
+
+  const ERROR_MSG = 'Verbindungsfehler. Bitte versuchen Sie es später erneut oder kontaktieren Sie uns unter +43 (0) 1 21 22 446.';
 
   /* ── Custom Element ────────────────────────────────────────────────── */
   class RollomaxChat extends HTMLElement {
@@ -1538,13 +1563,22 @@
 
       // Send welcome message if no messages yet
       if (this.messages.length === 0) {
-        this.addMessage(WELCOME_MSG, 'bot');
-        this.renderSuggestedActions([
-          'Rollläden & Raffstoren',
-          'Markisen & Terrasse',
-          'Kostenlose Beratung',
-          'Förderung Wien'
-        ], 'quick_reply');
+        if (isUdPage(location.pathname)) {
+          this.addMessage(UD_WELCOME_MSG, 'bot');
+          this.renderSuggestedActions([
+            'Lamellendach',
+            'Glasdach',
+            'Pergolamarkise'
+          ], 'quick_reply');
+        } else {
+          this.addMessage(WELCOME_MSG, 'bot');
+          this.renderSuggestedActions([
+            'Rollläden & Raffstoren',
+            'Markisen & Terrasse',
+            'Kostenlose Beratung',
+            'Förderung Wien'
+          ], 'quick_reply');
+        }
       }
 
       this.$msgInput.focus();
@@ -1827,7 +1861,7 @@
       this._abortController = new AbortController();
       var timeoutId = setTimeout(function() {
         if (this._abortController) this._abortController.abort();
-      }.bind(this), 20000);
+      }.bind(this), 45000);
 
       try {
         var response = await fetch(this.apiUrl + '/webhook/chat', {
@@ -2241,7 +2275,7 @@
       if (step.options) {
         var selected = this.$modalOverlay.querySelector('.config-option.selected');
         if (!selected) {
-          alert('Bitte waehlen Sie eine Option.');
+          alert('Bitte wählen Sie eine Option.');
           return;
         }
         this._configData['step' + this._configStep] = selected.getAttribute('data-value');
@@ -2338,7 +2372,7 @@
 
       this.$feedbackOverlay.querySelector('.feedback-submit').addEventListener('click', function() {
         if (self._selectedStars === 0) {
-          alert('Bitte waehlen Sie eine Bewertung.');
+          alert('Bitte wählen Sie eine Bewertung.');
           return;
         }
         var comment = self.$feedbackOverlay.querySelector('.feedback-comment').value.trim();
