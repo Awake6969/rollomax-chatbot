@@ -6,9 +6,9 @@
   "images": [],
   "reviewed_non_ai_images": [
     {
-      "path": "widget/avatar.png",
-      "sha256": "da19ac483a765875a5bc5041d27760bf801467b21f0432d56651daa97e229a6a",
-      "evidence": "Flat green circle with a manually rendered letter R placeholder"
+      "path": "widget/avatar.jpg",
+      "sha256": "82f9828a13e72fb419833f6604fde6e593bf455ff65a4ad1b43c861ca98bfef9",
+      "evidence": "Real photograph of RolloMax team member Patricia Beierl, reused from rollomax.at team page (patricia-beierl.jpg), resized and cropped square; no AI generation or alteration"
     }
   ],
   "inventory": {

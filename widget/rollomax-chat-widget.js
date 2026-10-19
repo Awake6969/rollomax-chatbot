@@ -3,6 +3,8 @@
 
   /* ── Capture script ref before DOM changes ─────────────────────────── */
   const _currentScript = document.currentScript;
+  /* Avatar relativ zur Skriptadresse (chat.rollomax.at), nicht zur einbettenden Seite */
+  const _avatarUrl = (function () { try { return new URL('avatar.jpg', (_currentScript && _currentScript.src) || location.href).href; } catch (e) { return '/widget/avatar.jpg'; } })();
 
   /* ── Instance registry for external API ────────────────────────────── */
   var _instances = { inline: null, bubble: null };
@@ -1251,7 +1253,7 @@
     bubbleButtonHTML() {
       return '<div class="quick-chat-bar" role="button" tabindex="0" aria-label="Chat öffnen">' +
         '<div class="quick-chat-avatar">' +
-          '<img src="/widget/avatar.png" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+          '<img src="' + _avatarUrl + '" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
           '<span class="quick-chat-avatar-fallback" style="display:none">R</span>' +
         '</div>' +
         '<div class="quick-chat-content">' +
@@ -1279,7 +1281,7 @@
         : '';
       var soundIcon = this._soundEnabled ? ICON_SOUND_ON : ICON_SOUND_OFF;
       return '<div class="chat-header">' +
-        '<div class="chat-avatar" id="chat-avatar"><img src="/widget/avatar.png" alt="RolloMax" onerror="this.style.display=\'none\';this.parentElement.textContent=\'R\'"></div>' +
+        '<div class="chat-avatar" id="chat-avatar"><img src="' + _avatarUrl + '" alt="RolloMax" onerror="this.style.display=\'none\';this.parentElement.textContent=\'R\'"></div>' +
         '<div class="chat-header-title"><span class="online-dot"></span>RolloMax Berater <span class="ki-badge">KI</span></div>' +
         '<div class="header-actions">' +
           '<button class="sound-btn' + (this._soundEnabled ? '' : ' is-muted') + '" aria-label="Sound umschalten">' + soundIcon + '</button>' +
