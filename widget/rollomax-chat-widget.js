@@ -1805,7 +1805,8 @@
         submitBtn.disabled = true;
         submitBtn.textContent = 'Wird gesendet...';
 
-        self.submitLeadForm(name, email, phone).then(function() {
+        self.submitLeadForm(name, email, phone).then(function(data) {
+          self.announceLead(data);
           form.innerHTML = '<div class="lead-success">Vielen Dank! Ihre Daten wurden erfolgreich übermittelt. Wir melden uns in Kürze bei Ihnen.</div>';
           self.trackEvent('lead_captured', { source: 'chat' });
         }).catch(function() {
@@ -1844,6 +1845,10 @@
       this._lastActivityTime = Date.now();
       this.resetInChatProactive();
       this.addMessage(text, 'user');
+      if (!this._firstMessageTracked) {
+        this._firstMessageTracked = true;
+        this.trackEvent('first_message');
+      }
       if (!overrideText) {
         this.$msgInput.value = '';
         this.$msgInput.style.height = 'auto';
@@ -1901,6 +1906,10 @@
 
         if (data.lead_form && data.lead_form.show === true) {
           this.renderLeadForm();
+        }
+
+        if (data.lead_code) {
+          this.announceLead(data);
         }
 
         var productCard = data.product_card || data.show_product_card;
@@ -2456,11 +2465,42 @@
     trackEvent(eventType, eventData) {
       if (!this.sessionId) return;
 
+      // Widget-Namen auf die Allowlist des Track-Endpunkts abbilden; alles andere
+      // bleibt lokal. Keine Personendaten, Klick-ID nur als ja/nein.
+      var EVENT_MAP = {
+        proactive_shown: 'teaser_shown',
+        chat_opened: 'chat_opened',
+        first_message: 'first_message',
+        quick_reply: 'quick_reply',
+        configurator_completed: 'step_reached',
+        image_uploaded: 'photo_uploaded',
+        contact_given: 'contact_given',
+        lead_captured: 'lead_captured',
+        booking_cta_click: 'callback_click',
+        booking_started: 'callback_click',
+        form_link_click: 'form_link_click',
+        kaufberater_opened: 'kaufberater_click'
+      };
+      var event = EVENT_MAP[eventType];
+      if (!event) return;
+
+      var data = eventData || {};
+      var params = new URLSearchParams(window.location.search || '');
+      var clip = function(v) {
+        return v === undefined || v === null || v === '' ? null : String(v).slice(0, 200);
+      };
+      var rawValue = data.product || data.line || data.variant || data.source || null;
       var payload = {
         session_id: this.sessionId,
-        event_type: eventType,
-        event_data: eventData || {},
-        ab_variant: this._abVariant
+        event: event,
+        step: clip(data.step || (event === 'step_reached' ? eventType : null)),
+        value: clip(rawValue),
+        hero_variant: clip(document.documentElement.dataset.heroVariant),
+        page_path: clip(window.location.pathname),
+        utm_source: clip(params.get('utm_source')),
+        utm_medium: clip(params.get('utm_medium')),
+        utm_campaign: clip(params.get('utm_campaign')),
+        gclid_present: !!(params.get('gclid') || params.get('gbraid') || params.get('wbraid'))
       };
 
       fetch(this.apiUrl + '/webhook/track', {
@@ -2471,6 +2511,18 @@
         },
         body: JSON.stringify(payload)
       }).catch(function() {});
+    }
+
+    /* ── Lead-Kennung an die Website melden (Ads-Conversion) ────────── */
+    announceLead(data) {
+      var code = data && data.lead_code;
+      if (typeof code !== 'string' || !code) return;
+      this._announcedLeads = this._announcedLeads || {};
+      if (this._announcedLeads[code]) return;
+      this._announcedLeads[code] = true;
+      try {
+        window.dispatchEvent(new CustomEvent('rollomax:chat-lead', { detail: { leadCode: code } }));
+      } catch (e) {}
     }
 
     /* ── Revoke consent ─────────────────────────────────────────────── */
