@@ -2324,11 +2324,40 @@
       this.addMessage(label, 'user');
       this._intake.index += 1;
 
+      // chat_intake-Spalte heißt masse_text, der UI-Schritt masse (tools/rollomax_chat_intake_workflow.py
+      // ALLOWED_INTAKE_FIELDS); alle übrigen Schritte heißen wie die Spalte.
+      var feld = step === 'masse' ? 'masse_text' : step;
+      var werte = {};
+      werte[feld] = value;
+      this.sendIntakeStep(step, werte);
+
       if (step === 'masse') {
         this.maybeShowZwischenzahl();
         return;
       }
       this.renderIntakeStep();
+    }
+
+    /* ── Aufnahme-Schritt an den Server melden (Befund P261029-e19e): fire-and-
+       forget wie trackEvent/submitFeedback, ein Fehler darf den Chat nie blockieren.
+       Body-Form und Feldnamen aus tools/rollomax_chat_intake_workflow.py (Allowlist
+       der Spalten, validate_intake_code). ───────────────────────────────────── */
+    sendIntakeStep(schritt, werte) {
+      if (!this.sessionId) return;
+      var body = {
+        session_id: this.sessionId,
+        variant: this.variant || null,
+        schritt: schritt,
+        werte: werte || {}
+      };
+      fetch(this.apiUrl + '/webhook/intake', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'X-Widget-Token': this.token
+        },
+        body: JSON.stringify(body)
+      }).catch(function(err) { console.warn('Intake send failed:', err); });
     }
 
     maybeShowZwischenzahl() {
@@ -2470,6 +2499,9 @@
         lead: { name: name, email: email, phone: phone, art: art || 'kontakt' }
       };
       if (_widgetChannel) body.channel = _widgetChannel;
+      // Kontakt-Abschluss der Aufnahme melden (Befund P261029-e19e): fire-and-forget,
+      // Name/E-Mail/Telefon bleiben außen vor (nicht in ALLOWED_INTAKE_FIELDS, DSGVO).
+      this.sendIntakeStep('kontakt', {});
       var response = await fetch(this.apiUrl + '/webhook/chat', {
         method: 'POST',
         headers: {
