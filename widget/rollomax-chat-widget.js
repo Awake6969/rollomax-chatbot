@@ -304,6 +304,27 @@
       pointer-events: auto;
     }
 
+    /* ── Handy-Vollbild (bis 640px, Bubble-Modus): ganzes Blatt, Safe-Area ─ */
+    @media (max-width: 640px) {
+      :host(:not([data-mode="inline"])) .chat-window {
+        bottom: 0;
+        right: 0;
+        left: 0;
+        top: 0;
+        width: 100%;
+        max-width: none;
+        height: 100vh;
+        height: 100dvh;
+        max-height: none;
+        border-radius: 0;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      :host(:not([data-mode="inline"])) .chat-header {
+        flex-shrink: 0;
+      }
+    }
+
     /* ── Header ────────────────────────────────────────────────────── */
     .chat-header {
       display: flex;
@@ -405,76 +426,218 @@
     .settings-item svg { width: 18px; height: 18px; flex-shrink: 0; fill: currentColor; }
     .settings-divider { height: 1px; background: #E5E5E5; margin: 0; }
 
-    /* ── Consent screen ────────────────────────────────────────────── */
-    .consent-screen {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 24px 20px;
-      overflow-y: auto;
-      gap: 16px;
+    /* ── Hinweiszeile (ersetzt die frühere Einwilligungs-Sperre) ─────── */
+    .hint-line {
+      flex-shrink: 0;
+      padding: 10px 16px;
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: #6b6b6b;
+      background: #FAFAFA;
+      border-top: 1px solid #ECECEC;
     }
-    .consent-title {
-      font-size: 18px;
-      font-weight: 700;
-      font-family: var(--font-heading);
-      color: var(--primary);
-      margin: 0;
-    }
-    .consent-text {
-      font-size: 16px;
-      color: #444;
-      margin: 0;
-      line-height: 1.6;
-    }
-    .consent-link {
+    .hint-link {
       color: var(--accent);
       text-decoration: underline;
-      font-size: 16px;
+      font-weight: 600;
     }
-    .consent-link:hover { color: #b89555; }
-    .consent-check-area {
+    .hint-link:hover { color: var(--accent-hover); }
+
+    /* ── Startknöpfe als Chips ─────────────────────────────────────── */
+    .start-chips {
       display: flex;
-      align-items: flex-start;
-      gap: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 16px 14px;
+    }
+    .start-chip {
+      border: 1.5px solid var(--accent);
+      background: #fff;
+      color: var(--primary);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 14.5px;
+      font-weight: 600;
+      font-family: var(--font-body);
       cursor: pointer;
-      padding: 8px 0;
       min-height: 44px;
+      transition: background 150ms ease-out, transform 150ms ease-out;
     }
-    .consent-check-area input[type="checkbox"] {
-      width: 22px;
-      height: 22px;
-      min-width: 22px;
-      margin-top: 2px;
-      accent-color: var(--accent);
+    .start-chip:hover { background: var(--accent); color: #fff; transform: translateY(-1px); }
+
+    /* ── Aufnahme-Karte (Fortschritt, Frage, Auswahlknöpfe) ──────────── */
+    .intake-progress {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.3px;
+      margin: 0 0 6px;
+    }
+    .intake-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 4px 16px 14px;
+    }
+    .intake-option-btn {
+      border: 1.5px solid #DDD;
+      background: #fff;
+      color: var(--primary);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14.5px;
+      font-family: var(--font-body);
       cursor: pointer;
+      min-height: 44px;
+      text-align: left;
+      transition: border-color 150ms ease-out, background 150ms ease-out;
     }
-    .consent-check-area label {
-      font-size: 16px;
-      color: #333;
-      cursor: pointer;
-      user-select: none;
+    .intake-option-btn:hover { border-color: var(--accent); background: #FFF8F0; }
+    .intake-freitext {
+      display: flex;
+      gap: 8px;
+      padding: 4px 16px 14px;
+      align-items: center;
     }
-    .consent-btn {
-      width: 100%;
-      padding: 14px;
+    .intake-freitext input {
+      flex: 1;
+      min-height: 44px;
+      border: 1.5px solid #DDD;
+      border-radius: 12px;
+      padding: 0 14px;
+      font-size: 15px;
+      font-family: var(--font-body);
+    }
+    .intake-freitext input:focus { outline: none; border-color: var(--accent); }
+    .intake-freitext-btn {
+      min-height: 44px;
+      min-width: 44px;
       border: none;
       border-radius: 12px;
       background: var(--accent);
       color: #fff;
-      font-size: 16px;
+      font-size: 14.5px;
       font-weight: 600;
-      font-family: var(--font);
+      padding: 0 16px;
       cursor: pointer;
-      min-height: 48px;
-      transition: opacity 200ms ease-out;
-      margin-top: auto;
     }
-    .consent-btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
+    .intake-skip-btn {
+      border: none;
+      background: none;
+      color: #888;
+      font-size: 13px;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 10px 16px 14px;
+      min-height: 44px;
     }
-    .consent-btn:not(:disabled):hover { opacity: 0.9; }
+    .messhilfe-details {
+      padding: 0 16px 10px;
+    }
+    .messhilfe-details summary {
+      font-size: 13.5px;
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 600;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      list-style: none;
+    }
+    .messhilfe-details summary::-webkit-details-marker { display: none; }
+    .messhilfe-details[open] summary { color: var(--accent-hover); }
+    .messhilfe-text {
+      font-size: 13.5px;
+      color: #555;
+      line-height: 1.55;
+      padding: 2px 0 6px;
+    }
+    .intake-zwischenzahl {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 17px;
+      color: var(--primary);
+    }
+
+    /* ── Kontakt-Reihe (Rückruf/Mail, unter echten Antworten) ────────── */
+    .contact-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+    .contact-phone {
+      font-size: 13px;
+      color: #666;
+      width: 100%;
+      margin-bottom: 2px;
+    }
+    .contact-phone a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .contact-btn {
+      flex: 1 1 0;
+      min-width: 130px;
+      min-height: 44px;
+      border: 1.5px solid var(--accent);
+      background: #fff;
+      color: var(--primary);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: var(--font-body);
+      cursor: pointer;
+    }
+    .contact-btn:hover { background: var(--accent); color: #fff; }
+    .contact-form {
+      margin-top: 10px;
+      padding: 14px;
+      background: var(--bot-bubble);
+      border-radius: 14px;
+    }
+    .contact-form p { margin: 0 0 10px; font-size: 13.5px; color: #444; line-height: 1.5; }
+    .contact-form input {
+      width: 100%;
+      min-height: 44px;
+      border: 1.5px solid #DDD;
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 15px;
+      font-family: var(--font-body);
+      margin-bottom: 8px;
+      box-sizing: border-box;
+    }
+    .contact-form input:focus { outline: none; border-color: var(--accent); }
+    .contact-form-submit {
+      width: 100%;
+      min-height: 44px;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .contact-form-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Foto-Vorschau mit Entfernen (Groesse: bestehende .image-preview oben) ─ */
+    .image-preview-remove {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      min-height: 28px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+    }
 
     /* ── Messages area ─────────────────────────────────────────────── */
     .messages-area {
@@ -1096,7 +1259,6 @@
   const ICON_DOTS = '<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>';
   const ICON_SEND = '<svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
   const ICON_DELETE = '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
-  const ICON_REVOKE = '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/></svg>';
   const ICON_THUMB_UP = '<svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>';
   const ICON_THUMB_DOWN = '<svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>';
   const ICON_SOUND_ON = '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
@@ -1110,11 +1272,262 @@
   /* ── Notification Sound (base64 encoded short pling) ───────────────── */
   const NOTIFICATION_SOUND = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYNBrP+AAAAAAAAAAAAAAAAAAAAAP/7kGQAAANUMEoFPeACNQV40KEABIEBN3mEOYACMQV3cIQgAOBAEAwSAAABhGDEOC8XB4EAQBMEAQBAMI//FocBAEAYOf/+nO//4QQBP/+Xm///hBAEAwTB8Hz//5cHwfggCAIAgOAgP+D4Pg+D4IAgD/+UdxAGCYJg+D4P/9hIDAMEwTBMFB6Hw/B//lHcQBgmCYPg+D//Y//tgxAADwAABpAAAACAAADSAAAAEP/7YMQeA8AAAaQAAAAgAAA0gAAABEAAAGkAAAAIAAANIAAAARBu+eFtaJT/+2DEJgPAAAGkAAAAIAAANIAAAAQAAAaQAAAAgAAA0gAAABA=';
 
-  /* ── Welcome message ───────────────────────────────────────────────── */
-  const WELCOME_MSG = 'Willkommen bei RolloMax Wien! Ich bin Ihr Sonnenschutz-Berater und helfe Ihnen gerne bei allen Fragen rund um Sonnenschutz. Hinweis: Dieser Chat wird von einer KI unterstützt. Wie kann ich Ihnen weiterhelfen?';
+/* TEXTE_V2_BEGIN */
+  /* Automatisch erzeugt aus data/rollomax/chat_texte_v2.json durch
+     tools/rollomax_widget_texte_sync.py. Nicht händisch bearbeiten,
+     sonst weicht `check` ab. */
+  const TEXTE_V2 = {
+  "status": "ccc",
+  "hinweis": "CCC-Lauf 29.10.2026 (output/rollomax-chat-plan2-2026-10-29/ccc-texte-chatfenster.md); Freigabe durch Raphael mit der SICHT. Schlüssel und Optionswerte (wert) sind fest.",
+  "begruessung": "Ihren Richtpreis erfahren Sie hier ohne Anmeldung oder Kontaktdaten. RolloMax ist ein Wiener Familienbetrieb mit eigenen Monteuren und Schauraum.",
+  "hinweiszeile": "Antworten kommen automatisch per KI. Preise sind Richtwerte. Das RolloMax-Team prüft jede Anfrage. Datenschutz",
+  "start_knoepfe": [
+    "Preis für meine Fenster",
+    "Förderung",
+    "Reparatur",
+    "Markise"
+  ],
+  "rueckruf_knopf": "Rückruf anfordern",
+  "rueckruf_frage": "Das RolloMax-Team meldet sich innerhalb von 1 bis 2 Werktagen bei Ihnen. Dafür brauchen wir nur Ihren Namen und Ihre Telefonnummer.",
+  "rueckruf_danke": "Danke, {vorname}! Ihre Anfrage mit der Nummer {lead_code} ist eingegangen. Das RolloMax-Team ruft Sie innerhalb von 1 bis 2 Werktagen zurück.",
+  "mail_knopf": "Preisrahmen per Mail",
+  "mail_frage": "Das RolloMax-Team schickt Ihnen einen kostenlosen Preisrahmen und, wo möglich, den Förderbetrag per Mail. Dafür brauchen wir nur Ihren Namen und Ihre E-Mail-Adresse.",
+  "mail_danke": "Danke, {vorname}! Ihre Anfragenummer lautet {lead_code}. Das RolloMax-Team schickt Ihnen innerhalb von 1 bis 2 Werktagen den Preisrahmen und gegebenenfalls Informationen zur Förderung.",
+  "aufnahme_start": "Mit ein paar kurzen Angaben zu Ihren Fenstern lässt sich der Preis besser eingrenzen. Ungefähre Angaben reichen.",
+  "aufnahme_produkt": "Worum geht es bei Ihrem Vorhaben?",
+  "aufnahme_masse": "Wie viele Fenster sind es und wie groß sind sie ungefähr?",
+  "messhilfe": "Messen Sie die Breite und Höhe der Fensteröffnung in Zentimetern. Ungefähr reicht völlig, zum Beispiel 120 cm breit und 140 cm hoch. Vor dem Auftrag werden die Maße genau geprüft.",
+  "aufnahme_einbauart": "Gibt es einen Rollladenkasten und wo sitzt er? Das beeinflusst den Preis besonders stark.",
+  "aufnahme_stockwerk": "In welchem Stockwerk liegen die Fenster? Das ist für die Montage wichtig.",
+  "aufnahme_antrieb": "Lieber Gurt, Kurbel oder bequem per Motor bedienen?",
+  "aufnahme_fassade": "Wie sieht Ihre Hausfassade aus? Das ist für die Montage wichtig.",
+  "aufnahme_plz": "Welche Postleitzahl hat das Gebäude? Damit prüfen wir Montagegebiet und mögliche Förderung.",
+  "aufnahme_eigentum": "Eigentum oder Miete? Das hilft bei der Förderfrage.",
+  "aufnahme_zeitwunsch": "Wann möchten Sie den Sonnenschutz ungefähr haben?",
+  "aufnahme_fotos": "Zwei Fotos helfen, Rückfragen zu sparen: eines vom Fenster innen und eines von der Fassade außen. Die Fotos sind freiwillig.",
+  "aufnahme_danke": "Danke für Ihre Angaben! Möchten Sie lieber einen Rückruf oder einen kostenlosen Preisrahmen per Mail? Sie entscheiden.",
+  "foto_danke": "Danke für das Foto! Das RolloMax-Team sieht es sich gemeinsam mit Ihrer Anfrage an.",
+  "foto_fehler": "Das Foto konnte nicht hochgeladen werden. Bitte versuchen Sie es mit JPG oder PNG unter 8 MB.",
+  "foto_aus": "Fotos können gerade nicht hochgeladen werden. Beschreiben Sie die Situation kurz im Chat oder rufen Sie uns an: +43 1 212 2446.",
+  "datenschutz_satz": "Für automatische Antworten verarbeitet Anthropic Ireland, Limited, Dublin, Irland, als Auftragsverarbeiter Gesprächstexte ohne Namen, Telefonnummern, E-Mail-Adressen und Postleitzahl, auch in den USA auf Grundlage von EU-Standardvertragsklauseln. Anthropic speichert sie höchstens 30 Tage und nutzt sie nicht zum Training. Fotos, Postleitzahl, Eigentum oder Miete und Kontaktdaten erhält Anthropic nie. Fotos, Projektangaben und Gespräche liegen beim Chat-Dienstleister und werden nach 90 Tagen gelöscht.",
+  "teaser_handy": "Was kostet Sonnenschutz für Ihre Fenster?",
+  "optionen": {
+    "produkt": [
+      {
+        "wert": "rollladen",
+        "text": "Rollläden"
+      },
+      {
+        "wert": "raffstore",
+        "text": "Raffstoren"
+      },
+      {
+        "wert": "insektenschutz",
+        "text": "Insektenschutz"
+      },
+      {
+        "wert": "markise",
+        "text": "Markise"
+      },
+      {
+        "wert": "anderes",
+        "text": "Etwas anderes"
+      }
+    ],
+    "einbauart": [
+      {
+        "wert": "vorbau",
+        "text": "Kasten außen sichtbar"
+      },
+      {
+        "wert": "unterputz",
+        "text": "Kasten verdeckt im Mauerwerk"
+      },
+      {
+        "wert": "neu",
+        "text": "Noch kein Kasten"
+      },
+      {
+        "wert": "unbekannt",
+        "text": "Weiß ich nicht"
+      }
+    ],
+    "stockwerk": [
+      {
+        "wert": "eg",
+        "text": "Erdgeschoß"
+      },
+      {
+        "wert": "og1",
+        "text": "1. Stock"
+      },
+      {
+        "wert": "og2_3",
+        "text": "2. bis 3. Stock"
+      },
+      {
+        "wert": "og4plus",
+        "text": "4. Stock oder höher"
+      }
+    ],
+    "antrieb": [
+      {
+        "wert": "gurt",
+        "text": "Gurt"
+      },
+      {
+        "wert": "kurbel",
+        "text": "Kurbel"
+      },
+      {
+        "wert": "motor",
+        "text": "Motor mit Schalter"
+      },
+      {
+        "wert": "smart",
+        "text": "Funk oder Handy"
+      },
+      {
+        "wert": "unbekannt",
+        "text": "Weiß ich noch nicht"
+      }
+    ],
+    "fassade": [
+      {
+        "wert": "putz",
+        "text": "Verputzt"
+      },
+      {
+        "wert": "wdvs",
+        "text": "Wärmedämmung"
+      },
+      {
+        "wert": "ziegel",
+        "text": "Sichtziegel"
+      },
+      {
+        "wert": "altbau",
+        "text": "Altbau mit Stuck"
+      },
+      {
+        "wert": "unbekannt",
+        "text": "Weiß ich nicht"
+      }
+    ],
+    "eigentum": [
+      {
+        "wert": "eigentum",
+        "text": "Eigentum"
+      },
+      {
+        "wert": "miete",
+        "text": "Miete"
+      },
+      {
+        "wert": "keine_angabe",
+        "text": "Keine Angabe"
+      }
+    ],
+    "zeitwunsch": [
+      {
+        "wert": "sofort",
+        "text": "So bald wie möglich"
+      },
+      {
+        "wert": "monate_1_3",
+        "text": "In 1 bis 3 Monaten"
+      },
+      {
+        "wert": "spaeter",
+        "text": "Später"
+      }
+    ]
+  },
+  "aufnahme_zwischenzahl": "Für {produkt} liegt der erste Richtwert bei {richtwert}. Mit zwei oder drei weiteren Angaben können wir den Preis besser eingrenzen.",
+  "richtwerte": {
+    "rollladen": "ab ca. 400 EUR pro Fenster",
+    "raffstore": "ab ca. 600 EUR pro Fenster",
+    "markise": "1.500 bis 5.000 EUR je nach Größe",
+    "insektenschutz": null,
+    "anderes": null
+  }
+};
+  /* TEXTE_V2_END */
+
+    /* ── Welcome message (Wortlaut aus TEXTE_V2, Task 1) ────────────────── */
+  const WELCOME_MSG = TEXTE_V2.begruessung;
 
   /* ── Überdachungs-Begrüßung B1 (freigegeben, Wortlaut nicht ändern) ──── */
   const UD_WELCOME_MSG = 'Was kostet Ihre neue Überdachung? Finden Sie Ihren ungefähren Preis in nur 30 Sekunden heraus. Drei kurze Fragen, und Sie wissen mehr.';
+
+  /* ── Channel aus der Skript-URL (Staging liefert /staging/widget.js) ─── */
+  function channelFromScriptUrl(url) {
+    return String(url || '').indexOf('/staging/') !== -1 ? 'staging' : null;
+  }
+  var _widgetChannel = channelFromScriptUrl(_currentScript && _currentScript.src);
+
+  /* ── Abfrage-Variante je Sitzung, je ein Drittel ─────────────────────── */
+  var INTAKE_VARIANTS = ['keine', 'kurz', 'voll'];
+  function pickVariant(randomFn) {
+    var rnd = typeof randomFn === 'function' ? randomFn() : Math.random();
+    var idx = Math.floor(rnd * 3);
+    if (idx < 0) idx = 0;
+    if (idx > 2) idx = 2;
+    return INTAKE_VARIANTS[idx];
+  }
+
+  /* ── Foto vor dem Upload verkleinern (Max-Kante 1600px, JPEG 0.82) ──── */
+  var FOTO_MAX_EDGE = 1600;
+  var FOTO_JPEG_QUALITY = 0.82;
+  function resizeImageForUpload(file, callback) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var scale = Math.min(1, FOTO_MAX_EDGE / Math.max(img.width, img.height));
+        var targetW = Math.max(1, Math.round(img.width * scale));
+        var targetH = Math.max(1, Math.round(img.height * scale));
+        var canvas = document.createElement('canvas');
+        canvas.width = targetW;
+        canvas.height = targetH;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, targetW, targetH);
+        callback(canvas.toDataURL('image/jpeg', FOTO_JPEG_QUALITY), 'image/jpeg');
+      };
+      img.onerror = function() { callback(e.target.result, file.type); };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ── Reihenfolge der Aufnahme-Fragen je Variante (Bass-Antwort Block 4) ─
+     skipProdukt (F3a): Produkt ist aus dem Startknopf schon klar, Frage entfällt. */
+  function buildIntakeSteps(variant, skipProdukt) {
+    var kurz = ['produkt', 'einbauart', 'masse', 'plz'];
+    var vollExtra = ['stockwerk', 'fassade', 'antrieb', 'fotos', 'eigentum', 'zeitwunsch'];
+    var steps;
+    if (variant === 'voll') {
+      var idx = kurz.indexOf('masse');
+      steps = kurz.slice(0, idx + 1).concat(vollExtra, kurz.slice(idx + 1));
+    } else {
+      steps = kurz.slice();
+    }
+    if (skipProdukt) {
+      steps = steps.filter(function(s) { return s !== 'produkt'; });
+    }
+    return steps;
+  }
+
+  /* ── Startknopf -> Produkt (F3a): matcht den Knopftext gegen optionen.produkt,
+     damit die Produkt-Frage entfaellt, wenn der Knopf das Produkt schon nennt
+     (z. B. "Markise"). Ohne Treffer bleibt die Frage Teil der Aufnahme. ─── */
+  function produktFromStartKnopf(text) {
+    var options = (TEXTE_V2.optionen && TEXTE_V2.optionen.produkt) || [];
+    for (var i = 0; i < options.length; i++) {
+      if (options[i].text === text) return options[i];
+    }
+    return null;
+  }
 
   /* ── Überdachungsseiten-Pfade (identisch zu isUdPage in tools/rollomax_ud/ud_core.js, dort nicht ändern) ─ */
   const UD_PATH_PREFIXES = [
@@ -1148,8 +1561,9 @@
       this.isOpen = false;
       this.messages = [];
       this.isLoading = false;
-      this.consentGiven = false;
       this.sessionId = null;
+      this.variant = null;
+      this._intake = null;
       this.token = null;
       this.mode = 'bubble';
       this.apiUrl = 'https://chat.rollomax.at';
@@ -1173,9 +1587,6 @@
     apiPrefill(text) {
       if (!text) return;
       this.apiOpen();
-      if (!this.consentGiven) {
-        this.grantConsent();
-      }
       this.handleSend(text, 'service_problem_button');
     }
 
@@ -1200,7 +1611,8 @@
       this.render();
       this.cacheElements();
       this.bindEvents();
-      this.checkConsent();
+      this.ensureSession();
+      this.bindViewportKeyboardFix();
 
       if (this.mode === 'inline') {
         this.showChat();
@@ -1224,22 +1636,30 @@
       return String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
     }
 
-    checkConsent() {
-      var consent = sessionStorage.getItem('rollomax_chat_consent');
-      if (consent === 'true') {
-        this.consentGiven = true;
-        this.sessionId = sessionStorage.getItem('rollomax_chat_session_id') || this.generateSessionId();
-        sessionStorage.setItem('rollomax_chat_session_id', this.sessionId);
+    /* ── Sitzung und Abfrage-Variante (ersetzt die frühere Einwilligung) ── */
+    ensureSession() {
+      this.sessionId = sessionStorage.getItem('rollomax_chat_session_id') || this.generateSessionId();
+      sessionStorage.setItem('rollomax_chat_session_id', this.sessionId);
+
+      var variant = sessionStorage.getItem('rollomax_chat_variant');
+      if (INTAKE_VARIANTS.indexOf(variant) === -1) {
+        variant = pickVariant();
+        sessionStorage.setItem('rollomax_chat_variant', variant);
       }
+      this.variant = variant;
     }
 
-    grantConsent() {
-      this.consentGiven = true;
-      sessionStorage.setItem('rollomax_chat_consent', 'true');
-      sessionStorage.setItem('rollomax_chat_consent_ts', new Date().toISOString());
-      this.sessionId = this.generateSessionId();
-      sessionStorage.setItem('rollomax_chat_session_id', this.sessionId);
-      this.switchToChat();
+    /* ── Eingabefeld über der Tastatur sichtbar halten (iPhone, Review Focus) ── */
+    bindViewportKeyboardFix() {
+      var self = this;
+      if (this.mode !== 'bubble' || typeof window === 'undefined' || !window.visualViewport) return;
+      window.visualViewport.addEventListener('resize', function() {
+        if (!self.isOpen || window.innerWidth > 640) {
+          self.$chatWindow.style.height = '';
+          return;
+        }
+        self.$chatWindow.style.height = window.visualViewport.height + 'px';
+      });
     }
 
     /* ── Render ─────────────────────────────────────────────────────── */
@@ -1270,7 +1690,6 @@
       var openClass = this.mode === 'inline' ? ' is-open' : '';
       return '<div class="chat-window' + openClass + '">' +
         this.headerHTML() +
-        this.consentScreenHTML() +
         this.chatBodyHTML() +
         '</div>';
     }
@@ -1289,24 +1708,16 @@
           closeBtnHTML +
           '<div class="settings-menu">' +
             '<button class="settings-item delete-chat-btn">' + ICON_DELETE + ' Chat-Verlauf löschen</button>' +
-            '<div class="settings-divider"></div>' +
-            '<button class="settings-item revoke-consent-btn">' + ICON_REVOKE + ' Einwilligung widerrufen</button>' +
           '</div>' +
         '</div>' +
       '</div>';
     }
 
-    consentScreenHTML() {
-      return '<div class="consent-screen" id="consent-screen">' +
-        '<h2 class="consent-title">Datenschutzhinweis</h2>' +
-        '<p class="consent-text">Dieser Chat wird von einer künstlichen Intelligenz (KI) betrieben. Ihre Nachrichten werden verschlüsselt übertragen und nach 90 Tagen automatisch gelöscht. Es werden keine personenbezogenen Daten ohne Ihre ausdrückliche Einwilligung gespeichert.</p>' +
-        '<a class="consent-link" href="https://rollomax.at/datenschutz/" target="_blank" rel="noopener">Datenschutzerklärung</a>' +
-        '<div class="consent-check-area">' +
-          '<input type="checkbox" id="consent-cb">' +
-          '<label for="consent-cb">Ich stimme der Verarbeitung meiner Daten gemäß der Datenschutzerklärung zu.</label>' +
-        '</div>' +
-        '<button class="consent-btn" id="consent-accept-btn" disabled>Akzeptieren und Chat starten</button>' +
-      '</div>';
+    /* ── Hinweiszeile ersetzt die frühere Einwilligungs-Sperre vollständig ── */
+    hintLineHTML() {
+      var text = (TEXTE_V2.hinweiszeile || '').trim();
+      var linked = text.replace(/Datenschutz$/, '<a class="hint-link" href="https://rollomax.at/datenschutz/" target="_blank" rel="noopener">Datenschutz</a>');
+      return '<div class="hint-line" id="hint-line">' + linked + '</div>';
     }
 
     chatBodyHTML() {
@@ -1323,6 +1734,7 @@
           '<textarea id="msg-input" rows="1" placeholder="Nachricht eingeben..." aria-label="Nachricht"></textarea>' +
           '<button class="send-btn" id="send-btn" aria-label="Senden" disabled>' + ICON_SEND + '</button>' +
         '</div>' +
+        this.hintLineHTML() +
         '<div class="feedback-overlay" id="feedback-overlay"></div>' +
         '<div class="modal-overlay" id="modal-overlay"></div>';
     }
@@ -1332,9 +1744,7 @@
       var s = this.shadowRoot;
       this.$quickChatBar = s.querySelector('.quick-chat-bar');
       this.$chatWindow = s.querySelector('.chat-window');
-      this.$consentScreen = s.querySelector('#consent-screen');
-      this.$consentCb = s.querySelector('#consent-cb');
-      this.$consentAcceptBtn = s.querySelector('#consent-accept-btn');
+      this.$hintLine = s.querySelector('#hint-line');
       this.$messagesArea = s.querySelector('#messages-area');
       this.$bookingCta = s.querySelector('#booking-cta');
       this.$bookingCtaBtn = s.querySelector('#booking-cta-btn');
@@ -1346,7 +1756,6 @@
       this.$settingsMenu = s.querySelector('.settings-menu');
       this.$closeBtn = s.querySelector('.close-btn');
       this.$deleteChatBtn = s.querySelector('.delete-chat-btn');
-      this.$revokeConsentBtn = s.querySelector('.revoke-consent-btn');
       this.$uploadBtn = s.querySelector('#upload-btn');
       this.$uploadInput = s.querySelector('#upload-input');
       this.$feedbackOverlay = s.querySelector('#feedback-overlay');
@@ -1372,18 +1781,6 @@
       if (this.$closeBtn) {
         this.$closeBtn.addEventListener('click', function() { self.closeChat(); });
       }
-
-      // Consent checkbox
-      this.$consentCb.addEventListener('change', function() {
-        self.$consentAcceptBtn.disabled = !self.$consentCb.checked;
-      });
-
-      // Consent accept
-      this.$consentAcceptBtn.addEventListener('click', function() {
-        if (self.$consentCb.checked) {
-          self.grantConsent();
-        }
-      });
 
       // Send button
       this.$sendBtn.addEventListener('click', function() { self.handleSend(); });
@@ -1434,10 +1831,6 @@
       this.$deleteChatBtn.addEventListener('click', function() {
         self.closeSettings();
         self.deleteSession();
-      });
-      this.$revokeConsentBtn.addEventListener('click', function() {
-        self.closeSettings();
-        self.revokeConsent();
       });
 
       // Feedback buttons (delegated)
@@ -1490,7 +1883,7 @@
 
       // Session feedback timer (check every 30 seconds)
       this._feedbackCheckInterval = setInterval(function() {
-        if (self.isOpen && self.consentGiven && !self._feedbackShown) {
+        if (self.isOpen && self.sessionId && !self._feedbackShown) {
           var inactiveTime = Date.now() - self._lastActivityTime;
           if (inactiveTime > 120000) {
             self.showSessionFeedback();
@@ -1533,12 +1926,8 @@
 
       this.trackEvent('chat_opened');
 
-      if (this.consentGiven) {
-        this.showChatUI();
-        this.focusInput();
-      } else {
-        this.showConsentUI();
-      }
+      this.showChatUI();
+      this.focusInput();
     }
 
     focusInput() {
@@ -1550,15 +1939,7 @@
       }, 350);
     }
 
-    showConsentUI() {
-      this.$consentScreen.classList.remove('hidden');
-      this.$messagesArea.classList.add('hidden');
-      this.$suggestedActions.classList.add('hidden');
-      this.$inputArea.classList.add('hidden');
-    }
-
     showChatUI() {
-      this.$consentScreen.classList.add('hidden');
       this.$messagesArea.classList.remove('hidden');
       this.$inputArea.classList.remove('hidden');
       if (this.$bookingCta) this.$bookingCta.classList.remove('hidden');
@@ -1574,20 +1955,11 @@
           ], 'quick_reply');
         } else {
           this.addMessage(WELCOME_MSG, 'bot');
-          this.renderSuggestedActions([
-            'Rollläden & Raffstoren',
-            'Markisen & Terrasse',
-            'Kostenlose Beratung',
-            'Förderung Wien'
-          ], 'quick_reply');
+          this.renderStartChips();
         }
       }
 
       this.$msgInput.focus();
-    }
-
-    switchToChat() {
-      this.showChatUI();
     }
 
     /* ── Settings ───────────────────────────────────────────────────── */
@@ -1692,6 +2064,12 @@
       if (msg.extras && msg.extras.actions && msg.extras.actions.length > 0) {
         div.appendChild(this.createActionButtons(msg.extras.actions));
       }
+      if (msg.extras && msg.extras.intakeStep) {
+        div.appendChild(this.createIntakeCard(msg.extras.intakeStep));
+      }
+      if (msg.extras && msg.extras.showContact) {
+        div.appendChild(this.createContactRow());
+      }
 
       this.$messagesArea.appendChild(div);
     }
@@ -1780,6 +2158,272 @@
       this.$suggestedActions.classList.remove('hidden');
     }
 
+    /* ── Startknöpfe (Chips, Texte aus TEXTE_V2) ─────────────────────── */
+    renderStartChips() {
+      var self = this;
+      var texts = TEXTE_V2.start_knoepfe || [];
+      this.$suggestedActions.innerHTML = '';
+      this.$suggestedActions.classList.add('start-chips');
+      texts.forEach(function(text) {
+        var btn = document.createElement('button');
+        btn.className = 'start-chip';
+        btn.type = 'button';
+        btn.textContent = text;
+        btn.addEventListener('click', function() {
+          self.$suggestedActions.classList.add('hidden');
+          self.trackEvent('quick_reply', { value: text });
+          var knownProdukt = produktFromStartKnopf(text);
+          if (text === texts[0] || knownProdukt) {
+            self.startIntake(knownProdukt);
+          } else {
+            self.handleSend(text, 'quick_reply');
+          }
+        });
+        self.$suggestedActions.appendChild(btn);
+      });
+      this.$suggestedActions.classList.remove('hidden');
+    }
+
+    /* ── Aufnahme (Plan 2 Task 5, Reihenfolge aus Bass-Antwort Block 4) ──
+       F3a: knownProdukt ({wert, text}) kommt vom Startknopf (z. B. "Markise")
+       und ueberspringt die Produkt-Frage, die sonst immer gestellt wurde. ── */
+    startIntake(knownProdukt) {
+      if (this.variant === 'keine') {
+        this.handleSend(knownProdukt ? knownProdukt.text : TEXTE_V2.start_knoepfe[0], 'quick_reply');
+        return;
+      }
+      this._intake = { steps: buildIntakeSteps(this.variant, !!knownProdukt), index: 0, data: {}, produktLabel: '' };
+      if (knownProdukt) {
+        this._intake.data.produkt = knownProdukt.wert;
+        this._intake.produktLabel = knownProdukt.text;
+      }
+      this.addMessage(TEXTE_V2.aufnahme_start, 'bot');
+      this.renderIntakeStep();
+    }
+
+    renderIntakeStep() {
+      var intake = this._intake;
+      if (!intake) return;
+      if (intake.index >= intake.steps.length) {
+        this.finishIntake();
+        return;
+      }
+      var step = intake.steps[intake.index];
+      this.trackEvent('step_reached', { step: step, value: this.variant });
+      var questionText = TEXTE_V2['aufnahme_' + step] || '';
+      this.addMessage(questionText, 'bot', { intakeStep: step });
+    }
+
+    createIntakeCard(step) {
+      var self = this;
+      var intake = this._intake;
+      var wrap = document.createElement('div');
+      wrap.className = 'intake-card';
+
+      if (intake) {
+        var progress = document.createElement('p');
+        progress.className = 'intake-progress';
+        progress.textContent = (intake.index + 1) + ' von ' + intake.steps.length;
+        wrap.appendChild(progress);
+      }
+
+      if (step === 'masse') {
+        var details = document.createElement('details');
+        details.className = 'messhilfe-details';
+        var summary = document.createElement('summary');
+        summary.textContent = 'Wie messe ich?';
+        var text = document.createElement('p');
+        text.className = 'messhilfe-text';
+        text.textContent = TEXTE_V2.messhilfe || '';
+        details.appendChild(summary);
+        details.appendChild(text);
+        wrap.appendChild(details);
+      }
+
+      var options = TEXTE_V2.optionen && TEXTE_V2.optionen[step];
+      if (options && options.length) {
+        var optWrap = document.createElement('div');
+        optWrap.className = 'intake-options';
+        options.forEach(function(opt) {
+          var btn = document.createElement('button');
+          btn.className = 'intake-option-btn';
+          btn.type = 'button';
+          btn.textContent = opt.text;
+          btn.addEventListener('click', function() {
+            self.answerIntakeStep(step, opt.wert, opt.text);
+          });
+          optWrap.appendChild(btn);
+        });
+        wrap.appendChild(optWrap);
+        return wrap;
+      }
+
+      if (step === 'fotos') {
+        var fotoWrap = document.createElement('div');
+        fotoWrap.className = 'intake-options';
+        var uploadBtn = document.createElement('button');
+        uploadBtn.className = 'intake-option-btn';
+        uploadBtn.type = 'button';
+        uploadBtn.textContent = 'Foto hochladen';
+        uploadBtn.addEventListener('click', function() {
+          if (self.$uploadInput) self.$uploadInput.click();
+        });
+        var weiterBtn = document.createElement('button');
+        weiterBtn.className = 'intake-option-btn';
+        weiterBtn.type = 'button';
+        weiterBtn.textContent = 'Weiter';
+        weiterBtn.addEventListener('click', function() {
+          self.answerIntakeStep(step, 'weiter', 'Weiter');
+        });
+        fotoWrap.appendChild(uploadBtn);
+        fotoWrap.appendChild(weiterBtn);
+        wrap.appendChild(fotoWrap);
+        return wrap;
+      }
+
+      // Freitext-Schritte (anzahl+masse zusammen, plz) mit "Weiß ich nicht"-Ausweg
+      var freiWrap = document.createElement('div');
+      freiWrap.className = 'intake-freitext';
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = step === 'plz' ? 'z. B. 1190' : 'z. B. 3 Stück, ca. 120 x 140 cm';
+      var sendBtn = document.createElement('button');
+      sendBtn.className = 'intake-freitext-btn';
+      sendBtn.type = 'button';
+      sendBtn.textContent = 'Weiter';
+      var submit = function() {
+        var val = input.value.trim();
+        if (!val) return;
+        self.answerIntakeStep(step, val, val);
+      };
+      sendBtn.addEventListener('click', submit);
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); submit(); }
+      });
+      freiWrap.appendChild(input);
+      freiWrap.appendChild(sendBtn);
+      wrap.appendChild(freiWrap);
+
+      var skipBtn = document.createElement('button');
+      skipBtn.className = 'intake-skip-btn';
+      skipBtn.type = 'button';
+      skipBtn.textContent = 'Weiß ich nicht';
+      skipBtn.addEventListener('click', function() {
+        self.answerIntakeStep(step, 'unbekannt', 'Weiß ich nicht');
+      });
+      wrap.appendChild(skipBtn);
+
+      return wrap;
+    }
+
+    answerIntakeStep(step, value, label) {
+      if (!this._intake) return;
+      this._intake.data[step] = value;
+      if (step === 'produkt') this._intake.produktLabel = label;
+      this._lastActivityTime = Date.now();
+      this.addMessage(label, 'user');
+      this._intake.index += 1;
+
+      if (step === 'masse') {
+        this.maybeShowZwischenzahl();
+        return;
+      }
+      this.renderIntakeStep();
+    }
+
+    maybeShowZwischenzahl() {
+      var produktWert = this._intake.data.produkt;
+      var richtwert = TEXTE_V2.richtwerte && TEXTE_V2.richtwerte[produktWert];
+      if (richtwert) {
+        var produktLabel = this._intake.produktLabel || produktWert || '';
+        var text = (TEXTE_V2.aufnahme_zwischenzahl || '')
+          .replace('{produkt}', produktLabel)
+          .replace('{richtwert}', richtwert);
+        this.addMessage(text, 'bot', { showContact: true });
+      }
+      this.renderIntakeStep();
+    }
+
+    finishIntake() {
+      this.addMessage(TEXTE_V2.aufnahme_danke, 'bot', { showContact: true });
+      this._intake = null;
+    }
+
+    /* ── Kontakt-Reihe (Rückruf/Mail, gleichwertig, unter echten Antworten) ─ */
+    createContactRow() {
+      var self = this;
+      var row = document.createElement('div');
+      row.className = 'contact-row';
+
+      var phone = document.createElement('div');
+      phone.className = 'contact-phone';
+      phone.innerHTML = 'Jetzt gleich anrufen: <a href="tel:+4312122446">+43 1 212 2446</a>';
+      row.appendChild(phone);
+
+      var rueckrufBtn = document.createElement('button');
+      rueckrufBtn.className = 'contact-btn';
+      rueckrufBtn.type = 'button';
+      rueckrufBtn.textContent = TEXTE_V2.rueckruf_knopf;
+      rueckrufBtn.addEventListener('click', function() {
+        self.trackEvent('callback_click');
+        self.openContactForm('rueckruf', row);
+      });
+      row.appendChild(rueckrufBtn);
+
+      var mailBtn = document.createElement('button');
+      mailBtn.className = 'contact-btn';
+      mailBtn.type = 'button';
+      mailBtn.textContent = TEXTE_V2.mail_knopf;
+      mailBtn.addEventListener('click', function() {
+        self.trackEvent('mail_offer_click');
+        self.openContactForm('mail_angebot', row);
+      });
+      row.appendChild(mailBtn);
+
+      return row;
+    }
+
+    openContactForm(art, afterEl) {
+      var self = this;
+      var isRueckruf = art === 'rueckruf';
+      var form = document.createElement('div');
+      form.className = 'contact-form';
+      form.innerHTML =
+        '<p>' + this.escapeHtml(isRueckruf ? TEXTE_V2.rueckruf_frage : TEXTE_V2.mail_frage) + '</p>' +
+        '<input type="text" class="contact-name" placeholder="Ihr Name" autocomplete="name">' +
+        (isRueckruf
+          ? '<input type="tel" class="contact-value" placeholder="Telefonnummer" autocomplete="tel">'
+          : '<input type="email" class="contact-value" placeholder="E-Mail-Adresse" autocomplete="email">') +
+        '<button type="button" class="contact-form-submit">Absenden</button>';
+      afterEl.insertAdjacentElement('afterend', form);
+      this.scrollToBottom();
+      this.trackEvent('contact_given');
+
+      var submitBtn = form.querySelector('.contact-form-submit');
+      submitBtn.addEventListener('click', function() {
+        var name = form.querySelector('.contact-name').value.trim();
+        var value = form.querySelector('.contact-value').value.trim();
+        if (!name || !value) return;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Wird gesendet...';
+
+        var email = isRueckruf ? '' : value;
+        var phone = isRueckruf ? value : '';
+        self.submitLeadForm(name, email, phone, art).then(function(data) {
+          self.announceLead(data);
+          var danke = (isRueckruf ? TEXTE_V2.rueckruf_danke : TEXTE_V2.mail_danke)
+            .replace('{vorname}', name.split(' ')[0])
+            .replace('{lead_code}', (data && data.lead_code) || '');
+          form.outerHTML = '<div class="lead-success">' + self.escapeHtml(danke) + '</div>';
+          self.trackEvent('lead_captured', { source: art });
+        }).catch(function() {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Absenden';
+          self.addMessage(ERROR_MSG, 'bot');
+        });
+      });
+    }
+
     /* ── Lead form ──────────────────────────────────────────────────── */
     renderLeadForm() {
       var self = this;
@@ -1817,7 +2461,15 @@
       });
     }
 
-    async submitLeadForm(name, email, phone) {
+    async submitLeadForm(name, email, phone, art) {
+      var body = {
+        session_id: this.sessionId,
+        message: '__lead_form_submit__',
+        consent: true,
+        page_url: window.location.href,
+        lead: { name: name, email: email, phone: phone, art: art || 'kontakt' }
+      };
+      if (_widgetChannel) body.channel = _widgetChannel;
       var response = await fetch(this.apiUrl + '/webhook/chat', {
         method: 'POST',
         headers: {
@@ -1825,13 +2477,7 @@
           'X-Widget-Token': this.token,
           'X-Session-ID': this.sessionId
         },
-        body: JSON.stringify({
-          session_id: this.sessionId,
-          message: '__lead_form_submit__',
-          consent: true,
-          page_url: window.location.href,
-          lead: { name: name, email: email, phone: phone }
-        })
+        body: JSON.stringify(body)
       });
       if (!response.ok) throw new Error('Lead submit failed');
       return response.json();
@@ -1871,6 +2517,14 @@
       }.bind(this), 45000);
 
       try {
+        var reqBody = {
+          session_id: this.sessionId,
+          message: text,
+          consent: true,
+          page_url: window.location.href,
+          source_type: sourceType || 'typed'
+        };
+        if (_widgetChannel) reqBody.channel = _widgetChannel;
         var response = await fetch(this.apiUrl + '/webhook/chat', {
           method: 'POST',
           headers: {
@@ -1878,13 +2532,7 @@
             'X-Widget-Token': this.token,
             'X-Session-ID': this.sessionId
           },
-          body: JSON.stringify({
-            session_id: this.sessionId,
-            message: text,
-            consent: true,
-            page_url: window.location.href,
-            source_type: sourceType || 'typed'
-          }),
+          body: JSON.stringify(reqBody),
           signal: this._abortController.signal
         });
 
@@ -1897,7 +2545,7 @@
         this.hideTypingIndicator();
 
         if (data.reply) {
-          this.addMessage(data.reply, 'bot');
+          this.addMessage(data.reply, 'bot', { showContact: true });
         }
 
         if (data.suggested_actions && data.suggested_actions.length > 0) {
@@ -1969,18 +2617,14 @@
       this.$messagesArea.innerHTML = '';
       this.$suggestedActions.innerHTML = '';
       this.$suggestedActions.classList.add('hidden');
+      this._intake = null;
 
-      // New session
+      // Neue Sitzung und neue Abfrage-Variante, Chat startet sofort wieder
       this.sessionId = this.generateSessionId();
       sessionStorage.setItem('rollomax_chat_session_id', this.sessionId);
-
-      // Show consent screen again
-      this.consentGiven = false;
-      sessionStorage.removeItem('rollomax_chat_consent');
-      sessionStorage.removeItem('rollomax_chat_consent_ts');
-      this.$consentCb.checked = false;
-      this.$consentAcceptBtn.disabled = true;
-      this.showConsentUI();
+      this.variant = pickVariant();
+      sessionStorage.setItem('rollomax_chat_variant', this.variant);
+      this.showChatUI();
     }
 
     disconnectedCallback() {
@@ -1998,19 +2642,17 @@
       }
     }
 
-    /* ── Image upload ───────────────────────────────────────────────── */
+    /* ── Image upload (vorher verkleinert, siehe resizeImageForUpload) ──── */
     uploadImage(file) {
       var self = this;
-      var reader = new FileReader();
+      resizeImageForUpload(file, function(base64, mimeType) {
+        // Vorschau mit Entfernen-Knopf im Chat
+        var previewEl = self.addImagePreview(base64);
 
-      reader.onload = function(e) {
-        var base64 = e.target.result;
-
-        // Show preview in chat
-        self.addImagePreview(base64);
-
-        // Upload to server
         self.showTypingIndicator();
+
+        var body = { session_id: self.sessionId, image: base64, mime_type: mimeType };
+        if (_widgetChannel) body.channel = _widgetChannel;
 
         fetch(self.apiUrl + '/webhook/upload-image', {
           method: 'POST',
@@ -2018,27 +2660,22 @@
             'Content-Type': 'application/json; charset=utf-8',
             'X-Widget-Token': self.token
           },
-          body: JSON.stringify({
-            session_id: self.sessionId,
-            image: base64,
-            mime_type: file.type
-          })
+          body: JSON.stringify(body)
         })
         .then(function(res) { return res.json(); })
         .then(function(data) {
           self.hideTypingIndicator();
           if (data.analysis) {
-            self.addMessage(data.analysis, 'bot');
+            self.addMessage(data.analysis, 'bot', { showContact: true });
           }
           self.trackEvent('image_uploaded');
         })
         .catch(function(err) {
           self.hideTypingIndicator();
-          self.addMessage('Bild konnte nicht analysiert werden. Bitte versuchen Sie es erneut.', 'bot');
+          self.addMessage(TEXTE_V2.foto_fehler, 'bot');
+          if (previewEl) previewEl.remove();
         });
-      };
-
-      reader.readAsDataURL(file);
+      });
     }
 
     addImagePreview(base64) {
@@ -2047,9 +2684,17 @@
       var img = document.createElement('img');
       img.alt = 'Hochgeladenes Bild';
       img.src = base64;
+      var removeBtn = document.createElement('button');
+      removeBtn.className = 'image-preview-remove';
+      removeBtn.type = 'button';
+      removeBtn.setAttribute('aria-label', 'Foto entfernen');
+      removeBtn.textContent = '×';
+      removeBtn.addEventListener('click', function() { div.remove(); });
       div.appendChild(img);
+      div.appendChild(removeBtn);
       this.$messagesArea.appendChild(div);
       this.scrollToBottom();
+      return div;
     }
 
     /* ── Product card ───────────────────────────────────────────────── */
@@ -2454,7 +3099,7 @@
       }
 
       this._inChatProactiveTimer = setTimeout(function() {
-        if (self.isOpen && self.consentGiven && !self._inChatProactiveShown) {
+        if (self.isOpen && self.sessionId && !self._inChatProactiveShown) {
           self._inChatProactiveShown = true;
           self.addMessage('Kann ich Ihnen noch bei etwas helfen?', 'bot');
         }
@@ -2473,11 +3118,14 @@
         first_message: 'first_message',
         quick_reply: 'quick_reply',
         configurator_completed: 'step_reached',
+        step_reached: 'step_reached',
         image_uploaded: 'photo_uploaded',
         contact_given: 'contact_given',
         lead_captured: 'lead_captured',
         booking_cta_click: 'callback_click',
         booking_started: 'callback_click',
+        callback_click: 'callback_click',
+        mail_offer_click: 'mail_offer_click',
         form_link_click: 'form_link_click',
         kaufberater_opened: 'kaufberater_click'
       };
@@ -2489,7 +3137,7 @@
       var clip = function(v) {
         return v === undefined || v === null || v === '' ? null : String(v).slice(0, 200);
       };
-      var rawValue = data.product || data.line || data.variant || data.source || null;
+      var rawValue = data.value || data.product || data.line || data.variant || data.source || null;
       var payload = {
         session_id: this.sessionId,
         event: event,
@@ -2525,37 +3173,6 @@
       } catch (e) {}
     }
 
-    /* ── Revoke consent ─────────────────────────────────────────────── */
-    async revokeConsent() {
-      try {
-        await fetch(this.apiUrl + '/webhook/delete-session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'X-Widget-Token': this.token
-          },
-          body: JSON.stringify({ session_id: this.sessionId })
-        });
-      } catch (_) {
-        // Proceed with local cleanup
-      }
-
-      // Full cleanup
-      this.messages = [];
-      this.$messagesArea.innerHTML = '';
-      this.$suggestedActions.innerHTML = '';
-      this.$suggestedActions.classList.add('hidden');
-      this.consentGiven = false;
-      this.sessionId = null;
-      sessionStorage.removeItem('rollomax_chat_consent');
-      sessionStorage.removeItem('rollomax_chat_consent_ts');
-      sessionStorage.removeItem('rollomax_chat_session_id');
-
-      // Reset consent UI
-      this.$consentCb.checked = false;
-      this.$consentAcceptBtn.disabled = true;
-      this.showConsentUI();
-    }
   }
 
   /* ── Register custom element ───────────────────────────────────────── */
