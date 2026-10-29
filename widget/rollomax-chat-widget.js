@@ -115,6 +115,21 @@
 
     *, *::before, *::after { box-sizing: border-box; }
 
+    /* ── Form-Reset: WebKit vererbt Buttons/Inputs/Textareas/Links die Schrift
+       des Shadow-Roots nicht automatisch (Times-Fallback fett statt DM Sans,
+       iPhone-WebKit-E2E 29.10.2026); appearance:none nimmt die native
+       Steuerelement-Chrome weg, die sonst Breite und Gewicht verzerrt. Klassen
+       mit eigenem font-weight (z. B. .contact-btn) ueberschreiben die Basis. ── */
+    button, input, textarea, select, a {
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: 400;
+    }
+    button, input, textarea, select {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
     /* ── Quick Chat Bar (Premium Launcher) ────────────────────────── */
     .quick-chat-bar {
       position: fixed;
@@ -499,6 +514,17 @@
     @media (hover: hover) {
       .intake-option-btn:hover { border-color: var(--accent); background: #FFF8F0; }
     }
+    /* Nach der Auswahl: Reihe sperren statt weiter anklickbar zu lassen
+       (iPhone-E2E 29.10.2026 zeigte stehengebliebene aktive Chips). */
+    .intake-option-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .intake-option-btn.selected {
+      border-color: var(--accent);
+      background: #FFF8F0;
+      font-weight: 600;
+    }
     .intake-freitext {
       display: flex;
       gap: 8px;
@@ -507,6 +533,7 @@
     }
     .intake-freitext input {
       flex: 1;
+      min-width: 0;
       min-height: 44px;
       border: 1.5px solid #DDD;
       border-radius: 12px;
@@ -515,9 +542,12 @@
       font-family: var(--font-body);
     }
     .intake-freitext input:focus { outline: none; border-color: var(--accent); }
+    .intake-freitext input:disabled { opacity: 0.6; }
     .intake-freitext-btn {
       min-height: 44px;
-      min-width: 44px;
+      min-width: 72px;
+      flex-shrink: 0;
+      white-space: nowrap;
       border: none;
       border-radius: 12px;
       background: var(--accent);
@@ -527,6 +557,7 @@
       padding: 0 16px;
       cursor: pointer;
     }
+    .intake-freitext-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .intake-skip-btn {
       border: none;
       background: none;
@@ -537,6 +568,7 @@
       padding: 10px 16px 14px;
       min-height: 44px;
     }
+    .intake-skip-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .messhilfe-details {
       padding: 0 16px 10px;
     }
@@ -597,6 +629,7 @@
     @media (hover: hover) {
       .contact-btn:hover { background: var(--accent); color: #fff; }
     }
+    .contact-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .contact-form {
       margin-top: 10px;
       padding: 14px;
@@ -822,6 +855,8 @@
       text-align: center;
       padding: 12px;
     }
+    /* Anfragenummer nie mitten im Code umbrechen (Handy-E2E 29.10.2026) */
+    .lead-code { white-space: nowrap; }
 
     /* ── Input area ────────────────────────────────────────────────── */
     .input-area {
@@ -1969,7 +2004,12 @@
         }
       }
 
-      this.$msgInput.focus();
+      // Verzögert fokussieren statt sofort: der direkte .focus() hier lief dem
+      // Öffnen-Übergang voraus und ließ WebKit die Seite vorzeitig scrollen,
+      // sodass die erste Begrüßungszeile unter der Kopfzeile lag (iPhone-E2E
+      // 29.10.2026). focusInput() (Eingabefeld über der Tastatur, Review Focus)
+      // deckt den Fall mit demselben 350-ms-Timeout ab.
+      this.focusInput();
     }
 
     /* ── Settings ───────────────────────────────────────────────────── */
@@ -2058,8 +2098,10 @@
       metaHTML += '<span class="message-time">' + this.formatTime(msg.time) + '</span>';
       metaHTML += '</div>';
 
+      // Daumen nur unter freien KI-Antworten, nicht unter Aufnahme-Formularfragen
+      // (iPhone-E2E 29.10.2026: Bewertung einer Pflichtfrage ergibt keinen Sinn).
       var feedbackHTML = '';
-      if (msg.role === 'bot') {
+      if (msg.role === 'bot' && !(msg.extras && msg.extras.intakeStep)) {
         feedbackHTML = '<div class="message-feedback" data-message-id="' + msg.id + '">' +
           '<button class="feedback-btn" data-rating="up" aria-label="Hilfreich">' + ICON_THUMB_UP + '</button>' +
           '<button class="feedback-btn" data-rating="down" aria-label="Nicht hilfreich">' + ICON_THUMB_DOWN + '</button>' +
@@ -2082,6 +2124,7 @@
       }
 
       this.$messagesArea.appendChild(div);
+      return div;
     }
 
     sendFeedback(type, data) {
@@ -2101,8 +2144,12 @@
         extras: extras || {}
       };
       this.messages.push(msg);
-      this.renderMessage(msg);
-      this.scrollToBottom();
+      var el = this.renderMessage(msg);
+      if (role === 'bot' && el) {
+        this.scrollToMessageStart(el);
+      } else {
+        this.scrollToBottom();
+      }
       if (role === 'bot' && this._soundEnabled) {
         this.playNotificationSound();
       }
@@ -2113,6 +2160,17 @@
       var area = this.$messagesArea;
       requestAnimationFrame(function() {
         area.scrollTop = area.scrollHeight;
+      });
+    }
+
+    /* Bot-Nachricht: nach unten scrollen, aber nie über ihren Anfang hinaus. Sonst rutscht der
+       Anfang langer Antworten (Begrüßung am iPhone) unter die Kopfzeile (WebKit-E2E 29.10.2026). */
+    scrollToMessageStart(el) {
+      var area = this.$messagesArea;
+      requestAnimationFrame(function() {
+        var bottom = area.scrollHeight - area.clientHeight;
+        var start = el.getBoundingClientRect().top - area.getBoundingClientRect().top + area.scrollTop - 12;
+        area.scrollTop = Math.max(0, Math.min(bottom, start));
       });
     }
 
@@ -2260,6 +2318,14 @@
           btn.type = 'button';
           btn.textContent = opt.text;
           btn.addEventListener('click', function() {
+            // Reihe sofort sperren: WebKit hielt gewählte Chips sonst aktiv,
+            // ein zweiter Antippversuch löste einen zweiten Schritt aus (iPhone-E2E 29.10.2026).
+            if (optWrap.classList.contains('is-answered')) return;
+            optWrap.classList.add('is-answered');
+            Array.prototype.forEach.call(optWrap.querySelectorAll('.intake-option-btn'), function(b) {
+              b.disabled = true;
+            });
+            btn.classList.add('selected');
             self.answerIntakeStep(step, opt.wert, opt.text);
           });
           optWrap.appendChild(btn);
@@ -2283,6 +2349,11 @@
         weiterBtn.type = 'button';
         weiterBtn.textContent = 'Weiter';
         weiterBtn.addEventListener('click', function() {
+          if (fotoWrap.classList.contains('is-answered')) return;
+          fotoWrap.classList.add('is-answered');
+          uploadBtn.disabled = true;
+          weiterBtn.disabled = true;
+          weiterBtn.classList.add('selected');
           self.answerIntakeStep(step, 'weiter', 'Weiter');
         });
         fotoWrap.appendChild(uploadBtn);
@@ -2301,9 +2372,18 @@
       sendBtn.className = 'intake-freitext-btn';
       sendBtn.type = 'button';
       sendBtn.textContent = 'Weiter';
+      var answered = false;
+      var lockFreitextRow = function() {
+        answered = true;
+        input.disabled = true;
+        sendBtn.disabled = true;
+        skipBtn.disabled = true;
+      };
       var submit = function() {
+        if (answered) return;
         var val = input.value.trim();
         if (!val) return;
+        lockFreitextRow();
         self.answerIntakeStep(step, val, val);
       };
       sendBtn.addEventListener('click', submit);
@@ -2319,6 +2399,8 @@
       skipBtn.type = 'button';
       skipBtn.textContent = 'Weiß ich nicht';
       skipBtn.addEventListener('click', function() {
+        if (answered) return;
+        lockFreitextRow();
         self.answerIntakeStep(step, 'unbekannt', 'Weiß ich nicht');
       });
       wrap.appendChild(skipBtn);
@@ -2450,11 +2532,22 @@
         var phone = isRueckruf ? value : '';
         self.submitLeadForm(name, email, phone, art).then(function(data) {
           self.announceLead(data);
+          var leadCode = (data && data.lead_code) || '';
           var danke = (isRueckruf ? TEXTE_V2.rueckruf_danke : TEXTE_V2.mail_danke)
             .replace('{vorname}', name.split(' ')[0])
-            .replace('{lead_code}', (data && data.lead_code) || '');
-          form.outerHTML = '<div class="lead-success">' + self.escapeHtml(danke) + '</div>';
+            .replace('{lead_code}', leadCode);
+          var dankeHtml = self.escapeHtml(danke);
+          // Anfragenummer nie mitten im Code umbrechen (Handy-E2E 29.10.2026).
+          if (leadCode) {
+            dankeHtml = dankeHtml.split(self.escapeHtml(leadCode)).join('<span class="lead-code">' + self.escapeHtml(leadCode) + '</span>');
+          }
+          form.outerHTML = '<div class="lead-success">' + dankeHtml + '</div>';
           self.trackEvent('lead_captured', { source: art });
+          // Kontakt-Knöpfe darüber sperren: blieben sonst nach erfolgreichem
+          // Absenden weiter aktiv anklickbar (iPhone-E2E 29.10.2026).
+          Array.prototype.forEach.call(afterEl.querySelectorAll('.contact-btn'), function(b) {
+            b.disabled = true;
+          });
         }).catch(function() {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Absenden';
