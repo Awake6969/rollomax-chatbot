@@ -463,7 +463,9 @@
       min-height: 44px;
       transition: background 150ms ease-out, transform 150ms ease-out;
     }
-    .start-chip:hover { background: var(--accent); color: #fff; transform: translateY(-1px); }
+    @media (hover: hover) {
+      .start-chip:hover { background: var(--accent); color: #fff; transform: translateY(-1px); }
+    }
 
     /* ── Aufnahme-Karte (Fortschritt, Frage, Auswahlknöpfe) ──────────── */
     .intake-progress {
@@ -492,7 +494,11 @@
       text-align: left;
       transition: border-color 150ms ease-out, background 150ms ease-out;
     }
-    .intake-option-btn:hover { border-color: var(--accent); background: #FFF8F0; }
+    /* Hover nur mit echter Maus: auf dem iPhone blieb :hover nach dem Tipp an der Stelle
+       hängen und der nächste Schritt wirkte vorgewählt (WebKit-E2E 29.10.2026). */
+    @media (hover: hover) {
+      .intake-option-btn:hover { border-color: var(--accent); background: #FFF8F0; }
+    }
     .intake-freitext {
       display: flex;
       gap: 8px;
@@ -588,7 +594,9 @@
       font-family: var(--font-body);
       cursor: pointer;
     }
-    .contact-btn:hover { background: var(--accent); color: #fff; }
+    @media (hover: hover) {
+      .contact-btn:hover { background: var(--accent); color: #fff; }
+    }
     .contact-form {
       margin-top: 10px;
       padding: 14px;
@@ -887,9 +895,11 @@
       min-height: 44px;
       transition: background 200ms ease-out, color 200ms ease-out;
     }
-    .suggested-btn:hover {
-      background: var(--accent);
-      color: var(--primary);
+    @media (hover: hover) {
+      .suggested-btn:hover {
+        background: var(--accent);
+        color: var(--primary);
+      }
     }
 
 
