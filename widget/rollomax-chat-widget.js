@@ -1704,6 +1704,9 @@
           return;
         }
         self.$chatWindow.style.height = window.visualViewport.height + 'px';
+        if (self._activeContactForm || self.$messagesArea.querySelector('.messhilfe-details[open]')) {
+          self.scrollToBottom();
+        }
       });
     }
 
@@ -2123,7 +2126,7 @@
         div.appendChild(this.createContactRow());
       }
 
-      this.$messagesArea.appendChild(div);
+      this.appendMessageElement(div);
       return div;
     }
 
@@ -2156,18 +2159,42 @@
       return msg;
     }
 
+    appendMessageElement(el) {
+      // Neue Inhalte vor dem Formular einfügen, damit Eingabefokus und Reihenfolge erhalten bleiben.
+      var form = this._activeContactForm;
+      this.$messagesArea.insertBefore(el, form && form.parentNode === this.$messagesArea ? form : null);
+    }
+
     scrollToBottom() {
+      var self = this;
       var area = this.$messagesArea;
       requestAnimationFrame(function() {
-        area.scrollTop = area.scrollHeight;
+        // Erst im Frame entscheiden: inzwischen können weitere Nachrichten angekommen sein.
+        var form = self._activeContactForm;
+        if (form && area.contains(form) && area.lastElementChild !== form) {
+          var focused = self.shadowRoot.activeElement;
+          area.appendChild(form);
+          if (focused && form.contains(focused)) focused.focus({ preventScroll: true });
+        }
+        // CSS smooth kann am iPhone mehrere Frames hinter neuen Inhalten zurückbleiben.
+        if (form && area.contains(form)) {
+          area.scrollTo({ top: area.scrollHeight, behavior: 'instant' });
+        } else {
+          area.scrollTop = area.scrollHeight;
+        }
       });
     }
 
     /* Bot-Nachricht: nach unten scrollen, aber nie über ihren Anfang hinaus. Sonst rutscht der
        Anfang langer Antworten (Begrüßung am iPhone) unter die Kopfzeile (WebKit-E2E 29.10.2026). */
     scrollToMessageStart(el) {
+      var self = this;
       var area = this.$messagesArea;
       requestAnimationFrame(function() {
+        if (self._activeContactForm && area.contains(self._activeContactForm)) {
+          self.scrollToBottom();
+          return;
+        }
         var bottom = area.scrollHeight - area.clientHeight;
         var start = el.getBoundingClientRect().top - area.getBoundingClientRect().top + area.scrollTop - 12;
         area.scrollTop = Math.max(0, Math.min(bottom, start));
@@ -2193,7 +2220,7 @@
       el.className = 'typing-indicator';
       el.innerHTML = '<span class="typing-text">RolloMax tippt</span><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
       this._typingEl = el;
-      this.$messagesArea.appendChild(el);
+      this.appendMessageElement(el);
       this.scrollToBottom();
     }
 
@@ -2305,6 +2332,9 @@
         text.textContent = TEXTE_V2.messhilfe || '';
         details.appendChild(summary);
         details.appendChild(text);
+        details.addEventListener('toggle', function() {
+          if (details.open) self.scrollToBottom();
+        });
         wrap.appendChild(details);
       }
 
@@ -2516,7 +2546,8 @@
           ? '<input type="tel" class="contact-value" placeholder="Telefonnummer" autocomplete="tel">'
           : '<input type="email" class="contact-value" placeholder="E-Mail-Adresse" autocomplete="email">') +
         '<button type="button" class="contact-form-submit">Absenden</button>';
-      afterEl.insertAdjacentElement('afterend', form);
+      this._activeContactForm = form;
+      this.$messagesArea.appendChild(form);
       this.scrollToBottom();
       this.trackEvent('contact_given');
 
@@ -2541,7 +2572,11 @@
           if (leadCode) {
             dankeHtml = dankeHtml.split(self.escapeHtml(leadCode)).join('<span class="lead-code">' + self.escapeHtml(leadCode) + '</span>');
           }
+          // Bestätigung zurück an die Kontakt-Reihe, damit die offene Aufnahme wieder folgt.
+          if (self._activeContactForm === form) self._activeContactForm = null;
+          afterEl.insertAdjacentElement('afterend', form);
           form.outerHTML = '<div class="lead-success">' + dankeHtml + '</div>';
+          self.scrollToBottom();
           self.trackEvent('lead_captured', { source: art });
           // Kontakt-Knöpfe darüber sperren: blieben sonst nach erfolgreichem
           // Absenden weiter aktiv anklickbar (iPhone-E2E 29.10.2026).
@@ -2568,9 +2603,9 @@
         '<div class="lead-field"><label for="lead-phone">Telefon</label><input id="lead-phone" type="tel"></div>' +
         '<button class="lead-submit" id="lead-submit-btn">Absenden</button>';
 
-      this.$messagesArea.appendChild(form);
+      this.appendMessageElement(form);
       this.scrollToBottom();
-
+      
       var submitBtn = form.querySelector('#lead-submit-btn');
       submitBtn.addEventListener('click', function() {
         var name = form.querySelector('#lead-name').value.trim();
@@ -2827,7 +2862,7 @@
       removeBtn.addEventListener('click', function() { div.remove(); });
       div.appendChild(img);
       div.appendChild(removeBtn);
-      this.$messagesArea.appendChild(div);
+      this.appendMessageElement(div);
       this.scrollToBottom();
       return div;
     }
