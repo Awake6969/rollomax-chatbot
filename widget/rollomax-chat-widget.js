@@ -757,18 +757,6 @@
       font-size: 16px;
       color: #999;
     }
-    .message-ki-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 700;
-      padding: 2px 7px;
-      border: 1.5px solid var(--accent);
-      border-radius: 10px;
-      color: var(--accent);
-      line-height: 1.2;
-    }
 
     /* ── Typing indicator ──────────────────────────────────────────── */
     .typing-indicator {
@@ -2094,11 +2082,10 @@
       // Use formatMarkdown for bot messages, escapeHtml for user messages
       var formattedText = msg.role === 'bot' ? this.formatMarkdown(msg.text) : this.escapeHtml(msg.text);
       var contentHTML = '<div class="message-content">' + formattedText + '</div>';
+      // KI-Hinweis steht einmal im Kopf (ki-badge) und dauerhaft in der Hinweiszeile; keine Marke je
+      // Antwort mehr (Raphael 31.10.2026, Art. 50 Abs. 1 AI Act verlangt Hinweis beim ersten Kontakt).
       var metaHTML = '<div class="message-meta">';
-      if (msg.role === 'bot') {
-        metaHTML += '<span class="message-ki-badge">KI</span>';
-      }
-      metaHTML += '<span class="message-time">' + this.formatTime(msg.time) + '</span>';
+      metaHTML +='<span class="message-time">' + this.formatTime(msg.time) + '</span>';
       metaHTML += '</div>';
 
       // Daumen nur unter freien KI-Antworten, nicht unter Aufnahme-Formularfragen
