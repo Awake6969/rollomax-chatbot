@@ -597,39 +597,48 @@
       color: var(--primary);
     }
 
-    /* ── Kontakt-Reihe (Rückruf/Mail, unter echten Antworten) ────────── */
-    .contact-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-      align-items: center;
-    }
-    .contact-phone {
-      font-size: 13px;
-      color: #666;
-      width: 100%;
-      margin-bottom: 2px;
-    }
-    .contact-phone a { color: var(--primary); font-weight: 600; text-decoration: none; }
-    .contact-btn {
-      flex: 1 1 0;
-      min-width: 130px;
-      min-height: 44px;
-      border: 1.5px solid var(--accent);
+    /* ── Rückruf-Leiste (fest unten, ein Knopf statt Kontakt-Reihe, Plan
+       rollomax-chat-turbo-2026-11-07) ────────────────────────────────── */
+    .callback-bar {
+      padding: 10px 16px;
+      border-top: 1px solid #E5E5E5;
+      flex-shrink: 0;
       background: #fff;
-      color: var(--primary);
+    }
+    .callback-bar-btn {
+      width: 100%;
+      min-height: 48px;
+      border: none;
       border-radius: 12px;
-      padding: 10px 14px;
-      font-size: 14px;
-      font-weight: 600;
+      background: #e41915;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
       font-family: var(--font-body);
       cursor: pointer;
     }
     @media (hover: hover) {
-      .contact-btn:hover { background: var(--accent); color: #fff; }
+      .callback-bar-btn:hover { background: #c2110d; }
     }
-    .contact-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .callback-bar-links {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .callback-bar-link {
+      border: none;
+      background: none;
+      color: #666;
+      font-size: 13px;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 6px 2px;
+      min-height: 32px;
+      font-family: var(--font-body);
+    }
+    .callback-bar-link:hover { color: var(--primary); }
+    .callback-bar .contact-form { margin-top: 0; }
     .contact-form {
       margin-top: 10px;
       padding: 14px;
@@ -683,6 +692,7 @@
     /* ── Messages area ─────────────────────────────────────────────── */
     .messages-area {
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
       padding: 16px;
       display: flex;
@@ -1764,6 +1774,7 @@
         '</div>' +
         '<div class="messages-area hidden" id="messages-area"></div>' +
         '<div class="suggested-actions hidden" id="suggested-actions"></div>' +
+        '<div class="callback-bar hidden" id="callback-bar"></div>' +
         '<div class="input-area hidden" id="input-area">' +
           '<button class="upload-btn" id="upload-btn" aria-label="Bild hochladen">' + ICON_CAMERA + '</button>' +
           '<input type="file" class="upload-input" id="upload-input" accept="image/jpeg,image/png,image/webp">' +
@@ -1785,6 +1796,7 @@
       this.$bookingCta = s.querySelector('#booking-cta');
       this.$bookingCtaBtn = s.querySelector('#booking-cta-btn');
       this.$suggestedActions = s.querySelector('#suggested-actions');
+      this.$callbackBar = s.querySelector('#callback-bar');
       this.$inputArea = s.querySelector('#input-area');
       this.$msgInput = s.querySelector('#msg-input');
       this.$sendBtn = s.querySelector('#send-btn');
@@ -2110,7 +2122,7 @@
         div.appendChild(this.createIntakeCard(msg.extras.intakeStep));
       }
       if (msg.extras && msg.extras.showContact) {
-        div.appendChild(this.createContactRow());
+        this.showCallbackBar();
       }
 
       this.appendMessageElement(div);
@@ -2218,16 +2230,26 @@
       }
     }
 
+    /* ── Kontaktabsicht erkennen (nur fürs Filtern von Bot-Knöpfen, nicht für
+       Produkt-/Themen-Chips wie "Lamellendach" oder "Förderung") ────────── */
+    isContactIntentAction(text) {
+      return /aufma(ß|ss)|beratungstermin|termin\s*(buchen|sichern|vereinbaren)|r(ü|u)ckruf|anrufen|kontaktdaten|per\s*mail|e-?mail\s*schreiben/i.test(text || '');
+    }
+
     /* ── Suggested actions ──────────────────────────────────────────── */
     renderSuggestedActions(actions, sourceType) {
       var self = this;
       var sType = sourceType || 'suggested_action';
       this.$suggestedActions.innerHTML = '';
-      if (!actions || actions.length === 0) {
+      // Vom Bot gelieferte Knöpfe mit Kontaktabsicht ("Kostenloses Aufmass
+      // anfragen", "Beratungstermin vereinbaren" u.ä.) konkurrieren mit der
+      // Rückruf-Leiste unten und fallen weg, Plan rollomax-chat-turbo-2026-11-07.
+      var filtered = (actions || []).filter(function(a) { return !self.isContactIntentAction(a); });
+      if (filtered.length === 0) {
         this.$suggestedActions.classList.add('hidden');
         return;
       }
-      actions.forEach(function(action) {
+      filtered.forEach(function(action) {
         var btn = document.createElement('button');
         btn.className = 'suggested-btn';
         btn.textContent = action;
@@ -2487,43 +2509,37 @@
       this._intake = null;
     }
 
-    /* ── Kontakt-Reihe (Rückruf/Mail, gleichwertig, unter echten Antworten) ─ */
-    createContactRow() {
-      var self = this;
-      var row = document.createElement('div');
-      row.className = 'contact-row';
-
-      var phone = document.createElement('div');
-      phone.className = 'contact-phone';
-      phone.innerHTML = 'Jetzt gleich anrufen: <a href="tel:+4312122446">+43 1 212 2446</a>';
-      row.appendChild(phone);
-
-      var rueckrufBtn = document.createElement('button');
-      rueckrufBtn.className = 'contact-btn';
-      rueckrufBtn.type = 'button';
-      rueckrufBtn.textContent = TEXTE_V2.rueckruf_knopf;
-      rueckrufBtn.addEventListener('click', function() {
-        self.trackEvent('callback_click');
-        self.openContactForm('rueckruf', row);
-      });
-      row.appendChild(rueckrufBtn);
-
-      var mailBtn = document.createElement('button');
-      mailBtn.className = 'contact-btn';
-      mailBtn.type = 'button';
-      mailBtn.textContent = TEXTE_V2.mail_knopf;
-      mailBtn.addEventListener('click', function() {
-        self.trackEvent('mail_offer_click');
-        self.openContactForm('mail_angebot', row);
-      });
-      row.appendChild(mailBtn);
-
-      return row;
+    /* ── Rückruf-Leiste (fest unten, EIN Knopf statt Kontakt-Reihe/5 Knöpfen,
+       Plan rollomax-chat-turbo-2026-11-07, OPTIK.md Vorschlag 1). Ersetzt die
+       frühere Kontakt-Reihe je Antwort; "Anfrage stellen" und "Preisrahmen
+       per Mail" bleiben als Textlinks im geöffneten Formular erhalten. ──── */
+    showCallbackBar() {
+      if (!this.$callbackBar || this._callbackBarState) return;
+      this._callbackBarState = 'button';
+      this.renderCallbackBarButton();
+      this.$callbackBar.classList.remove('hidden');
     }
 
-    openContactForm(art, afterEl) {
+    renderCallbackBarButton() {
       var self = this;
+      this.$callbackBar.innerHTML = '';
+      var btn = document.createElement('button');
+      btn.className = 'callback-bar-btn';
+      btn.type = 'button';
+      btn.textContent = TEXTE_V2.rueckruf_knopf;
+      btn.addEventListener('click', function() {
+        self.trackEvent('callback_click');
+        self.renderCallbackBarForm('rueckruf');
+      });
+      this.$callbackBar.appendChild(btn);
+    }
+
+    renderCallbackBarForm(art) {
+      var self = this;
+      this._callbackBarState = 'form';
       var isRueckruf = art === 'rueckruf';
+      this.$callbackBar.innerHTML = '';
+
       var form = document.createElement('div');
       form.className = 'contact-form';
       form.innerHTML =
@@ -2533,10 +2549,34 @@
           ? '<input type="tel" class="contact-value" placeholder="Telefonnummer" autocomplete="tel">'
           : '<input type="email" class="contact-value" placeholder="E-Mail-Adresse" autocomplete="email">') +
         '<button type="button" class="contact-form-submit">Absenden</button>';
-      this._activeContactForm = form;
-      this.$messagesArea.appendChild(form);
-      this.scrollToBottom();
+      this.$callbackBar.appendChild(form);
       this.trackEvent('contact_given');
+
+      // Textlinks nur im primären Rückruf-Formular: "Anfrage stellen" (Fragebogen)
+      // und "Preisrahmen per Mail" (schaltet dasselbe Formular auf E-Mail um).
+      if (isRueckruf) {
+        var links = document.createElement('div');
+        links.className = 'callback-bar-links';
+
+        var configLink = document.createElement('button');
+        configLink.type = 'button';
+        configLink.className = 'callback-bar-link';
+        configLink.textContent = 'Anfrage stellen';
+        configLink.addEventListener('click', function() { self.openConfiguratorModal(); });
+        links.appendChild(configLink);
+
+        var mailLink = document.createElement('button');
+        mailLink.type = 'button';
+        mailLink.className = 'callback-bar-link';
+        mailLink.textContent = TEXTE_V2.mail_knopf;
+        mailLink.addEventListener('click', function() {
+          self.trackEvent('mail_offer_click');
+          self.renderCallbackBarForm('mail_angebot');
+        });
+        links.appendChild(mailLink);
+
+        this.$callbackBar.appendChild(links);
+      }
 
       var submitBtn = form.querySelector('.contact-form-submit');
       submitBtn.addEventListener('click', function() {
@@ -2559,17 +2599,9 @@
           if (leadCode) {
             dankeHtml = dankeHtml.split(self.escapeHtml(leadCode)).join('<span class="lead-code">' + self.escapeHtml(leadCode) + '</span>');
           }
-          // Bestätigung zurück an die Kontakt-Reihe, damit die offene Aufnahme wieder folgt.
-          if (self._activeContactForm === form) self._activeContactForm = null;
-          afterEl.insertAdjacentElement('afterend', form);
-          form.outerHTML = '<div class="lead-success">' + dankeHtml + '</div>';
-          self.scrollToBottom();
+          self._callbackBarState = 'done';
+          self.$callbackBar.innerHTML = '<div class="lead-success">' + dankeHtml + '</div>';
           self.trackEvent('lead_captured', { source: art });
-          // Kontakt-Knöpfe darüber sperren: blieben sonst nach erfolgreichem
-          // Absenden weiter aktiv anklickbar (iPhone-E2E 29.10.2026).
-          Array.prototype.forEach.call(afterEl.querySelectorAll('.contact-btn'), function(b) {
-            b.disabled = true;
-          });
         }).catch(function() {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Absenden';
