@@ -1311,7 +1311,7 @@
      sonst weicht `check` ab. */
   const TEXTE_V2 = {
   "status": "ccc",
-  "hinweis": "CCC-Lauf 29.10.2026 (output/rollomax-chat-plan2-2026-10-29/ccc-texte-chatfenster.md); Freigabe durch Raphael mit der SICHT. Schlüssel und Optionswerte (wert) sind fest.",
+  "hinweis": "CCC-Lauf 29.10.2026 (output/rollomax-chat-plan2-2026-10-29/ccc-texte-chatfenster.md); Freigabe durch Raphael mit der SICHT. Schlüssel und Optionswerte (wert) sind fest. RV1-Vorschau 16.11.2026: aufnahme_start, aufnahme_masse, aufnahme_masse_ueberdachung, aufnahme_kontaktfrage (neu, aufnahme_danke bleibt wortgleich mit der UD-Wahlfrage), termin_knopf und Produkt-Knöpfe aus CCC-Lauf output/rollomax-cro-2026-11-16/vorschau/ccc-antwort-rv1.md, noch nicht freigegeben.",
   "begruessung": "Ihren Richtpreis erfahren Sie hier ohne Anmeldung oder Kontaktdaten. RolloMax ist ein Wiener Familienbetrieb mit eigenen Monteuren und Schauraum.",
   "hinweiszeile": "Antworten kommen automatisch per KI. Preise sind Richtwerte. Das RolloMax-Team prüft jede Anfrage. Datenschutz",
   "start_knoepfe": [
@@ -1326,9 +1326,11 @@
   "mail_knopf": "Preisrahmen per Mail",
   "mail_frage": "Das RolloMax-Team schickt Ihnen einen kostenlosen Preisrahmen und, wo möglich, den Förderbetrag per Mail. Dafür brauchen wir nur Ihren Namen und Ihre E-Mail-Adresse.",
   "mail_danke": "Danke, {vorname}! Ihre Anfragenummer lautet {lead_code}. Das RolloMax-Team schickt Ihnen innerhalb von 1 bis 2 Werktagen den Preisrahmen und gegebenenfalls Informationen zur Förderung.",
-  "aufnahme_start": "Mit ein paar kurzen Angaben zu Ihren Fenstern lässt sich der Preis besser eingrenzen. Ungefähre Angaben reichen.",
+  "termin_knopf": "Termin im Schauraum",
+  "aufnahme_start": "Hier bekommen Sie eine erste Preiseinschätzung für Ihr Vorhaben. Ungefähre Angaben reichen völlig aus.",
   "aufnahme_produkt": "Worum geht es bei Ihrem Vorhaben?",
-  "aufnahme_masse": "Wie viele Fenster sind es und wie groß sind sie ungefähr?",
+  "aufnahme_masse": "Wie viele Fenster sind es und wie groß sind sie ungefähr (Breite × Höhe)? Eine Schätzung reicht völlig.",
+  "aufnahme_masse_ueberdachung": "Wie groß soll die Fläche ungefähr werden (Breite × Tiefe)? An der Hauswand oder freistehend? Schätzen reicht.",
   "messhilfe": "Messen Sie die Breite und Höhe der Fensteröffnung in Zentimetern. Ungefähr reicht völlig, zum Beispiel 120 cm breit und 140 cm hoch. Vor dem Auftrag werden die Maße genau geprüft.",
   "aufnahme_einbauart": "Gibt es einen Rollladenkasten und wo sitzt er? Das beeinflusst den Preis besonders stark.",
   "aufnahme_stockwerk": "In welchem Stockwerk liegen die Fenster? Das ist für die Montage wichtig.",
@@ -1339,6 +1341,7 @@
   "aufnahme_zeitwunsch": "Wann möchten Sie den Sonnenschutz ungefähr haben?",
   "aufnahme_fotos": "Zwei Fotos helfen, Rückfragen zu sparen: eines vom Fenster innen und eines von der Fassade außen. Die Fotos sind freiwillig.",
   "aufnahme_danke": "Danke für Ihre Angaben! Möchten Sie lieber einen Rückruf oder einen kostenlosen Preisrahmen per Mail? Sie entscheiden.",
+  "aufnahme_kontaktfrage": "Danke für Ihre Angaben! Wie möchten Sie den Preisrahmen von unserem Team erhalten: per Mail, per Rückruf oder bei einem Termin im Schauraum?",
   "foto_danke": "Danke für das Foto! Das RolloMax-Team sieht es sich gemeinsam mit Ihrer Anfrage an.",
   "foto_fehler": "Das Foto konnte nicht hochgeladen werden. Bitte versuchen Sie es mit JPG oder PNG unter 8 MB.",
   "foto_aus": "Fotos können gerade nicht hochgeladen werden. Beschreiben Sie die Situation kurz im Chat oder rufen Sie uns an: +43 1 212 2446.",
@@ -1346,6 +1349,14 @@
   "teaser_handy": "Was kostet Sonnenschutz für Ihre Fenster?",
   "optionen": {
     "produkt": [
+      {
+        "wert": "ueberdachung",
+        "text": "Überdachung"
+      },
+      {
+        "wert": "markise",
+        "text": "Markise"
+      },
       {
         "wert": "rollladen",
         "text": "Rollläden"
@@ -1355,12 +1366,8 @@
         "text": "Raffstoren"
       },
       {
-        "wert": "insektenschutz",
-        "text": "Insektenschutz"
-      },
-      {
-        "wert": "markise",
-        "text": "Markise"
+        "wert": "innen",
+        "text": "Innenbeschattung"
       },
       {
         "wert": "anderes",
@@ -1476,13 +1483,15 @@
       }
     ]
   },
-  "aufnahme_zwischenzahl": "Für {produkt} liegt der erste Richtwert bei {richtwert}. Mit zwei oder drei weiteren Angaben können wir den Preis besser eingrenzen.",
+  "aufnahme_zwischenzahl": "Für {produkt} liegt der erste Richtwert bei {richtwert}. Mit Ihrer Postleitzahl können wir die Anfrage für den persönlichen Preisrahmen vorbereiten.",
   "richtwerte": {
     "rollladen": "ab ca. 400 EUR pro Fenster",
     "raffstore": "ab ca. 600 EUR pro Fenster",
     "markise": "1.500 bis 5.000 EUR je nach Größe",
     "insektenschutz": null,
-    "anderes": null
+    "anderes": null,
+    "ueberdachung": null,
+    "innen": null
   }
 };
   /* TEXTE_V2_END */
@@ -1500,12 +1509,15 @@
   var _widgetChannel = channelFromScriptUrl(_currentScript && _currentScript.src);
 
   /* ── Abfrage-Variante je Sitzung, je ein Drittel ─────────────────────── */
-  var INTAKE_VARIANTS = ['keine', 'kurz', 'voll'];
+  /* RV1 16.11.2026: Variante 'voll' (10 Fragen vor dem Kontakt) entfällt, höchstens 4 Fragen
+     bis zum Kontakt (output/rollomax-cro-2026-11-16/BERICHT.md, Entwurf 4.1). 'keine' (Gespräch
+     ohne Abfrage) und 'kurz' je zur Hälfte; ein altes 'voll' in sessionStorage wird neu gezogen. */
+  var INTAKE_VARIANTS = ['keine', 'kurz'];
   function pickVariant(randomFn) {
     var rnd = typeof randomFn === 'function' ? randomFn() : Math.random();
-    var idx = Math.floor(rnd * 3);
+    var idx = Math.floor(rnd * INTAKE_VARIANTS.length);
     if (idx < 0) idx = 0;
-    if (idx > 2) idx = 2;
+    if (idx > INTAKE_VARIANTS.length - 1) idx = INTAKE_VARIANTS.length - 1;
     return INTAKE_VARIANTS[idx];
   }
 
@@ -1536,19 +1548,19 @@
   /* ── Reihenfolge der Aufnahme-Fragen je Variante (Bass-Antwort Block 4) ─
      skipProdukt (F3a): Produkt ist aus dem Startknopf schon klar, Frage entfällt. */
   function buildIntakeSteps(variant, skipProdukt) {
-    var kurz = ['produkt', 'einbauart', 'masse', 'plz'];
-    var vollExtra = ['stockwerk', 'fassade', 'antrieb', 'fotos', 'eigentum', 'zeitwunsch'];
-    var steps;
-    if (variant === 'voll') {
-      var idx = kurz.indexOf('masse');
-      steps = kurz.slice(0, idx + 1).concat(vollExtra, kurz.slice(idx + 1));
-    } else {
-      steps = kurz.slice();
-    }
+    // RV1 16.11.2026 (Entwurf 4.1 A): 1 Worum geht es, 2 Wie groß, 3 Wo; die Kontaktfrage
+    // (aufnahme_danke mit Mail, Rückruf, Schauraum-Termin) ist Frage 4. Einbauart, Stockwerk,
+    // Fassade, Antrieb, Fotos, Eigentum und Zeitwunsch fragt das Team beim Preisrahmen nach.
+    var steps = ['produkt', 'masse', 'plz'];
     if (skipProdukt) {
       steps = steps.filter(function(s) { return s !== 'produkt'; });
     }
     return steps;
+  }
+
+  /* RV1: Produkte mit Fläche statt Fensteranzahl (Frage 2 fragt Breite × Tiefe). */
+  function istFlaechenProdukt(wert) {
+    return wert === 'ueberdachung' || wert === 'markise';
   }
 
   /* ── Startknopf -> Produkt (F3a): matcht den Knopftext gegen optionen.produkt,
@@ -2110,7 +2122,7 @@
         div.appendChild(this.createIntakeCard(msg.extras.intakeStep));
       }
       if (msg.extras && msg.extras.showContact) {
-        div.appendChild(this.createContactRow());
+        div.appendChild(this.createContactRow(!!msg.extras.showTermin));
       }
 
       this.appendMessageElement(div);
@@ -2293,6 +2305,9 @@
       var step = intake.steps[intake.index];
       this.trackEvent('step_reached', { step: step, value: this.variant });
       var questionText = TEXTE_V2['aufnahme_' + step] || '';
+      if (step === 'masse' && istFlaechenProdukt(intake.data.produkt) && TEXTE_V2.aufnahme_masse_ueberdachung) {
+        questionText = TEXTE_V2.aufnahme_masse_ueberdachung;
+      }
       this.addMessage(questionText, 'bot', { intakeStep: step });
     }
 
@@ -2384,7 +2399,9 @@
       freiWrap.className = 'intake-freitext';
       var input = document.createElement('input');
       input.type = 'text';
-      input.placeholder = step === 'plz' ? 'z. B. 1190' : 'z. B. 3 Stück, ca. 120 x 140 cm';
+      input.placeholder = step === 'plz' ? 'z. B. 1190'
+        : (intake && intake.data && (intake.data.produkt === 'ueberdachung' || intake.data.produkt === 'markise')) ? 'z. B. 6 × 3,5 m'
+        : 'z. B. 3 Stück, ca. 120 x 140 cm';
       var sendBtn = document.createElement('button');
       sendBtn.className = 'intake-freitext-btn';
       sendBtn.type = 'button';
@@ -2483,12 +2500,12 @@
     }
 
     finishIntake() {
-      this.addMessage(TEXTE_V2.aufnahme_danke, 'bot', { showContact: true });
+      this.addMessage(TEXTE_V2.aufnahme_kontaktfrage || TEXTE_V2.aufnahme_danke, 'bot', { showContact: true, showTermin: true });
       this._intake = null;
     }
 
     /* ── Kontakt-Reihe (Rückruf/Mail, gleichwertig, unter echten Antworten) ─ */
-    createContactRow() {
+    createContactRow(withTermin) {
       var self = this;
       var row = document.createElement('div');
       row.className = 'contact-row';
@@ -2517,6 +2534,20 @@
         self.openContactForm('mail_angebot', row);
       });
       row.appendChild(mailBtn);
+
+      // RV1 16.11.2026 (Entwurf 4.1 A, Frage 4): Schauraum-Termin als dritter gleichwertiger Weg,
+      // nur unter der Kontaktfrage nach der Aufnahme.
+      if (withTermin && TEXTE_V2.termin_knopf) {
+        var terminBtn = document.createElement('button');
+        terminBtn.className = 'contact-btn';
+        terminBtn.type = 'button';
+        terminBtn.textContent = TEXTE_V2.termin_knopf;
+        terminBtn.addEventListener('click', function() {
+          self.trackEvent('booking_click', { source: 'aufnahme' });
+          self.openBookingModal();
+        });
+        row.appendChild(terminBtn);
+      }
 
       return row;
     }
