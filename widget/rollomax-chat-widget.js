@@ -2514,6 +2514,15 @@
       phone.className = 'contact-phone';
       phone.innerHTML = 'Jetzt gleich anrufen: <a href="tel:+4312122446">+43 1 212 2446</a>';
       row.appendChild(phone);
+      // Telefon-Tipp zählen (Masterplan 3.3 P4, Abschnitt 6): zwei Wochen Tipps auf die
+      // Nummer messen, bevor über "Rückruf vor Telefonnummer" entschieden wird. Eigenes
+      // Ereignis, getrennt von callback_click (das ist der Rückruf-Formular-Knopf).
+      var phoneLink = phone.querySelector('a');
+      if (phoneLink) {
+        phoneLink.addEventListener('click', function() {
+          self.trackEvent('call_click');
+        });
+      }
 
       var rueckrufBtn = document.createElement('button');
       rueckrufBtn.className = 'contact-btn';
@@ -2682,6 +2691,12 @@
       if (!this._firstMessageTracked) {
         this._firstMessageTracked = true;
         this.trackEvent('first_message');
+        // Markierung für die Website (Provisionspfad): ensureSession() legt die
+        // Sitzungs-ID schon beim reinen Seitenaufruf an, ohne dass je geschrieben
+        // wurde. Erst dieser Schlüssel, mit der Sitzungs-ID als Wert statt einem
+        // blossen Flag, belegt eine echte Besucher-Nachricht in GENAU dieser
+        // Sitzung; ein alter Wert kann so nie eine neue Sitzung mitbestätigen.
+        sessionStorage.setItem('rollomax_chat_message_sent', this.sessionId);
       }
       if (!overrideText) {
         this.$msgInput.value = '';
@@ -2812,6 +2827,10 @@
       sessionStorage.setItem('rollomax_chat_session_id', this.sessionId);
       this.variant = pickVariant();
       sessionStorage.setItem('rollomax_chat_variant', this.variant);
+      // Die alte Nachricht-Markierung gehört zur gelöschten Sitzung und darf die
+      // neue Sitzung nie mitbestätigen; erst die nächste echte Nachricht setzt sie neu.
+      this._firstMessageTracked = false;
+      sessionStorage.removeItem('rollomax_chat_message_sent');
       this.showChatUI();
     }
 
@@ -3315,7 +3334,8 @@
         callback_click: 'callback_click',
         mail_offer_click: 'mail_offer_click',
         form_link_click: 'form_link_click',
-        kaufberater_opened: 'kaufberater_click'
+        kaufberater_opened: 'kaufberater_click',
+        call_click: 'call_click'
       };
       var event = EVENT_MAP[eventType];
       if (!event) return;
