@@ -2006,7 +2006,12 @@
       var self = this;
       setTimeout(function() {
         if (self.$msgInput) {
-          self.$msgInput.focus();
+          // preventScroll: ohne das zieht der native focus() bei Init im Inline-
+          // Modus (connectedCallback -> showChat -> showChatUI -> focusInput) die
+          // ganze Seite zum Eingabefeld, wenn der Chat-Container unterhalb des
+          // Folds liegt (gemessen scrollY 745-1058, iPhone-E2E 1118). Der Nutzer
+          // hat zu diesem Zeitpunkt noch gar nicht interagiert.
+          self.$msgInput.focus({ preventScroll: true });
         }
       }, 350);
     }
@@ -2819,7 +2824,10 @@
         this.isLoading = false;
         this.$msgInput.disabled = false;
         this.$sendBtn.disabled = !this.$msgInput.value.trim();
-        this.$msgInput.focus();
+        // preventScroll: gleicher Grund wie in focusInput() oben, hier nach jeder
+        // Bot-Antwort (sendMessage-finally); ohne das springt die Seite bei jeder
+        // Antwort zurueck zum Eingabefeld, wenn der Nutzer inzwischen weitergescrollt hat.
+        this.$msgInput.focus({ preventScroll: true });
         this._abortController = null;
       }
     }
