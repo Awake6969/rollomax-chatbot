@@ -270,6 +270,30 @@
       }
     }
 
+    /* Handy und Tablet hochkant (unter 768px): im Ruhezustand nur runder Knopf mit Foto und
+       Online-Punkt, damit die breite Pille keine Handlungsknöpfe der Seite verdeckt
+       (Raphael 13.11.2026). Antippen öffnet wie bisher, Desktop bleibt unverändert. */
+    @media (max-width: 767px) {
+      .quick-chat-bar {
+        width: 56px;
+        height: 56px;
+        min-height: 56px;
+        max-width: none;
+        padding: 0;
+        gap: 0;
+        justify-content: center;
+        border-radius: 50%;
+      }
+      .quick-chat-avatar {
+        width: 48px;
+        height: 48px;
+      }
+      .quick-chat-content,
+      .quick-chat-icon {
+        display: none;
+      }
+    }
+
     /* Legacy bubble-btn class for compatibility */
     .bubble-btn { display: none; }
     .bubble-tooltip { display: none; }
