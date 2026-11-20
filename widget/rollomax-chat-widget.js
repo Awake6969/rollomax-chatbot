@@ -909,14 +909,18 @@
     }
     /* MGOS-20261120-03: Antwort-Knöpfe (nicht die Startknöpfe, die bleiben umbrechend) in einer wischbaren Zeile, spart
        am Handy und Desktop eine ganze Knopfzeile Höhe für die Antwort. */
-    .suggested-actions:has(> .suggested-btn) {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
+    /* Nur bis 640px: am Desktop ist die Scrollleiste ausgeblendet und mit der Maus nicht wischbar,
+       dort reicht das höhere Fenster und die Knöpfe brechen wie bisher um. */
+    @media (max-width: 640px) {
+      .suggested-actions:has(> .suggested-btn) {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .suggested-actions:has(> .suggested-btn)::-webkit-scrollbar { display: none; }
+      .suggested-actions:has(> .suggested-btn) .suggested-btn { flex-shrink: 0; white-space: nowrap; }
     }
-    .suggested-actions:has(> .suggested-btn)::-webkit-scrollbar { display: none; }
-    .suggested-actions:has(> .suggested-btn) .suggested-btn { flex-shrink: 0; white-space: nowrap; }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
