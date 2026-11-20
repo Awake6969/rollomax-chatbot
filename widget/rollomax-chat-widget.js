@@ -282,8 +282,10 @@
       z-index: 9999;
       width: 400px;
       max-width: calc(100vw - 32px);
-      height: 600px;
-      max-height: 80vh;
+      /* MGOS-20261120-03: bei 600px blieben mit zwei Themen-Knöpfen rund 270px für die Antwort,
+         Schlussfrage und Rückruf-Knöpfe lagen fast immer außerhalb des Blickfelds. */
+      height: 680px;
+      max-height: calc(100vh - 120px);
       border-radius: var(--radius);
       background: var(--chat-bg);
       box-shadow: 0 8px 32px rgba(0,0,0,0.15);
@@ -683,6 +685,9 @@
     /* ── Messages area ─────────────────────────────────────────────── */
     .messages-area {
       flex: 1;
+      /* MGOS-20261120-03: ohne min-height 0 schrumpft der Bereich im Flex-Fenster nicht, Themen-
+         Knöpfe verdeckten am Desktop das Ende der letzten Antwort samt Schlussfrage. */
+      min-height: 0;
       overflow-y: auto;
       padding: 16px;
       display: flex;
@@ -902,6 +907,16 @@
       flex-shrink: 0;
       animation: fadeIn 300ms ease-out;
     }
+    /* MGOS-20261120-03: Antwort-Knöpfe (nicht die Startknöpfe, die bleiben umbrechend) in einer wischbaren Zeile, spart
+       am Handy und Desktop eine ganze Knopfzeile Höhe für die Antwort. */
+    .suggested-actions:has(> .suggested-btn) {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .suggested-actions:has(> .suggested-btn)::-webkit-scrollbar { display: none; }
+    .suggested-actions:has(> .suggested-btn) .suggested-btn { flex-shrink: 0; white-space: nowrap; }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
@@ -976,9 +991,12 @@
       padding: 0 4px;
     }
     .feedback-btn {
-      width: 28px;
-      height: 28px;
-      min-width: 28px;
+      /* MGOS-20261120-03: Tippfläche 44px (Widget-Regel), Symbol bleibt klein, negativer Rand
+         hält die Zeile so kompakt wie vorher. */
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      margin: -8px 0;
       border: none;
       background: transparent;
       color: #999;
