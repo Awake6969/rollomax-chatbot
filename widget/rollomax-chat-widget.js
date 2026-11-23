@@ -920,6 +920,17 @@
       }
       .suggested-actions:has(> .suggested-btn)::-webkit-scrollbar { display: none; }
       .suggested-actions:has(> .suggested-btn) .suggested-btn { flex-shrink: 0; white-space: nowrap; }
+      /* ROLLOMAX-KNOPFREIHE-20261123: wischbare Zeile läuft rechts weich aus statt hart abgeschnitten. */
+      .suggested-actions.mehr-rechts:has(> .suggested-btn) {
+        -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+        mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+      }
+    }
+    /* ROLLOMAX-KNOPFREIHE-20261123: liegt unter dem sichtbaren Teil noch Inhalt, läuft der untere
+       Rand weich aus, statt Knöpfe hart als leere Umrisse anzuschneiden. */
+    .messages-area.mehr-unten {
+      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
+      mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
@@ -1903,6 +1914,10 @@
         self.deleteSession();
       });
 
+      // ROLLOMAX-KNOPFREIHE-20261123: Rand-Verläufe beim Scrollen und Wischen nachführen.
+      this.$messagesArea.addEventListener('scroll', function() { self.updateScrollFade(); }, { passive: true });
+      this.$suggestedActions.addEventListener('scroll', function() { self.updateScrollFade(); }, { passive: true });
+
       // Feedback buttons (delegated)
       this.$messagesArea.addEventListener('click', function(e) {
         var btn = e.target.closest('.feedback-btn');
@@ -2203,6 +2218,7 @@
         } else {
           area.scrollTop = area.scrollHeight;
         }
+        if (self.updateScrollFade) self.updateScrollFade();
       });
     }
 
@@ -2218,7 +2234,57 @@
         }
         var bottom = area.scrollHeight - area.clientHeight;
         var start = el.getBoundingClientRect().top - area.getBoundingClientRect().top + area.scrollTop - 12;
-        area.scrollTop = Math.max(0, Math.min(bottom, start));
+        var ziel = Math.max(0, Math.min(bottom, start));
+        // Methoden optional aufrufen: der Node-Test-Harness lädt nur ausgewählte Methoden.
+        area.scrollTop = self.knopfSchnittVermeiden ? self.knopfSchnittVermeiden(ziel, ziel) : ziel;
+        if (self.updateScrollFade) self.updateScrollFade();
+      });
+    }
+
+    /* ROLLOMAX-KNOPFREIHE-20261123: Steht eine lange Antwort am Anfang, schnitt der untere Rand
+       am Handy die Rückruf-Knöpfe an (nur die oberen 12-17px sichtbar: leere rote Umrisse ohne
+       Text). Ruheposition so verschieben, dass kein Knopf an einem Rand halb sichtbar ist. Nur
+       nach oben (der Antwortanfang bleibt sichtbar, Regel 29.10.), höchstens ein Drittel der
+       Fensterhöhe; findet sich keine saubere Lage, bleibt die alte (der Rand-Verlauf mildert). */
+    knopfSchnittVermeiden(pos, anfang) {
+      var area = this.$messagesArea;
+      var ar = area.getBoundingClientRect();
+      var h = area.clientHeight;
+      var basis = area.scrollTop;
+      var knoepfe = [];
+      Array.prototype.forEach.call(area.querySelectorAll('button, a'), function(b) {
+        var r = b.getBoundingClientRect();
+        if (r.height > 0 && r.width > 0) {
+          knoepfe.push({ top: r.top - ar.top + basis, bot: r.bottom - ar.top + basis });
+        }
+      });
+      var p = pos;
+      for (var i = 0; i < 8; i++) {
+        var unten = p + h, oben = p, neu = p;
+        knoepfe.forEach(function(k) {
+          if (k.top < unten - 0.5 && k.bot > unten + 0.5) neu = Math.min(neu, k.top - 6 - h);
+          if (k.top < oben - 0.5 && k.bot > oben + 0.5) neu = Math.min(neu, k.top - 6);
+        });
+        if (neu === p) return p;
+        p = Math.max(0, neu);
+        if (anfang - p > h / 3) return pos;
+      }
+      return pos;
+    }
+
+    /* Weicher Verlauf am unteren Rand, solange darunter noch Inhalt liegt. */
+    updateScrollFade() {
+      var area = this.$messagesArea;
+      if (!area) return;
+      var self = this;
+      requestAnimationFrame(function() {
+        var mehr = area.scrollHeight - area.clientHeight - area.scrollTop > 2;
+        area.classList.toggle('mehr-unten', mehr);
+        var sa = self.$suggestedActions;
+        if (sa) {
+          var rechts = sa.scrollWidth - sa.clientWidth - sa.scrollLeft > 2;
+          sa.classList.toggle('mehr-rechts', rechts);
+        }
       });
     }
 
@@ -2272,6 +2338,8 @@
         self.$suggestedActions.appendChild(btn);
       });
       this.$suggestedActions.classList.remove('hidden');
+      this.$suggestedActions.scrollLeft = 0;
+      this.updateScrollFade();
     }
 
     /* ── Startknöpfe (Chips, Texte aus TEXTE_V2) ─────────────────────── */
