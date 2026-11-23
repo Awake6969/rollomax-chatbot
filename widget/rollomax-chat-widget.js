@@ -608,12 +608,13 @@
       align-items: center;
     }
     .contact-phone {
-      font-size: 13px;
-      color: #666;
+      /* ROLLOMAX-KNOPFREIHE-20261123: 13px #666 wirkte am Handy blass, Raphael 23.11.: klar lesbar. */
+      font-size: 14px;
+      color: #333;
       width: 100%;
       margin-bottom: 2px;
     }
-    .contact-phone a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .contact-phone a { color: var(--accent); font-weight: 700; text-decoration: none; white-space: nowrap; }
     .contact-btn {
       flex: 1 1 0;
       min-width: 130px;
@@ -926,12 +927,8 @@
         mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
       }
     }
-    /* ROLLOMAX-KNOPFREIHE-20261123: liegt unter dem sichtbaren Teil noch Inhalt, läuft der untere
-       Rand weich aus, statt Knöpfe hart als leere Umrisse anzuschneiden. */
-    .messages-area.mehr-unten {
-      -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
-      mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
-    }
+    /* ROLLOMAX-KNOPFREIHE-20261123: Ausblend-Streifen der .messages-area setzt updateScrollFade() inline
+       (nur ein unten angeschnittener Knopf in Ruhelage, siehe knopfStreifenUnten). */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
@@ -1914,8 +1911,29 @@
         self.deleteSession();
       });
 
-      // ROLLOMAX-KNOPFREIHE-20261123: Rand-Verläufe beim Scrollen und Wischen nachführen.
-      this.$messagesArea.addEventListener('scroll', function() { self.updateScrollFade(); }, { passive: true });
+      // ROLLOMAX-KNOPFREIHE-20261123: Ausblend-Streifen endet, sobald der Nutzer selbst scrollt.
+      ['wheel', 'touchmove', 'keydown'].forEach(function(ev) {
+        self.$messagesArea.addEventListener(ev, function() {
+          if (self._ruheUnten) { self._ruheUnten = 0; self.updateScrollFade(); }
+        }, { passive: true });
+      });
+      // Jede andere Bewegung (Scrollbalken ziehen, Programm-Scroll) beendet ihn ebenfalls.
+      this.$messagesArea.addEventListener('scroll', function() {
+        if (self._ruheUnten && Math.abs(self.$messagesArea.scrollTop - (self._ruhePos || 0)) > 3) {
+          self._ruheUnten = 0;
+          self.updateScrollFade();
+        }
+      }, { passive: true });
+      // Tipp in den ausgeblendeten Streifen löst keinen unsichtbaren Knopf aus, sondern zeigt ihn.
+      this.$messagesArea.addEventListener('click', function(e) {
+        if (!self._ruheUnten) return;
+        var r = self.$messagesArea.getBoundingClientRect();
+        if (e.clientY >= r.bottom - self._ruheUnten) {
+          e.preventDefault();
+          e.stopPropagation();
+          self.scrollToBottom();
+        }
+      }, true);
       this.$suggestedActions.addEventListener('scroll', function() { self.updateScrollFade(); }, { passive: true });
 
       // Feedback buttons (delegated)
@@ -2218,6 +2236,7 @@
         } else {
           area.scrollTop = area.scrollHeight;
         }
+        self._ruheUnten = 0;
         if (self.updateScrollFade) self.updateScrollFade();
       });
     }
@@ -2236,50 +2255,53 @@
         var start = el.getBoundingClientRect().top - area.getBoundingClientRect().top + area.scrollTop - 12;
         var ziel = Math.max(0, Math.min(bottom, start));
         // Methoden optional aufrufen: der Node-Test-Harness lädt nur ausgewählte Methoden.
-        area.scrollTop = self.knopfSchnittVermeiden ? self.knopfSchnittVermeiden(ziel, ziel) : ziel;
+        if (self.knopfStreifenUnten) {
+          // Ruhelage ohne Smooth-Animation setzen: der Scroll-Wächter unten vergleicht mit ihr.
+          var altVerhalten = area.style.scrollBehavior;
+          area.style.scrollBehavior = 'auto';
+          area.scrollTop = ziel;
+          self._ruhePos = area.scrollTop;
+          area.style.scrollBehavior = altVerhalten;
+          self._ruheUnten = self.knopfStreifenUnten(self._ruhePos);
+        } else {
+          area.scrollTop = ziel;
+        }
         if (self.updateScrollFade) self.updateScrollFade();
       });
     }
 
-    /* ROLLOMAX-KNOPFREIHE-20261123: Steht eine lange Antwort am Anfang, schnitt der untere Rand
-       am Handy die Rückruf-Knöpfe an (nur die oberen 12-17px sichtbar: leere rote Umrisse ohne
-       Text). Ruheposition so verschieben, dass kein Knopf an einem Rand halb sichtbar ist. Nur
-       nach oben (der Antwortanfang bleibt sichtbar, Regel 29.10.), höchstens ein Drittel der
-       Fensterhöhe; findet sich keine saubere Lage, bleibt die alte (der Rand-Verlauf mildert). */
-    knopfSchnittVermeiden(pos, anfang) {
+    /* ROLLOMAX-KNOPFREIHE-20261123: Steht eine lange Antwort am Anfang (Regel 29.10.), schnitt der
+       untere Rand am Handy die Rückruf-Knöpfe an: nur die oberen 12-17px sichtbar, leere rote
+       Umrisse ohne Text. Die Ruhelage bleibt am Antwortanfang; ist ein Knopf unten angeschnitten,
+       wird genau dieser Streifen ausgeblendet (weiß, kein Verlauf über Text), bis der Nutzer
+       scrollt. Rückgabe: Höhe des Streifens in px, 0 wenn nichts angeschnitten ist. */
+    knopfStreifenUnten(pos) {
       var area = this.$messagesArea;
       var ar = area.getBoundingClientRect();
       var h = area.clientHeight;
       var basis = area.scrollTop;
-      var knoepfe = [];
+      var unten = pos + h;
+      var streifen = 0;
       Array.prototype.forEach.call(area.querySelectorAll('button, a'), function(b) {
         var r = b.getBoundingClientRect();
-        if (r.height > 0 && r.width > 0) {
-          knoepfe.push({ top: r.top - ar.top + basis, bot: r.bottom - ar.top + basis });
-        }
+        if (r.height <= 0 || r.width <= 0) return;
+        var top = r.top - ar.top + basis, bot = r.bottom - ar.top + basis;
+        if (top < unten - 0.5 && bot > unten + 0.5) streifen = Math.max(streifen, unten - top + 2);
       });
-      var p = pos;
-      for (var i = 0; i < 8; i++) {
-        var unten = p + h, oben = p, neu = p;
-        knoepfe.forEach(function(k) {
-          if (k.top < unten - 0.5 && k.bot > unten + 0.5) neu = Math.min(neu, k.top - 6 - h);
-          if (k.top < oben - 0.5 && k.bot > oben + 0.5) neu = Math.min(neu, k.top - 6);
-        });
-        if (neu === p) return p;
-        p = Math.max(0, neu);
-        if (anfang - p > h / 3) return pos;
-      }
-      return pos;
+      return streifen > 0 && streifen < h / 3 ? Math.ceil(streifen) : 0;
     }
 
-    /* Weicher Verlauf am unteren Rand, solange darunter noch Inhalt liegt. */
+    /* Ausblend-Streifen unten (nur in Ruhelage) und weicher Auslauf der wischbaren Knopfzeile. */
     updateScrollFade() {
       var area = this.$messagesArea;
       if (!area) return;
       var self = this;
       requestAnimationFrame(function() {
-        var mehr = area.scrollHeight - area.clientHeight - area.scrollTop > 2;
-        area.classList.toggle('mehr-unten', mehr);
+        var unten = self._ruheUnten > 0 ? self._ruheUnten : 0;
+        var maske = unten ? 'linear-gradient(to bottom, #000 calc(100% - ' + unten + 'px), transparent calc(100% - ' + unten + 'px))' : '';
+        area.style.webkitMaskImage = maske;
+        area.style.maskImage = maske;
+        area.setAttribute('data-ruhe-unten', String(unten));
         var sa = self.$suggestedActions;
         if (sa) {
           var rechts = sa.scrollWidth - sa.clientWidth - sa.scrollLeft > 2;
