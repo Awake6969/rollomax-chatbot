@@ -1310,8 +1310,8 @@
      tools/rollomax_widget_texte_sync.py. Nicht händisch bearbeiten,
      sonst weicht `check` ab. */
   const TEXTE_V2 = {
-  "status": "ccc",
-  "hinweis": "CCC-Lauf 29.10.2026 (output/rollomax-chat-plan2-2026-10-29/ccc-texte-chatfenster.md); Freigabe durch Raphael mit der SICHT. Schlüssel und Optionswerte (wert) sind fest.",
+  "status": "freigegeben",
+  "hinweis": "CCC-Lauf 29.10.2026 (output/rollomax-chat-plan2-2026-10-29/ccc-texte-chatfenster.md); Wortlaut von Raphael mit der SICHT freigegeben (Register P261029-e2a6, 31.10.2026), Hauptchat seitdem live (chat_v2=on, Beleg LAUNCH-LOG output/rollomax-chat-plan2-2026-10-29/launch-2026-10-31/LAUNCH-LOG.md). Schlüssel und Optionswerte (wert) sind fest.",
   "begruessung": "Ihren Richtpreis erfahren Sie hier ohne Anmeldung oder Kontaktdaten. RolloMax ist ein Wiener Familienbetrieb mit eigenen Monteuren und Schauraum.",
   "hinweiszeile": "Antworten kommen automatisch per KI. Preise sind Richtwerte. Das RolloMax-Team prüft jede Anfrage. Datenschutz",
   "start_knoepfe": [
